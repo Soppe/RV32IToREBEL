@@ -2,117 +2,280 @@
 #include <cstdlib>
 #include "parser.h"
 #include "lexer.h"
+#include "Expressions/all_expressions.h"
 
-Parser::Parser(Lexer* l) {
-    this->l = l;
-    token = NULL;
-    peek = NULL;
-    NextToken(); // Call twice to initialize token and peek.
-    NextToken();
+Parser::Parser(Lexer* l)
+   : m_l(l)
+   , m_token(nullptr)
+   , m_peek(nullptr)
+
+{
+   nextToken(); // Call twice to initialize token and peek.
+   nextToken();
 }
 
-bool Parser::CheckToken(TokenType type) {
-    return token->type == type;
+Parser::~Parser()
+{
+   delete m_token;
+   delete m_peek;
 }
 
-bool Parser::CheckPeek(TokenType type) {
-    return peek->type == type;
+bool Parser::checkToken(TokenType type)
+{
+   return m_token->type == type;
 }
 
-void Parser::Match(TokenType type) {
-    if(!CheckToken(type)) {
-        std::cout << "Expected " << TokenTypeStrings[type] << " but found " << token->literal << ".\n";
-        abort();
-    }
-    NextToken();
-} 
-
-void Parser::NextToken() {
-    token = peek;
-    peek = l->NextToken();
+bool Parser::checkPeek(TokenType type)
+{
+   return m_peek->type == type;
 }
 
-void Parser::Parse() {
-    while(!CheckToken(TokenType::EndOfFile)) {
-        // Is it a label?
-        if(CheckPeek(TokenType::Colon)) {
-            Label();
-        }
-        
-        // Is it a directive or instruction?
-        if(CheckToken(TokenType::Dot)) {
-            Directive();
-        }
-        else if(CheckToken(TokenType::Symbol)) {
-            Instruction();
-        }
+void Parser::match(TokenType type)
+{
+   if(!checkToken(type))
+   {
+      std::cout << "Expected " << TokenTypeStrings[static_cast<int>(type)] << " but found " << m_token->literal << ".\n";
+      abort();
+   }
+   nextToken();
+}
 
-        // Is it a comment?
-        if(CheckToken(TokenType::Comment)) {
+void Parser::nextToken()
+{
+   delete m_token;
+   m_token = m_peek;
+   m_peek = m_l->nextToken();
+}
+
+//TODO: Update this according to actual documentation found at https://sourceware.org/binutils/docs/as/ (chapter 5) and https://github.com/riscv-non-isa/riscv-asm-manual/blob/master/riscv-asm.md
+void Parser::parse(std::list<Expression*>& expressions)
+{
+   while(!checkToken(TokenType::EndOfFile))
+   {
+      // Is it a label?
+      if(checkPeek(TokenType::Colon))
+      {
+         std::cout << "Checking label = " << m_token->literal << std::endl;
+         Expressions::Label* l = getLabel(false);
+         expressions.push_back(l);
+      }
+
+      // Is it a directive or an auto-generated label?
+      else if(checkToken(TokenType::Dot))
+      {
+         std::cout << "Checking label or directive" << std::endl;
+         Expression* e = getLabelOrDirective();
+         expressions.push_back(e);
+      }
+
+      else if(checkToken(TokenType::Symbol))
+      {
+         std::cout << "Checking symbol = " << m_token->literal << std::endl;
+         Expressions::Instruction* instruction = getInstruction();
+         /*if(instruction->getInstructionType() == Expressions::Instruction::InstructionType::PSEUDO)
+         {
+            resolvePseudoInstruction(instruction, expressions);
+         }
+         else
+         {*/
+            expressions.push_back(instruction);
+         //}
+      }
+
+      // Is it a comment?
+      else if(checkToken(TokenType::Comment))
+      {
+         //std::cout << "Checking comment = " << m_token->literal << std::endl;
+         nextToken();
+      }
+
+      //std::cout << "Checking newline = " << m_token->literal << std::endl;
+      match(TokenType::Newline);
+   }
+}
+
+Expressions::Label* Parser::getLabel(bool includeDot)
+{
+   std::string labelName;
+   if(includeDot)
+   {
+      labelName += ".";
+   }
+   labelName += m_token->literal;
+
+   Expressions::Label* l = new Expressions::Label(labelName);
+
+   match(TokenType::Symbol);
+   nextToken(); // Bypass the colon
+
+   return l;
+}
+
+Expressions::Directive* Parser::getDirective(bool includeDot)
+{
+   std::string directiveName;
+
+   if(checkToken(TokenType::Dot))
+   {
+      directiveName += m_token->literal;
+      std::cout << "Printing dot token = " << m_token->literal << std::endl;;
+      nextToken(); // Consume the leading dot.
+   }
+   else if(includeDot)
+   {
+      directiveName += ".";
+   }
+
+   directiveName += m_token->literal;
+
+   //std::cout << "Printing attrivute name = " << m_token->literal << std::endl;
+   match(TokenType::Symbol);
+
+   std::vector<std::string> operands;
+   // Is there at least one operand?
+   if(!checkToken(TokenType::Newline) && !checkToken(TokenType::Comment))
+   {
+      std::string operand;
+      getOperand(operand);
+      // Does the first operand have a Dot, Plus, or minus?
+      /*while(CheckToken(TokenType::Dot) || CheckToken(TokenType::Plus) || CheckToken(TokenType::Minus))
+      {
+         operand += m_token->literal;
+         NextToken();
+      }
+      operand += m_token->literal;
+      Match(TokenType::Symbol);*/
+      operands.push_back(operand);
+      // Zero or more operands.
+      while(checkToken(TokenType::Comma))
+      {
+         nextToken(); // Bypass comma
+
+         getOperand(operand);
+         operands.push_back(operand);
+         /*NextToken();
+         // Is there a dot, plus, or minus?
+         while(CheckToken(TokenType::Dot) || CheckToken(TokenType::Plus) || CheckToken(TokenType::Minus))
+         {
             NextToken();
-        }
+         }
+         Match(TokenType::Symbol);*/
+      }
+   }
 
-        Match(TokenType::Newline);
-    }
+   return new Expressions::Directive(directiveName, operands);
+;
 }
 
-void Parser::Label() {
-    Match(TokenType::Symbol);
-    NextToken();
+Expression* Parser::getLabelOrDirective()
+{
+   Expression* retval = nullptr;
+   std::string str = m_token->literal;
+
+   nextToken(); // Bypass the dot
+   if(checkPeek(TokenType::Colon))
+   {
+      Expressions::Label* l = getLabel(true);
+      retval = l;
+   }
+   else
+   {
+      Expressions::Directive* d = getDirective(true);
+      retval = d;
+   }
+
+   return retval;
 }
 
-void Parser::Directive() {
-    NextToken(); // Consume the leading dot.
-    Match(TokenType::Symbol);
+Expressions::Instruction* Parser::getInstruction()
+{
+   Expressions::Instruction* instr = nullptr;
 
-    // Is there at least one operand?
-    if(!CheckToken(TokenType::Newline) && !CheckToken(TokenType::Comment)) {
-        // Does the first operand have a dot? Plus or minus?
-        if(CheckToken(TokenType::Dot) || CheckToken(TokenType::Plus) || CheckToken(TokenType::Minus)) {
-            NextToken();
-        }
-        Match(TokenType::Symbol);
-        // Zero or more operands.
-        while(CheckToken(TokenType::Comma)) {
-            NextToken();
-            // Is there a plus or minus?
-            if(CheckToken(TokenType::Plus) || CheckToken(TokenType::Minus)) {
-                NextToken();
-            }
-            Match(TokenType::Symbol);
-        }
-    }
+   const std::string instructionName = m_token->literal;
+   nextToken();
+
+   std::vector<std::string> operands;
+   std::string operand;
+
+   // Is there at least one operand?
+   if(!checkToken(TokenType::Newline) && !checkToken(TokenType::Comment))
+   {
+      getOperand(operand);
+      operands.push_back(operand);
+      // Zero or more operands.
+      while(checkToken(TokenType::Comma))
+      {
+         operand = "";
+         nextToken();
+         getOperand(operand);
+         operands.push_back(operand);
+      }
+   }
+
+   instr = new Expressions::Instruction(instructionName, operands);
+
+   return instr;
 }
 
-void Parser::Instruction() {
-    NextToken();
+void Parser::getOperand(std::string& operand) {
+   // Optional sign, or dot referring to a label.
+   while(checkToken(TokenType::Dot) || checkToken(TokenType::Plus) || checkToken(TokenType::Minus))
+   {
+      operand += m_token->literal;
+      // std::cout << "Found first operand = " << m_token->literal << std::endl;
+      nextToken();
+   }
 
-    // Is there at least one operand?
-    if(!CheckToken(TokenType::Newline) && !CheckToken(TokenType::Comment)) {
-        Operand();
-        // Zero or more operands.
-        while(CheckToken(TokenType::Comma)) {
-            NextToken();
-            Operand();
-        }
-    }
+   // Only a symbol.
+   if(checkToken(TokenType::Symbol) && !checkPeek(TokenType::Lparen))
+   {
+      operand += m_token->literal;
+      // std::cout << "Found second operand = " << m_token->literal << std::endl;
+      nextToken();
+   }
+   // symbol '(' symbol ')'
+   else
+   {
+      // std::cout << "Found third operand = " << m_token->literal << std::endl;
+      operand += m_token->literal;
+      match(TokenType::Symbol);
+      operand += m_token->literal;
+      match(TokenType::Lparen);
+      if(checkToken(TokenType::Dot)) // Sometimes the label can be one auto-generated by GCC, e.g. %pcrel_hi(.L0)
+      {
+         operand += m_token->literal;
+         match(TokenType::Dot);
+      }
+      operand += m_token->literal;
+      match(TokenType::Symbol);
+      operand += m_token->literal;
+      match(TokenType::Rparen);
+
+      if(checkToken(TokenType::Lparen)) // In the case where the offset itself comes from a label, e.g. %hi(LABEL_AS_ADDRESS_OFFSET)(a0)
+      {
+         operand += m_token->literal;
+         match(TokenType::Lparen);
+         operand += m_token->literal;
+         match(TokenType::Symbol);
+         operand += m_token->literal;
+         match(TokenType::Rparen);
+      }
+   }
 }
 
-void Parser::Operand() {
-    // Optional sign.
-    if(CheckToken(TokenType::Plus) || CheckToken(TokenType::Minus)) {
-        NextToken();
-    }
+/*void Parser::resolvePseudoInstruction(Expressions::Instruction* i, std::list<const Expression*>& expressions)
+{
+   Expressions::Instruction* first = nullptr;
+   Expressions::Instruction* second = nullptr;
+   Expressions::Instruction::resolvePseudoInstruction(i, first, second);
 
-    // Only a symbol.
-    if(CheckToken(TokenType::Symbol) && !CheckPeek(TokenType::Lparen)) {
-        NextToken();
-    }
-    // symbol '(' symbol ')'
-    else {
-        Match(TokenType::Symbol); 
-        Match(TokenType::Lparen);
-        Match(TokenType::Symbol);
-        Match(TokenType::Rparen);
-    }
-}
+   if(first != nullptr)
+   {
+      expressions.push_back(first);
+
+      if(second != nullptr)
+      {
+         expressions.push_back(second);
+      }
+   }
+}*/

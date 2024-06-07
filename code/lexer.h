@@ -1,22 +1,27 @@
-#pragma once
+#ifndef LEXER_H
+#define LEXER_H
+
 #include <string>
 #include "token.h"
 
-class Lexer {
-private:
-    std::string source;
-    char ch; // Current character.
-    int pos; // Position of next character to be read.
-    void NextChar();
-    char PeekChar();
-    bool IsPunct();
-    bool IsAlpha();
-    bool IsNum();
-    bool IsNewline();
-    bool IsSpace();
-    void SkipSpaces();
-
+class Lexer
+{
 public:
-    Lexer(std::string source);
-    Token* NextToken();
+   Lexer(const std::string& source);
+   Token* nextToken();
+
+private:
+   const std::string& m_source;
+   char m_ch; // Current character.
+   int m_pos; // Position of next character to be read.
+   void nextChar();
+   char peekChar();
+   bool isPunct();
+   bool isAlpha();
+   bool isNum();
+   bool isNewline();
+   bool isSpace();
+   void skipSpaces();
 };
+
+#endif //LEXER_H

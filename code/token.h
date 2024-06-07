@@ -1,24 +1,30 @@
-#pragma once
+#ifndef TOKEN_H
+#define TOKEN_H
+
 #include <string>
 
-enum TokenType {
-    Symbol = 0,
-    Lparen,
-    Rparen,
-    Plus,
-    Minus,
-    Dot,
-    Colon,
-    Comma,
-    Newline,
-    Comment,
-    EndOfFile
+enum class TokenType
+{
+   Symbol = 0,
+   Lparen,
+   Rparen,
+   Plus,
+   Minus,
+   Dot,
+   Colon,
+   Comma,
+   Newline,
+   Comment,
+   EndOfFile
 };
 
-const char* const TokenTypeStrings[] = {"Symbol", "Left-Parenthesis", "Right-Parenthesis", "Plus", "Minus", "Dot", "Colon", "Comma", "Newline", "Comment", "End-Of-File"};
+static const char* const TokenTypeStrings[] = {"Symbol", "Left-Parenthesis", "Right-Parenthesis", "Plus", "Minus", "Dot", "Colon", "Comma", "Newline", "Comment", "End-Of-File"};
 
-class Token {
+class Token
+{
 public:
-    TokenType type;
-    std::string literal;
+   TokenType type;
+   std::string literal;
 };
+
+#endif // TOKEN_H
