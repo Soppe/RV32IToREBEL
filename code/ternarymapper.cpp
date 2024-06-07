@@ -32,6 +32,8 @@ void TernaryMapper::mapExpressions(std::list<Expression*>& ternaryExpressions)
       case Expression::ExpressionType::DIRECTIVE:
       {
          Expressions::Directive* d = static_cast<Expressions::Directive*>(binaryExpression);
+         // Might be some conversion required here, e.g. for .size and other directives where the memory size required by whatever is pointed at is the directive operand, rather than directives
+         // like .word where the required memory size is implicit in the directive itself. All we then need is an assembler that accepts .word.
          ternaryExpressions.push_back(new Expressions::Directive(*d));
          break;
       }
