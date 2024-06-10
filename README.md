@@ -42,11 +42,11 @@ make -j$(nproc) // This can take a while
 
 ## Building the translator
 
-During development the code was built using Qt Creator. The translator does not have dependencies to non-std libraries, so most compilers that support the C++ standard library should be able to do the job. The compiler installed with the GCC Toolchain is not among them.
+During development the code was built using Qt Creator. The translator does not have dependencies to non-std libraries, so most compilers that support the C++ standard library should be able to do the job. The compiler installed with the GCC Toolchain is not among them as it targets a bare-metal OS and therefor do not support any dependancy that make OS calls, which the C++ std library does.
 
 ## Generating assembly files using the GCC Toolchain
 
-The translator only supports single-file assembly code coming from single C-file programs since the GCC Compiler generates one assembly file per C file.
+The translator only supports single-file assembly code. This comes from single C-file programs since the GCC Compiler generates one assembly file per C file.
 To generate an assembly file from a C file, run `riscv32-unknown-elf-gcc -S <C-coded file>.c -o <RV32I Assembly file>.s`
 
 ## Running the translator
