@@ -1,10 +1,10 @@
 # RISCVToRebelTranslator
 
-A lightweight translator to translate and simulate binary RISCV RV32I assembly to ternary REBEL6 assembly. The RV32I assembly code is generated using the GCC Toolchain. Some GCC features and syntax is therefor supported, but far from everything.
+A lightweight translator to translate and simulate binary RISCV RV32I assembly to ternary REBEL6 assembly. The RV32I assembly code is generated using the GCC Toolchain. Some GCC features and syntax is therefor supported, but far from everything. No optimization has been used when compiling C code to RV32I assembly when using the GCC Toolchain to generate assembly files.
 
 ## GCC Toolchain setup
 
-The setup and installation of the [GCC Toolchain](https://pages.github.com/) has been tested using Windows Subsystem for Linux (WSL) as OS, targeting the Newlib cross-compiler to avoid interference from any OS when generating RV32I assembly. Although the GIT page for the toolchain contains a walkthrough of how to set up and install the toolchain, we none the less describe the setup that worked for us.
+The setup and installation of the [GCC Toolchain](https://pages.github.com/) has been tested using Windows Subsystem for Linux (WSL) as OS, targeting the Newlib (bare-metal) cross-compiler to avoid interference from an OS when generating RV32I assembly. Although the GIT page for the toolchain contains a walkthrough of how to set up and install the toolchain, we none the less describe the setup that worked for us.
 
 As the walkthrough dictates, certain prerequisites need to be installed.
 
@@ -27,14 +27,28 @@ export PATH="${RISCV_TOOLCHAIN_INSTALL}/bin:$PATH"
 ```
 
 Once configured, the only thing remaining is to setup and install the toolchain itself, targeting the RV32I architecture.
+Do note that this may take a while.
 
 ```
-mkdir -p $RISCV_TOOLCHAIN_INSTALL
+sudo mkdir -p $RISCV_TOOLCHAIN_INSTALL
 cd $RISCV_TOOLCHAIN
 git clone https://github.com/riscv/riscv-gnu-toolchain
 cd riscv-gnu-toolchain
-mkdir build
+sudo mkdir build
 cd build
 ../configure --prefix=$RISCV_TOOLCHAIN_INSTALL --with-arch=rv32i --with-abi=ilp32
-make -j$(nproc)
+make -j$(nproc) // This can take a while
 ```
+
+## Building the translator
+
+During development the code was built using Qt Creator. The translator does not have dependencies to non-std libraries, so most compilers that support the C++ standard library should be able to do the job. The compiler installed with the GCC Toolchain is not among them.
+
+## Generating assembly files using the GCC Toolchain
+
+The translator only supports single-file assembly code coming from single C-file programs since the GCC Compiler generates one assembly file per C file.
+To generate an assembly file from a C file, run `riscv32-unknown-elf-gcc -S <C-coded file>.c -o <RV32I Assembly file>.s`
+
+## Running the translator
+
+The command `./TestProject <RV32I Assembly file>.s` is used to run the translator from command line, using the generated RV32I assembly file as input.
