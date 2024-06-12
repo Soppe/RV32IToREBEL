@@ -48,7 +48,7 @@ The translator is built with cmake and make using the following commands.
 BUILD_DIR=<Target directory for build files and the executable>
 sudo mkdir ${BUILD_DIR}
 cd ${BUILD_DIR}
-cmake <Path to translator>/code
+cmake <Path to the translator's local repository>/code
 make
 ```
 
