@@ -34,3 +34,4 @@
 # Qt files
 *.pro
 *.pro.user
+*.txt.user

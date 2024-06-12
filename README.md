@@ -42,7 +42,15 @@ make -j$(nproc) // This can take a while
 
 ## Building the translator
 
-During development the code was built using Qt Creator. The translator does not have dependencies to non-std libraries, so most compilers that support the C++ standard library should be able to do the job. The compiler installed with the GCC Toolchain is not among them as it targets a bare-metal OS and therefor do not support any dependancy that make OS calls, which the C++ std library does.
+The translator is built with cmake and make using the following commands.
+
+```
+BUILD_DIR=<Target directory for build files and the executable>
+sudo mkdir ${BUILD_DIR}
+cd ${BUILD_DIR}
+cmake <Path to translator>/code
+make
+```
 
 ## Generating assembly files using the GCC Toolchain
 
@@ -51,4 +59,4 @@ To generate an assembly file from a C file, run `riscv32-unknown-elf-gcc -S <C-c
 
 ## Running the translator
 
-The command `./TestProject <RV32I Assembly file>.s` is used to run the translator from command line, using the generated RV32I assembly file as input.
+The command `./RISCVToRebelTranslator <RV32I Assembly file>.s` is used to run the translator, using the generated RV32I assembly file as input.
