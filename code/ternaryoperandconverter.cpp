@@ -1,7 +1,6 @@
 #include "ternaryoperandconverter.h"
 
-#include "expressionparser.h"
-
+#include <Parsers/expressionparser.h>
 #include <Expressions/all_expressions.h>
 
 TernaryOperandConverter::TernaryOperandConverter(std::list<Expression*>& ternaryExpressions)

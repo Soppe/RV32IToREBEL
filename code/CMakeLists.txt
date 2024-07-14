@@ -12,14 +12,9 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 # Header files
 set(HEADERS
-   expressionparser.h
-   instructionconverterbase.h
-   lexer.h
-   parser.h
-   parseutils.h
    ternarymapper.h
    ternaryoperandconverter.h
-   token.h
+   Converters/converter.h
    Converters/instructionconverterbase.h
    Converters/rv32ipseudotorv32ibase.h
    Converters/rv32itorebel2.h
@@ -28,6 +23,11 @@ set(HEADERS
    Expressions/expression.h
    Expressions/instruction.h
    Expressions/label.h
+   Parsers/expressionparser.h
+   Parsers/lexer.h
+   Parsers/parser.h
+   Parsers/parseutils.h
+   Parsers/token.h
    Simulators/RV32I/Cpus/cpu.h
    Simulators/RV32I/Cpus/registry.h
    Simulators/RV32I/assemblerandlinker.h
@@ -37,21 +37,23 @@ set(HEADERS
    Simulators/directivehelper.h
 )
 
+
 # Source files
 set(SOURCES
    main.cpp
-   expressionparser.cpp
-   lexer.cpp
-   parser.cpp
-   parseutils.cpp
    ternarymapper.cpp
    ternaryoperandconverter.cpp
+   Converters/converter.cpp
    Converters/rv32ipseudotorv32ibase.cpp
    Converters/rv32itorebel2.cpp
    Expressions/directive.cpp
    Expressions/expression.cpp
    Expressions/instruction.cpp
    Expressions/label.cpp
+   Parsers/expressionparser.cpp
+   Parsers/lexer.cpp
+   Parsers/parser.cpp
+   Parsers/parseutils.cpp
    Simulators/RV32I/Cpus/cpu.cpp
    Simulators/RV32I/Cpus/registry.cpp
    Simulators/RV32I/assemblerandlinker.cpp

@@ -7,12 +7,14 @@
 #include <fstream>
 #include <iterator>
 #include <list>
-#include "lexer.h"
-#include "token.h"
-#include "parser.h"
+
 #include "ternarymapper.h"
 #include "ternaryoperandconverter.h"
 
+#include "Converters/converter.h"
+#include "Parsers/lexer.h"
+#include "Parsers/token.h"
+#include "Parsers/parser.h"
 #include "Expressions/expression.h"
 #include "Expressions/all_expressions.h"
 
@@ -94,16 +96,43 @@ int main(int argc, char* argv[])
    std::string source((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
    source += '\n';
 
-   // Frontend
+   /*
+    * ------------------ FRONTEND ------------------
+    */
+
    Lexer* l = new Lexer(source);
    Parser p(l);
    std::list<Expression*> binaryExpressions;
    p.parse(binaryExpressions);
    std::cout << "Parsed successfully." << std::endl;
 
+   /*
+    * --------- INTERMEDIATE REPRESENTAITON ---------
+    */
+   // NA - The RV32I input is currently considered the IR code.
+
+
+   /*
+    * ------------------- BACKEND -------------------
+    */
+
+   // RV32I
+   std::cout << "RV32I SIMULATION" << std::endl;
+   std::list<Expression*> rv32iExpressions;
+   Converters::Converter::Convert("rv32i", binaryExpressions, rv32iExpressions);
+
+   Simulators::RV32I::Simulator rv32iSim;
+   rv32iSim.init(rv32iExpressions);
+   rv32iSim.run();
+
+   // REBEL-6
+   std::list<Expression*> rebel2Expressions;
+   Converters::Converter::Convert("rebel-2", binaryExpressions, rebel2Expressions);
+
    TernaryMapper mapper(binaryExpressions);
    std::list<Expression*> ternaryExpressions;
    mapper.mapExpressions(ternaryExpressions);
+
 
    // TODO: "Convert" immediates, as in check if the immediate can be converted by the single REBEL-2 instruction its converted to, or if that instruction itself need to be split up because of the value of
    // the constant being too large for ternary instructions. For this we need to know the size of pointers as this is basically what we us when using %hi/lo and %pcrel_hi/lo.
@@ -144,11 +173,6 @@ int main(int argc, char* argv[])
 
    std::cout << "TERNARY EXPRESSIONS: " << std::endl;
    //printExpressions(ternaryExpressions);
-
-   std::cout << "RV32I SIMULATION" << std::endl;
-   Simulators::RV32I::Simulator rv32iSim;
-   rv32iSim.init(binaryExpressions);
-   rv32iSim.run();
 
    binaryExpressions.remove_if([](const Expression* expr) { delete expr; return true;});
    ternaryExpressions.remove_if([](const Expression* expr) { delete expr; return true;});

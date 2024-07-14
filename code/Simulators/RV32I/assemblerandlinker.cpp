@@ -34,7 +34,7 @@ void AssemblerAndLinker::init()
 
 void AssemblerAndLinker::run()
 {
-   Expression* expr = m_parser.nextExpression();
+   const Expression* expr = m_parser.nextExpression();
 
    while(expr != nullptr)
    {
@@ -77,7 +77,7 @@ void AssemblerAndLinker::run()
    resolveOperands();
 }
 
-void AssemblerAndLinker::handleTextSection(Expression* expr)
+void AssemblerAndLinker::handleTextSection(const Expression* expr)
 {
    std::cout << "In text section" << std::endl;
    static std::list<Expression*> tempInstructions;
@@ -88,7 +88,7 @@ void AssemblerAndLinker::handleTextSection(Expression* expr)
       {
       case Expression::ExpressionType::DIRECTIVE:
       {
-         Expressions::Directive* directive = static_cast<Expressions::Directive*>(expr);
+         const Expressions::Directive* directive = static_cast<const Expressions::Directive*>(expr);
          // No expecting any directives while handling .text
          if(DirectiveHelper::resolveSectionTypeAndIfChanged(*directive, m_sectionType))
          {
@@ -103,7 +103,7 @@ void AssemblerAndLinker::handleTextSection(Expression* expr)
          break;
       }
       case Expression::ExpressionType::INSTRUCTION:
-         resolveInstruction(static_cast<Expressions::Instruction*>(expr), tempInstructions, m_converter);
+         resolveInstruction(static_cast<const Expressions::Instruction*>(expr), tempInstructions, m_converter);
          for(Expression* currExpr: tempInstructions)
          {
             Expression::ExpressionType exprType = currExpr->getExpressionType();
@@ -137,7 +137,7 @@ void AssemblerAndLinker::handleTextSection(Expression* expr)
    }
 }
 
-void AssemblerAndLinker::handleDataSection(Expression* expr)
+void AssemblerAndLinker::handleDataSection(const Expression* expr)
 {
    std::cout << "In data section" << std::endl;
    while(expr != nullptr)
@@ -146,7 +146,7 @@ void AssemblerAndLinker::handleDataSection(Expression* expr)
       {
       case Expression::ExpressionType::DIRECTIVE:
       {
-         Expressions::Directive* directive = static_cast<Expressions::Directive*>(expr);
+         const Expressions::Directive* directive = static_cast<const Expressions::Directive*>(expr);
          // If section has changed, stop handling it as data
          if(DirectiveHelper::resolveSectionTypeAndIfChanged(*directive, m_sectionType))
          {
@@ -158,7 +158,7 @@ void AssemblerAndLinker::handleDataSection(Expression* expr)
       }
       case Expression::ExpressionType::LABEL:
       {
-         Expressions::Label* label = static_cast<Expressions::Label*>(expr);
+         const Expressions::Label* label = static_cast<const Expressions::Label*>(expr);
          m_tempHeapLabels.insert({label->getLabelName(), m_hc});
          break;
       }
@@ -178,7 +178,7 @@ void AssemblerAndLinker::handleDataSection(Expression* expr)
    }
 }
 
-void AssemblerAndLinker::handleBssSection(Expression* expr)
+void AssemblerAndLinker::handleBssSection(const Expression* expr)
 {
    while(expr != nullptr)
    {
@@ -186,7 +186,7 @@ void AssemblerAndLinker::handleBssSection(Expression* expr)
       {
       case Expression::ExpressionType::DIRECTIVE:
       {
-         Expressions::Directive* directive = static_cast<Expressions::Directive*>(expr);
+         const Expressions::Directive* directive = static_cast<const Expressions::Directive*>(expr);
          // If section has changed, stop handling it as bss
          if(DirectiveHelper::resolveSectionTypeAndIfChanged(*directive, m_sectionType))
          {
@@ -211,7 +211,7 @@ void AssemblerAndLinker::handleBssSection(Expression* expr)
    }
 }
 
-void AssemblerAndLinker::handleRoDataSection(Expression* expr)
+void AssemblerAndLinker::handleRoDataSection(const Expression* expr)
 {
    while(expr != nullptr)
    {
@@ -219,7 +219,7 @@ void AssemblerAndLinker::handleRoDataSection(Expression* expr)
       {
       case Expression::ExpressionType::DIRECTIVE:
       {
-         Expressions::Directive* directive = static_cast<Expressions::Directive*>(expr);
+         const Expressions::Directive* directive = static_cast<const Expressions::Directive*>(expr);
          // If section has changed, stop handling it as rodata
          if(DirectiveHelper::resolveSectionTypeAndIfChanged(*directive, m_sectionType))
          {

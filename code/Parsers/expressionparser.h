@@ -14,15 +14,15 @@ class ExpressionParser
 {
 public:
 
-   ExpressionParser(std::list<Expression*>& expressions);
+   ExpressionParser(const std::list<Expression*>& expressions);
    ~ExpressionParser() = default;
 
-   Expression* nextExpression();
+   const Expression* nextExpression();
    void insertAtCurrent(Expression* expression);
 
 private:
    using ExpressionIterator = std::list<Expression*>::const_iterator;
-   std::list<Expression*>& m_expressions;
+   const std::list<Expression*>& m_expressions;
    ExpressionIterator m_iter;
 };
 

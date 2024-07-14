@@ -1,9 +1,9 @@
 #include "cpu.h"
 
-#include <parseutils.h>
+#include <Expressions/instruction.h>
+#include <Parsers/parseutils.h>
 #include <Simulators/RV32I/simulatorutils.h>
 #include <Simulators/RV32I/executableprogram.h>
-#include <Expressions/instruction.h>
 
 #include <iostream>
 

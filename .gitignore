@@ -35,3 +35,6 @@
 *.pro
 *.pro.user
 *.txt.user
+
+# Build directory
+build*/

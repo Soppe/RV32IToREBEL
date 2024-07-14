@@ -1,15 +1,15 @@
 #include "expressionparser.h"
 #include <Expressions/all_expressions.h>
 
-ExpressionParser::ExpressionParser(std::list<Expression*>& expressions)
+ExpressionParser::ExpressionParser(const std::list<Expression*>& expressions)
    : m_expressions(expressions)
    , m_iter(expressions.begin())
 {
 }
 
-Expression* ExpressionParser::nextExpression()
+const Expression* ExpressionParser::nextExpression()
 {
-   Expression* e = nullptr;
+   const Expression* e = nullptr;
 
    if(m_iter != m_expressions.end())
    {
@@ -22,5 +22,5 @@ Expression* ExpressionParser::nextExpression()
 
 void ExpressionParser::insertAtCurrent(Expression* expression)
 {
-   m_expressions.insert(m_iter, expression);
+   //m_expressions.insert(m_iter, expression);
 }

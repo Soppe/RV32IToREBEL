@@ -63,7 +63,7 @@ void convertToABI(const std::string& in, std::string& out)
    {
       try
       {
-         out = RegisterNameXToABI.at(in);
+         out = RegisterNameXToABI.at(out);
       }
       catch(std::exception&)
       {
@@ -72,7 +72,8 @@ void convertToABI(const std::string& in, std::string& out)
    }
    else
    {
-      out = in;
+      // Already happening in the transform
+      //out = in;
    }
 }
 }

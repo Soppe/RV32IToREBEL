@@ -4,8 +4,9 @@
 #include <list>
 #include <vector>
 #include <map>
-#include <expressionparser.h>
-#include <parseutils.h>
+
+#include <Parsers/expressionparser.h>
+#include <Parsers/parseutils.h>
 #include <Simulators/directivehelper.h>
 
 namespace Converters
@@ -31,10 +32,10 @@ public:
 
 private:
 
-   void handleTextSection(Expression* expr);
-   void handleDataSection(Expression* expr);
-   void handleBssSection(Expression* expr);
-   void handleRoDataSection(Expression* expr);
+   void handleTextSection(const Expression* expr);
+   void handleDataSection(const Expression* expr);
+   void handleBssSection(const Expression* expr);
+   void handleRoDataSection(const Expression* expr);
 
    void resolveInstruction(const Expressions::Instruction* instr, std::list<Expression*>& out, Converters::InstructionConverterBase& converter);
    void resolveDataDirective(const Expressions::Directive* directive);

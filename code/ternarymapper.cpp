@@ -1,6 +1,6 @@
 #include "ternarymapper.h"
-#include "expressionparser.h"
 
+#include <Parsers/expressionparser.h>
 #include <Expressions/expression.h>
 #include <Expressions/all_expressions.h>
 #include <Converters/rv32itorebel2.h>
@@ -23,7 +23,7 @@ TernaryMapper::~TernaryMapper()
 
 void TernaryMapper::mapExpressions(std::list<Expression*>& ternaryExpressions)
 {
-   Expression* binaryExpression = m_parser->nextExpression();
+   const Expression* binaryExpression = m_parser->nextExpression();
 
    while(binaryExpression != nullptr)
    {
@@ -31,7 +31,7 @@ void TernaryMapper::mapExpressions(std::list<Expression*>& ternaryExpressions)
       {
       case Expression::ExpressionType::DIRECTIVE:
       {
-         Expressions::Directive* d = static_cast<Expressions::Directive*>(binaryExpression);
+         const Expressions::Directive* d = static_cast<const Expressions::Directive*>(binaryExpression);
          // Might be some conversion required here, e.g. for .size and other directives where the memory size required by whatever is pointed at is the directive operand, rather than directives
          // like .word where the required memory size is implicit in the directive itself. All we then need is an assembler that accepts .word.
          ternaryExpressions.push_back(new Expressions::Directive(*d));
