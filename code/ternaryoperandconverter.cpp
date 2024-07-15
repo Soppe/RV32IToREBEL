@@ -3,7 +3,7 @@
 #include <Parsers/expressionparser.h>
 #include <Expressions/all_expressions.h>
 
-TernaryOperandConverter::TernaryOperandConverter(std::list<Expression*>& ternaryExpressions)
+TernaryOperandConverter::TernaryOperandConverter(Expressions::ExpressionList& ternaryExpressions)
     : m_parser(new ExpressionParser(ternaryExpressions))
 {
 
@@ -16,11 +16,11 @@ TernaryOperandConverter::~TernaryOperandConverter()
 
 void TernaryOperandConverter::convertOperands()
 {
-   const Expression* expression = m_parser->nextExpression();
+   const Expressions::Expression* expression = m_parser->nextExpression();
 
    while(expression != nullptr)
    {
-      if(expression->getExpressionType() == Expression::ExpressionType::INSTRUCTION)
+      if(expression->getExpressionType() == Expressions::Expression::ExpressionType::INSTRUCTION)
       {
          const Expressions::Instruction* instruction = static_cast<const Expressions::Instruction*>(expression);
 

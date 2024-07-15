@@ -1,31 +1,30 @@
 #ifndef TERNARYMAPPER_H
 #define TERNARYMAPPER_H
 
-#include <list>
-
-namespace Expressions
-{
-class Instruction;
-}
+#include <Expressions/expression.h>
 
 namespace Converters
 {
 class InstructionConverterBase;
 }
 
-class Expression;
+namespace Expressions
+{
+class Instruction;
+}
+
 class ExpressionParser;
 
 class TernaryMapper
 {
 public:
-   TernaryMapper(std::list<Expression*>& binaryExpressions);
+   TernaryMapper(Expressions::ExpressionList& binaryExpressions);
    ~TernaryMapper();
 
-   void mapExpressions(std::list<Expression*>& ternaryExpressions);
+   void mapExpressions(Expressions::ExpressionList& ternaryExpressions);
 
 private:
-   void mapInstruction(const Expressions::Instruction* instruction, std::list<Expression*>& ternaryExpressions);
+   void mapInstruction(const Expressions::Instruction* instruction, Expressions::ExpressionList& ternaryExpressions);
 
    ExpressionParser* m_parser;
    const Converters::InstructionConverterBase* m_converter;

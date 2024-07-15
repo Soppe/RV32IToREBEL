@@ -1,5 +1,7 @@
 #include "registry.h"
 
+#include <logger.h>
+
 #include <iostream>
 #include <map>
 
@@ -57,6 +59,7 @@ const std::map<std::string, std::string> RegisterNameXToABI = {
 
 void convertToABI(const std::string& in, std::string& out)
 {
+   out.resize(in.length());
    std::transform(in.begin(), in.end(), out.begin(), [](unsigned char c){ return std::tolower(c); });
 
    if(out[0] == 'x')
@@ -67,7 +70,7 @@ void convertToABI(const std::string& in, std::string& out)
       }
       catch(std::exception&)
       {
-         std::cerr << __PRETTY_FUNCTION__ << ": Trying to convert unsupported x-named register " << in << std::endl;
+         std::cerr << __PRETTY_FUNC__ << ": Trying to convert unsupported x-named register " << in << std::endl;
       }
    }
    else
@@ -154,15 +157,15 @@ int Registry::getAccumulatedBitFlips() const
 void Registry::printRegistry()
 {
    std::string abiName;
-   std::cout << "x\t" << "abi\t" << "hex\t" << "dec" << std::endl;
-   std::cout << "--------------------------------" << std::endl;
+   std::cout << "x\t" << "abi\t" << "hex\t\t" << "dec" << std::endl;
+   std::cout << "------------------------------------" << std::endl;
    for(int i = 0; i < 32; ++i)
    {
       const std::string xName = "x" + std::to_string(i);
       convertToABI(xName, abiName);
       int val = load(abiName);
 
-      std::cout << xName << "\t" << abiName << "\t" << std::hex << val << "\t" << std::dec << val << std::endl;
+      std::cout << xName << "\t" << abiName << "\t0x" << std::hex << val << "\t\t" << std::dec << val << std::endl;
    }
 
    /*for(const auto& [key, value]: m_registry)

@@ -11,7 +11,8 @@ public:
    RV32IToREBEL2();
    virtual ~RV32IToREBEL2() = default;
 
-   virtual void initMap();
+private:
+   virtual void fillExpressionMap();
 };
 }
 #endif // RV32ITOREBEL2_H

@@ -2,7 +2,8 @@
 #define PARSER_H
 
 #include "lexer.h"
-#include <list>
+
+#include <Expressions/expression.h>
 
 namespace Expressions
 {
@@ -10,7 +11,6 @@ struct Label;
 struct Directive;
 struct Instruction;
 }
-class Expression;
 
 class Parser
 {
@@ -24,13 +24,13 @@ public:
    void nextToken();
 
    // Grammar functions.
-   void parse(std::list<Expression*>& expressions);
+   void parse(Expressions::ExpressionList& expressions);
 
 private:
    Expressions::Label* getLabel(bool includeDot);
    Expressions::Directive* getDirective(bool includeDot);
    Expressions::Instruction* getInstruction();
-   Expression* getLabelOrDirective();
+   Expressions::Expression* getLabelOrDirective();
    void getOperand(std::string& operand);
 
    //void resolvePseudoInstruction(Expressions::Instruction* i, std::list<const Expression*>& expressions);

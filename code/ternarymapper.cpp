@@ -4,11 +4,12 @@
 #include <Expressions/expression.h>
 #include <Expressions/all_expressions.h>
 #include <Converters/rv32itorebel2.h>
+#include <logger.h>
 
 #include <iostream>
 #include <iterator>
 
-TernaryMapper::TernaryMapper(std::list<Expression*>& binaryExpressions)
+TernaryMapper::TernaryMapper(Expressions::ExpressionList& binaryExpressions)
    : m_parser(new ExpressionParser(binaryExpressions))
    , m_converter(new Converters::RV32IToREBEL2())
 {
@@ -21,15 +22,15 @@ TernaryMapper::~TernaryMapper()
    delete m_converter;
 }
 
-void TernaryMapper::mapExpressions(std::list<Expression*>& ternaryExpressions)
+void TernaryMapper::mapExpressions(Expressions::ExpressionList& ternaryExpressions)
 {
-   const Expression* binaryExpression = m_parser->nextExpression();
+   const Expressions::Expression* binaryExpression = m_parser->nextExpression();
 
    while(binaryExpression != nullptr)
    {
       switch(binaryExpression->getExpressionType())
       {
-      case Expression::ExpressionType::DIRECTIVE:
+      case Expressions::Expression::ExpressionType::DIRECTIVE:
       {
          const Expressions::Directive* d = static_cast<const Expressions::Directive*>(binaryExpression);
          // Might be some conversion required here, e.g. for .size and other directives where the memory size required by whatever is pointed at is the directive operand, rather than directives
@@ -37,22 +38,22 @@ void TernaryMapper::mapExpressions(std::list<Expression*>& ternaryExpressions)
          ternaryExpressions.push_back(new Expressions::Directive(*d));
          break;
       }
-      case Expression::ExpressionType::LABEL:
+      case Expressions::Expression::ExpressionType::LABEL:
       {
          const Expressions::Label* l = static_cast<const Expressions::Label*>(binaryExpression);
          ternaryExpressions.push_back(new Expressions::Label(*l));
          break;
       }
-      case Expression::ExpressionType::INSTRUCTION:
+      case Expressions::Expression::ExpressionType::INSTRUCTION:
       {
          const Expressions::Instruction* i = static_cast<const Expressions::Instruction*>(binaryExpression);
          mapInstruction(i, ternaryExpressions);
          break;
       }
-      case Expression::ExpressionType::COMMENT:
+      case Expressions::Expression::ExpressionType::COMMENT:
          //TODO: std::cout << e->getExpressionName();
          break;
-      case Expression::ExpressionType::UNDEFINED:
+      case Expressions::Expression::ExpressionType::UNDEFINED:
          // TODO: std::cerr << "Found undefined expression with name = " << e->getExpressionName() << std::endl;
          break;
       default:
@@ -74,7 +75,7 @@ void TernaryMapper::mapExpressions(std::list<Expression*>& ternaryExpressions)
 }
 
 
-void TernaryMapper::mapInstruction(const Expressions::Instruction* binaryInstruction, std::list<Expression*>& ternaryExpressions)
+void TernaryMapper::mapInstruction(const Expressions::Instruction* binaryInstruction, Expressions::ExpressionList& ternaryExpressions)
 {
    const std::string& name = binaryInstruction->getInstructionName();
    const std::vector<std::string>& operands = binaryInstruction->getInstructionOperands();
@@ -89,7 +90,7 @@ void TernaryMapper::mapInstruction(const Expressions::Instruction* binaryInstruc
    }
    catch(const std::exception&e)
    {
-      std::cerr << __PRETTY_FUNCTION__ << " Instruction (" << name << " ";
+      std::cerr << __PRETTY_FUNC__ << " Instruction (" << name << " ";
       std::copy(operands.begin(), operands.end(), std::ostream_iterator<const std::string&>(std::cerr, " "));
       std::cerr << ") failed to convert because " << e.what() << std::endl;
    }

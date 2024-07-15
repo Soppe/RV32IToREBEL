@@ -1,13 +1,12 @@
 #ifndef ASSEMBLERANDLINKER_H
 #define ASSEMBLERANDLINKER_H
 
-#include <list>
-#include <vector>
-#include <map>
-
 #include <Parsers/expressionparser.h>
 #include <Parsers/parseutils.h>
 #include <Simulators/directivehelper.h>
+
+#include <vector>
+#include <map>
 
 namespace Converters
 {
@@ -25,19 +24,19 @@ class ExecutableProgram;
 class AssemblerAndLinker
 {
 public:
-   AssemblerAndLinker(std::list<Expression*>& expressions, Converters::InstructionConverterBase& converter, ExecutableProgram* executable);
+   AssemblerAndLinker(Expressions::ExpressionList& expressions, ExecutableProgram& executable);
 
    void init();
    void run();
 
 private:
 
-   void handleTextSection(const Expression* expr);
-   void handleDataSection(const Expression* expr);
-   void handleBssSection(const Expression* expr);
-   void handleRoDataSection(const Expression* expr);
+   void handleTextSection(const Expressions::Expression* expr);
+   void handleDataSection(const Expressions::Expression* expr);
+   void handleBssSection(const Expressions::Expression* expr);
+   void handleRoDataSection(const Expressions::Expression* expr);
 
-   void resolveInstruction(const Expressions::Instruction* instr, std::list<Expression*>& out, Converters::InstructionConverterBase& converter);
+   void resolveInstruction(const Expressions::Instruction* instr, Expressions::ExpressionList& out);
    void resolveDataDirective(const Expressions::Directive* directive);
 
    bool resolveIfObject(const Expressions::Directive* directive, int& byteSizePerElement, std::vector<int>& values);
@@ -45,10 +44,9 @@ private:
    void resolveOperands();
    int resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MODIFIER& modifier, const std::string& imm, int pc);
 
-   Converters::InstructionConverterBase& m_converter;
    ExpressionParser m_parser;
    DirectiveHelper::SectionType m_sectionType;
-   ExecutableProgram* m_executable;
+   ExecutableProgram& m_executable;
 
    using HeapLabelMap = std::map<std::string, int>;
    HeapLabelMap m_tempHeapLabels;

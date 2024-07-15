@@ -2,9 +2,9 @@
 #include "executableprogram.h"
 #include "simulatorutils.h"
 
-#include <Converters/instructionconverterbase.h>
 #include <Expressions/all_expressions.h>
 #include <Simulators/directivehelper.h>
+#include <logger.h>
 
 #include <iostream>
 
@@ -12,9 +12,8 @@ namespace Simulators
 {
 namespace RV32I
 {
-AssemblerAndLinker::AssemblerAndLinker(std::list<Expression*>& expressions, Converters::InstructionConverterBase& converter, ExecutableProgram* executable)
-    : m_converter(converter)
-    , m_parser(expressions)
+AssemblerAndLinker::AssemblerAndLinker(Expressions::ExpressionList& expressions, ExecutableProgram& executable)
+    : m_parser(expressions)
     , m_sectionType(DirectiveHelper::SectionType::TEXT) // Until otherwise specified, the asm manual states the default is .text
     , m_executable(executable)
     , m_pc(0)
@@ -24,7 +23,6 @@ AssemblerAndLinker::AssemblerAndLinker(std::list<Expression*>& expressions, Conv
 
 void AssemblerAndLinker::init()
 {
-   m_converter.initMap();
    m_sectionType = DirectiveHelper::SectionType::TEXT;
    m_pc = 0;
    m_hc = 0;
@@ -34,7 +32,7 @@ void AssemblerAndLinker::init()
 
 void AssemblerAndLinker::run()
 {
-   const Expression* expr = m_parser.nextExpression();
+   const Expressions::Expression* expr = m_parser.nextExpression();
 
    while(expr != nullptr)
    {
@@ -53,7 +51,7 @@ void AssemblerAndLinker::run()
          handleRoDataSection(expr);
          break;
       default:
-         std::cerr << __PRETTY_FUNCTION__ << ": Unknown section type " << static_cast<int>(m_sectionType) << std::endl;
+         std::cerr << __PRETTY_FUNC__ << ": Unknown section type " << static_cast<int>(m_sectionType) << std::endl;
          abort();
          break;
       }
@@ -61,15 +59,15 @@ void AssemblerAndLinker::run()
       expr = m_parser.nextExpression();
    }
 
-   m_executable->recalculateHeapSize();
+   m_executable.recalculateHeapSize();
 
    // Finished setting up the instruction memory, now we need to set up heap labels
    HeapLabelMap::const_iterator it = m_tempHeapLabels.begin();
-   int instructionsSize = m_executable->getInstructionsSize();
+   int instructionsSize = m_executable.getInstructionsSize();
 
    while(it != m_tempHeapLabels.end())
    {
-      m_executable->addSymbol(it->first, it->second + instructionsSize);
+      m_executable.addSymbol(it->first, it->second + instructionsSize);
       ++it;
    }
 
@@ -77,16 +75,15 @@ void AssemblerAndLinker::run()
    resolveOperands();
 }
 
-void AssemblerAndLinker::handleTextSection(const Expression* expr)
+void AssemblerAndLinker::handleTextSection(const Expressions::Expression* expr)
 {
    std::cout << "In text section" << std::endl;
-   static std::list<Expression*> tempInstructions;
 
    while(expr != nullptr)
    {
       switch(expr->getExpressionType())
       {
-      case Expression::ExpressionType::DIRECTIVE:
+      case Expressions::Expression::ExpressionType::DIRECTIVE:
       {
          const Expressions::Directive* directive = static_cast<const Expressions::Directive*>(expr);
          // No expecting any directives while handling .text
@@ -96,38 +93,19 @@ void AssemblerAndLinker::handleTextSection(const Expression* expr)
          }
          break;
       }
-      case Expression::ExpressionType::LABEL:
+      case Expressions::Expression::ExpressionType::LABEL:
       {
          const Expressions::Label* label = static_cast<const Expressions::Label*>(expr);
-         m_executable->addSymbol(label->getLabelName(), m_pc);
+         m_executable.addSymbol(label->getLabelName(), m_pc);
          break;
       }
-      case Expression::ExpressionType::INSTRUCTION:
-         resolveInstruction(static_cast<const Expressions::Instruction*>(expr), tempInstructions, m_converter);
-         for(Expression* currExpr: tempInstructions)
-         {
-            Expression::ExpressionType exprType = currExpr->getExpressionType();
-            if(exprType == Expression::ExpressionType::INSTRUCTION)
-            {
-               Expressions::Instruction* instr = static_cast<Expressions::Instruction*>(currExpr);
-               m_executable->addInstruction(instr, 4);
-               m_pc += 4;
-            }
-            else if(exprType == Expression::ExpressionType::LABEL)
-            {
-               Expressions::Label* label = static_cast<Expressions::Label*>(currExpr);
-               m_executable->addSymbol(label->getLabelName(), m_pc);
-            }
-            else
-            {
-               std::cerr << __PRETTY_FUNCTION__ << "Trying to add unsupported converted instruction of type " << static_cast<int>(exprType) << ": ";
-               currExpr->print();
-               std::cerr << std::endl;
-            }
-         }
-         tempInstructions.clear();
+      case Expressions::Expression::ExpressionType::INSTRUCTION:
+      {
+         const Expressions::Instruction* instr = static_cast<const Expressions::Instruction*>(expr);
+         m_executable.addInstruction(new Expressions::Instruction(*instr), 4);
+         m_pc += 4;
          break;
-
+      }
       default:
          // Don't care
          break;
@@ -137,14 +115,14 @@ void AssemblerAndLinker::handleTextSection(const Expression* expr)
    }
 }
 
-void AssemblerAndLinker::handleDataSection(const Expression* expr)
+void AssemblerAndLinker::handleDataSection(const Expressions::Expression* expr)
 {
    std::cout << "In data section" << std::endl;
    while(expr != nullptr)
    {
       switch(expr->getExpressionType())
       {
-      case Expression::ExpressionType::DIRECTIVE:
+      case Expressions::Expression::ExpressionType::DIRECTIVE:
       {
          const Expressions::Directive* directive = static_cast<const Expressions::Directive*>(expr);
          // If section has changed, stop handling it as data
@@ -156,14 +134,14 @@ void AssemblerAndLinker::handleDataSection(const Expression* expr)
          resolveDataDirective(directive);
          break;
       }
-      case Expression::ExpressionType::LABEL:
+      case Expressions::Expression::ExpressionType::LABEL:
       {
          const Expressions::Label* label = static_cast<const Expressions::Label*>(expr);
          m_tempHeapLabels.insert({label->getLabelName(), m_hc});
          break;
       }
-      case Expression::ExpressionType::INSTRUCTION:      
-         std::cerr << __PRETTY_FUNCTION__ << ": Found instruction \"";
+      case Expressions::Expression::ExpressionType::INSTRUCTION:
+         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"";
          expr->print();
          std::cerr << "\" in data section" << std::endl;
          abort();
@@ -178,13 +156,13 @@ void AssemblerAndLinker::handleDataSection(const Expression* expr)
    }
 }
 
-void AssemblerAndLinker::handleBssSection(const Expression* expr)
+void AssemblerAndLinker::handleBssSection(const Expressions::Expression* expr)
 {
    while(expr != nullptr)
    {
       switch(expr->getExpressionType())
       {
-      case Expression::ExpressionType::DIRECTIVE:
+      case Expressions::Expression::ExpressionType::DIRECTIVE:
       {
          const Expressions::Directive* directive = static_cast<const Expressions::Directive*>(expr);
          // If section has changed, stop handling it as bss
@@ -194,10 +172,10 @@ void AssemblerAndLinker::handleBssSection(const Expression* expr)
          }
          break;
       }
-      case Expression::ExpressionType::LABEL:
+      case Expressions::Expression::ExpressionType::LABEL:
          break;
-      case Expression::ExpressionType::INSTRUCTION:
-         std::cerr << __PRETTY_FUNCTION__ << ": Found instruction \"";
+      case Expressions::Expression::ExpressionType::INSTRUCTION:
+         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"";
          expr->print();
          std::cerr << "\" in bss section" << std::endl;
          abort();
@@ -211,13 +189,13 @@ void AssemblerAndLinker::handleBssSection(const Expression* expr)
    }
 }
 
-void AssemblerAndLinker::handleRoDataSection(const Expression* expr)
+void AssemblerAndLinker::handleRoDataSection(const Expressions::Expression* expr)
 {
    while(expr != nullptr)
    {
       switch(expr->getExpressionType())
       {
-      case Expression::ExpressionType::DIRECTIVE:
+      case Expressions::Expression::ExpressionType::DIRECTIVE:
       {
          const Expressions::Directive* directive = static_cast<const Expressions::Directive*>(expr);
          // If section has changed, stop handling it as rodata
@@ -227,10 +205,10 @@ void AssemblerAndLinker::handleRoDataSection(const Expression* expr)
          }
          break;
       }
-      case Expression::ExpressionType::LABEL:
+      case Expressions::Expression::ExpressionType::LABEL:
          break;
-      case Expression::ExpressionType::INSTRUCTION:
-         std::cerr << __PRETTY_FUNCTION__ << ": Found instruction \"";
+      case Expressions::Expression::ExpressionType::INSTRUCTION:
+         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"";
          expr->print();
          std::cerr << "\" in rodata section" << std::endl;
          abort();
@@ -241,29 +219,6 @@ void AssemblerAndLinker::handleRoDataSection(const Expression* expr)
       }
 
       expr = m_parser.nextExpression();
-   }
-}
-
-void AssemblerAndLinker::resolveInstruction(const Expressions::Instruction* instr, std::list<Expression*>& out, Converters::InstructionConverterBase& converter)
-{
-   const std::string& name = instr->getInstructionName();
-   const std::vector<std::string>& operands = instr->getInstructionOperands();
-
-   try
-   {
-      /*std::cout << "Before conversion: ";
-      instr->print();
-      std::cout << std::endl;*/
-      converter.at(name)(operands, out);
-      /*std::cout << "After conversion: ";
-      out.back()->print();
-      std::cout << std::endl;*/
-   }
-   catch(const std::exception&e)
-   {
-      std::cerr << __PRETTY_FUNCTION__ << ": Failed to convert \"";
-      instr->print();
-      std::cerr << "\": " << e.what() << std::endl;
    }
 }
 
@@ -435,7 +390,7 @@ void AssemblerAndLinker::resolveOperands()
 {
    int pc = 0;
    int instrSize;
-   Expressions::Instruction* instr = m_executable->loadInstruction(pc, instrSize);
+   Expressions::Instruction* instr = m_executable.loadInstruction(pc, instrSize);
    while(instr != nullptr)
    {
       std::vector<std::string>& operands = instr->getInstructionOperands();
@@ -460,7 +415,7 @@ void AssemblerAndLinker::resolveOperands()
             }
             else
             {
-               std::cerr << __PRETTY_FUNCTION__ << ": Failed to parse " << operand << std::endl;
+               std::cerr << __PRETTY_FUNC__ << ": Failed to parse " << operand << std::endl;
             }
          }
          else if(operand.starts_with("0x") || operand.starts_with("0X"))
@@ -474,7 +429,7 @@ void AssemblerAndLinker::resolveOperands()
          {
             try
             {
-               int imm = m_executable->loadSymbolValue(operand);
+               int imm = m_executable.loadSymbolValue(operand);
                operand = std::to_string(imm);
             }
             catch(std::exception&)
@@ -494,13 +449,13 @@ void AssemblerAndLinker::resolveOperands()
       }
 
       pc += instrSize;
-      instr = m_executable->loadInstruction(pc, instrSize);
+      instr = m_executable.loadInstruction(pc, instrSize);
    }
 }
 
 int AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MODIFIER& modifier, const std::string& imm, int pc)
 {
-   int immi = m_executable->loadSymbolValue(imm);
+   int immi = m_executable.loadSymbolValue(imm);
 
    switch(modifier)
    {
@@ -530,11 +485,11 @@ int AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MOD
          try
          {
             std::string symbol = m_relocationTable.at(pc);
-            immi = m_executable->loadSymbolValue(symbol);
+            immi = m_executable.loadSymbolValue(symbol);
          }
          catch(std::exception& e)
          {
-            std::cerr << __PRETTY_FUNCTION__ << ": Failed to retrieve %pcrel_lo data for PC = " << pc << " where relo label = " << imm << "; e.what() = " << e.what() << std::endl;
+            std::cerr << __PRETTY_FUNC__ << ": Failed to retrieve %pcrel_lo data for PC = " << pc << " where relo label = " << imm << "; e.what() = " << e.what() << std::endl;
          }
       }
       immi = (immi - pc);
@@ -557,7 +512,7 @@ void AssemblerAndLinker::resolveDataDirective(const Expressions::Directive* dire
    {
       for(int value: values)
       {
-         m_executable->addToHeap(value, byteSizePerElement);
+         m_executable.addToHeap(value, byteSizePerElement);
       }
       m_hc += byteSizePerElement;
    }

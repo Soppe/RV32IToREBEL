@@ -2,24 +2,30 @@
 // Austin Henley
 // 10/5/2020
 
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <iterator>
-#include <list>
 
 #include "ternarymapper.h"
 #include "ternaryoperandconverter.h"
 
 #include "Converters/converter.h"
+
 #include "Parsers/lexer.h"
 #include "Parsers/token.h"
 #include "Parsers/parser.h"
+
 #include "Expressions/expression.h"
 #include "Expressions/all_expressions.h"
 
 #include "Simulators/RV32I/simulator.h"
+#include "Simulators/RV32I/assemblerandlinker.h"
+#include "Simulators/RV32I/executableprogram.h"
 
+#include <iostream>
+#include <fstream>
+#include <filesystem>
+
+
+namespace
+{
 void printOperands(const std::vector<std::string>& operands)
 {
    for(int i = 0; i < operands.size(); ++i)
@@ -33,28 +39,28 @@ void printOperands(const std::vector<std::string>& operands)
    }
 }
 
-void printExpressions(const std::list<Expression*>& expressions)
+void printExpressions(const Expressions::ExpressionList& expressions)
 {
    int pc = 0;
-   for(const Expression* e: expressions)
+   for(const Expressions::Expression* e: expressions)
    {
       std::cout << std::hex << pc << std::dec << "\t";
       switch(e->getExpressionType())
       {
-      case Expression::ExpressionType::DIRECTIVE:
+      case Expressions::Expression::ExpressionType::DIRECTIVE:
       {
          const Expressions::Directive* d = static_cast<const Expressions::Directive*>(e);
          std::cout << "\t";
          d->print();
          break;
       }
-      case Expression::ExpressionType::LABEL:
+      case Expressions::Expression::ExpressionType::LABEL:
       {
          const Expressions::Label* l = static_cast<const Expressions::Label*>(e);
          l->print();
          break;
       }
-      case Expression::ExpressionType::INSTRUCTION:
+      case Expressions::Expression::ExpressionType::INSTRUCTION:
       {
          const Expressions::Instruction* i = static_cast<const Expressions::Instruction*>(e);
          std::cout << "\t";
@@ -62,10 +68,10 @@ void printExpressions(const std::list<Expression*>& expressions)
          pc += 4;
          break;
       }
-      case Expression::ExpressionType::COMMENT:
+      case Expressions::Expression::ExpressionType::COMMENT:
          //TODO: std::cout << e->getExpressionName();
          break;
-      case Expression::ExpressionType::UNDEFINED:
+      case Expressions::Expression::ExpressionType::UNDEFINED:
          // TODO: std::cerr << "Found undefined expression with name = " << e->getExpressionName() << std::endl;
          break;
       default:
@@ -83,6 +89,7 @@ void printExpressions(const std::list<Expression*>& expressions)
       //}
    }
 }
+}
 
 int main(int argc, char* argv[])
 {
@@ -92,7 +99,9 @@ int main(int argc, char* argv[])
       return -1;
    }
 
-   std::ifstream inFile(argv[1]);
+   std::string inputPath = argv[1];
+
+   std::ifstream inFile(inputPath);
    std::string source((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
    source += '\n';
 
@@ -102,7 +111,7 @@ int main(int argc, char* argv[])
 
    Lexer* l = new Lexer(source);
    Parser p(l);
-   std::list<Expression*> binaryExpressions;
+   Expressions::ExpressionList binaryExpressions;
    p.parse(binaryExpressions);
    std::cout << "Parsed successfully." << std::endl;
 
@@ -118,20 +127,28 @@ int main(int argc, char* argv[])
 
    // RV32I
    std::cout << "RV32I SIMULATION" << std::endl;
-   std::list<Expression*> rv32iExpressions;
+   Expressions::ExpressionList rv32iExpressions;
    Converters::Converter::Convert("rv32i", binaryExpressions, rv32iExpressions);
 
+   Simulators::RV32I::ExecutableProgram rv32iExecutable;
+   Simulators::RV32I::AssemblerAndLinker rv32iAssembler(rv32iExpressions, rv32iExecutable);
+   rv32iAssembler.init();
+   rv32iAssembler.run();
+
+   std::string fileName = std::filesystem::path(inputPath).stem();
+   std::cout << "Path name = " << inputPath << "; fileName = " << fileName << std::endl;
+   //rv32iExecutable.generateAssemblyFileForMRCS(filename + ".mbo"); // Output as binary object file for MRCS. mbo = MRCS Binary Object file;
+
    Simulators::RV32I::Simulator rv32iSim;
-   rv32iSim.init(rv32iExpressions);
-   rv32iSim.run();
+   rv32iSim.run(rv32iExecutable);
 
    // REBEL-6
-   std::list<Expression*> rebel2Expressions;
-   Converters::Converter::Convert("rebel-2", binaryExpressions, rebel2Expressions);
+   Expressions::ExpressionList rebel2Expressions;
+   //Converters::Converter::Convert("rebel-2", binaryExpressions, rebel2Expressions);
 
    TernaryMapper mapper(binaryExpressions);
-   std::list<Expression*> ternaryExpressions;
-   mapper.mapExpressions(ternaryExpressions);
+   Expressions::ExpressionList ternaryExpressions;
+   //mapper.mapExpressions(ternaryExpressions);
 
 
    // TODO: "Convert" immediates, as in check if the immediate can be converted by the single REBEL-2 instruction its converted to, or if that instruction itself need to be split up because of the value of
@@ -174,8 +191,8 @@ int main(int argc, char* argv[])
    std::cout << "TERNARY EXPRESSIONS: " << std::endl;
    //printExpressions(ternaryExpressions);
 
-   binaryExpressions.remove_if([](const Expression* expr) { delete expr; return true;});
-   ternaryExpressions.remove_if([](const Expression* expr) { delete expr; return true;});
+   binaryExpressions.remove_if([](const Expressions::Expression* expr) { delete expr; return true;});
+   ternaryExpressions.remove_if([](const Expressions::Expression* expr) { delete expr; return true;});
    delete l;
    return 0;
 }

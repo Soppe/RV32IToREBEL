@@ -1,11 +1,14 @@
 #include "parseutils.h"
 
+#include <logger.h>
+
 #include <regex>
 #include <iostream>
 
 // Define taken from https://github.com/riscv-software-src/riscv-tests/tree/master/isa/macros/scalar/test_macros.h
 //#define PARSEUTILS_SEXT_IMM(imm, bits) ((imm) | (-(((imm) >> (bits - 1)) & 1) << (bits - 1)))
 
+// Adapted based on how sign extension is included when bitshifting in c++
 #define PARSEUTILS_SEXT_IMM(imm, bits) ((imm << bits) >> bits)
 
 std::string ParseUtils::RELO_LABEL_PREFIX = ".relo_";
@@ -94,7 +97,7 @@ bool ParseUtils::parseImmediate(int immediateSize, const std::string& in, int& o
          }
          else
          {
-            std::cerr << __PRETTY_FUNCTION__ << ": Conversion failed with input = " << in << std::endl;
+            std::cerr << __PRETTY_FUNC__ << ": Conversion failed with input = " << in << std::endl;
          }*/
          retVal = true;
       }
@@ -109,7 +112,7 @@ bool ParseUtils::parseImmediate(int immediateSize, const std::string& in, int& o
    }
    catch(std::exception& e)
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Failed to parse immediate " << in << " of indended size " << immediateSize << " because of " << e.what() << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Failed to parse immediate " << in << " of indended size " << immediateSize << " because of " << e.what() << std::endl;
    }
 
    return retVal;

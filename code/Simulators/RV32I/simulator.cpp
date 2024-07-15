@@ -1,6 +1,7 @@
 #include "simulator.h"
 #include "assemblerandlinker.h"
 #include "executableprogram.h"
+#include "Cpus/cpu.h"
 
 #include <Converters/rv32ipseudotorv32ibase.h>
 #include <Expressions/all_expressions.h>
@@ -15,8 +16,7 @@ namespace RV32I
 {
 
 Simulator::Simulator()
-    : m_executable(new ExecutableProgram())
-    , m_cpu(new CPU())
+   : m_cpu(new CPU())
 {
 
 }
@@ -24,30 +24,19 @@ Simulator::Simulator()
 Simulator::~Simulator()
 {
    delete m_cpu;
-   delete m_executable;
 }
 
-void Simulator::init(std::list<Expression*>& expressions)
+void Simulator::run(ExecutableProgram& executable)
 {
-   Converters::RV32IPseudoToRV32IBase converter;
-   AssemblerAndLinker assLnk(expressions, converter, m_executable);
-
-   assLnk.init();
-   assLnk.run();
-}
-
-void Simulator::run()
-{
-   m_cpu->executeProgram(*m_executable);
-
+   m_cpu->executeProgram(executable);
 
    /*std::cout << "BINARY INSTRUCTIONS:" << std::endl;
-   m_programMemory->printInstructions();
+   executable->printInstructions();
 
    std::cout << std::endl;
 
    std::cout << "BINARY SYMBOLS" << std::endl;
-   m_programMemory->printSymbols();*/
+   executable->printSymbols();*/
 }
 
 }

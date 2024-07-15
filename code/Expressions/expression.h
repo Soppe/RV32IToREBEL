@@ -2,6 +2,10 @@
 #define EXPRESSION_H
 
 #include <string>
+#include <list>
+
+namespace Expressions
+{
 
 class Expression
 {
@@ -17,5 +21,7 @@ public:
 protected:
 };
 
+using ExpressionList = std::list<Expression*>;
+}
 
 #endif // EXPRESSION_H

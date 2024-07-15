@@ -4,6 +4,7 @@
 #include <Parsers/parseutils.h>
 #include <Simulators/RV32I/simulatorutils.h>
 #include <Simulators/RV32I/executableprogram.h>
+#include <logger.h>
 
 #include <iostream>
 
@@ -93,7 +94,7 @@ void executeAddi(int& rd, int rs1, int imm)
 
    if((imm > 0x7ff) || (imm < (int)0xfffff800))
    {
-      std::cerr << __PRETTY_FUNCTION__ << "Illegal value " << imm << std::endl;
+      std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
    }
 
@@ -111,7 +112,7 @@ void executeSlli(int& rd, int rs1, int imm)
    uint immu = imm;
    if(immu > 0x1f)
    {
-      std::cerr << __PRETTY_FUNCTION__ << "Value too large: " << immu << std::endl;
+      std::cerr << __PRETTY_FUNC__ << "Value too large: " << immu << std::endl;
       abort();
    }
 
@@ -125,7 +126,7 @@ void executeSrli(int& rd, int rs1, int imm)
    uint immu = imm;
    if(immu > 0x1f)
    {
-      std::cerr << __PRETTY_FUNCTION__ << "Value too large: " << immu << std::endl;
+      std::cerr << __PRETTY_FUNC__ << "Value too large: " << immu << std::endl;
       abort();
    }
 
@@ -151,7 +152,7 @@ void executeSrai(int& rd, int rs1, int imm)
    uint immu = imm;
    if(immu > 0x1f)
    {
-      std::cerr << __PRETTY_FUNCTION__ << "Value too large: " << immu << std::endl;
+      std::cerr << __PRETTY_FUNC__ << "Value too large: " << immu << std::endl;
       abort();
    }
 
@@ -162,7 +163,7 @@ void executeSlti(int& rd, int rs1, int imm)
 {
    if((imm > 0x7ff) || (imm < (int)0xfffff800))
    {
-      std::cerr << __PRETTY_FUNCTION__ << "Illegal value " << imm << std::endl;
+      std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
    }
 
@@ -181,7 +182,7 @@ void executeSltiu(int& rd, int rs1, int imm)
 {
    if((imm > 0x7ff) || (imm < (int)0xfffff800))
    {
-      std::cerr << __PRETTY_FUNCTION__ << "Illegal value " << imm << std::endl;
+      std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
    }
 
@@ -201,7 +202,7 @@ void executeOri(int& rd, int rs1, int imm)
 {
    if((imm > 0x7ff) || (imm < (int)0xfffff800))
    {
-      std::cerr << __PRETTY_FUNCTION__ << "Illegal value " << imm << std::endl;
+      std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
    }
 
@@ -215,7 +216,7 @@ void executeXori(int& rd, int rs1, int imm)
 {
    if((imm > 0x7ff) || (imm < (int)0xfffff800))
    {
-      std::cerr << __PRETTY_FUNCTION__ << "Illegal value " << imm << std::endl;
+      std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
    }
 
@@ -229,7 +230,7 @@ void executeAndi(int& rd, int rs1, int imm)
 {
    if((imm > 0x7ff) || (imm < (int)0xfffff800))
    {
-      std::cerr << __PRETTY_FUNCTION__ << "Illegal value " << imm << std::endl;
+      std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
    }
 
@@ -445,7 +446,7 @@ void CPU::executeProgram(ExecutableProgram& program)
          executeSystem(name);
          break;
       default:
-         std::cerr << __PRETTY_FUNCTION__ << ": Undefined instruction " << name << std::endl;
+         std::cerr << __PRETTY_FUNC__ << ": Undefined instruction " << name << std::endl;
       }
       m_PC += instructionSize;
       instr = program.loadInstruction(m_PC, instructionSize);
@@ -472,7 +473,7 @@ void CPU::executeRegister(const std::string& name, const std::string& rd, const 
    else if(name == "and")  executeAnd(rdVal, rs1i, rs2i);
    else
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Unsupported register instruction " << name << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Unsupported register instruction " << name << std::endl;
       abort();
    }
 
@@ -491,7 +492,7 @@ void CPU::executeImmediate(const std::string& name, const std::string& rd, const
    }
    catch(std::exception&)
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Unable to convert immediate with value " << imm << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Unable to convert immediate with value " << imm << std::endl;
       abort();
    }
 
@@ -506,7 +507,7 @@ void CPU::executeImmediate(const std::string& name, const std::string& rd, const
    else if(name == "andi")  executeAndi(rdVal, rs1i, immi);
    else
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Unsupported immediate instruction " << name << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Unsupported immediate instruction " << name << std::endl;
       abort();
    }
 
@@ -524,14 +525,14 @@ void CPU::executeUpper(const std::string& name, const std::string& rd, const std
    }
    catch(std::exception&)
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Unable to convert immediate with value " << imm << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Unable to convert immediate with value " << imm << std::endl;
       abort();
    }
 
    // GCC compiler will throw an error if any of the 12 MSB is set. We'll do the same.
    if((immi20 & 0xfff00000) != 0)
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Illegal value " << immi20 << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << immi20 << std::endl;
       abort();
    }
 
@@ -539,7 +540,7 @@ void CPU::executeUpper(const std::string& name, const std::string& rd, const std
    else if(name == "auipc") executeAuipc(rdVal, immi20, m_PC);
    else
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Unsupported upper instruction " << name << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Unsupported upper instruction " << name << std::endl;
       abort();
    }
 
@@ -560,14 +561,14 @@ void CPU::executeBranch(const std::string& name, const std::string& rs1, const s
    }
    catch(std::exception&)
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Unable to convert immediate with value " << offset << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Unable to convert immediate with value " << offset << std::endl;
       abort();
    }
 
    // Bitshift the immediate left 1 bit to compensate for how there is a "hidden" 0-bit in the LSB that isn't part of the instruction per the branch documentation
    if((offi12 > (0x7ff << 1)) || (offi12 < (int)(0xfffff800 << 1)))
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Illegal value " << offi12 << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offi12 << std::endl;
       abort();
    }
 
@@ -579,7 +580,7 @@ void CPU::executeBranch(const std::string& name, const std::string& rs1, const s
    else if(name == "bgeu") executeBgeu(rs1i, rs2i, offi12, pcVal);
    else
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Unsupported branch instruction " << name << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Unsupported branch instruction " << name << std::endl;
       return;
    }
 
@@ -598,21 +599,21 @@ void CPU::executeJump(const std::string& name, const std::string& rd, const std:
    }
    catch(std::exception&)
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Unable to convert offset with value " << offset << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Unable to convert offset with value " << offset << std::endl;
       abort();
    }
 
    // Bitshift the immediate left 1 bit to compensate for how there is a "hidden" 0-bit in the LSB that isn't part of the instruction per the jump documentation
    if((offseti > (0x0007ffff << 1)) || (offseti < (int)(0xfff80000 << 1)))
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Illegal value " << offseti << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offseti << std::endl;
       abort();
    }
 
    if(name == "jal") executeJal(rdVal, offseti, pcVal);
    else
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Unsupported jump instruction " << name << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Unsupported jump instruction " << name << std::endl;
       abort();
    }
 
@@ -631,7 +632,7 @@ void CPU::executeJumpRegister(const std::string& name, const std::string& rd, co
    if(name == "jalr") executeJalr(rdVal, targeti, pcVal);
    else
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Unsupported jump register instruction " << name << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Unsupported jump register instruction " << name << std::endl;
       abort();
    }
 
@@ -653,7 +654,7 @@ void CPU::executeLoad(const std::string& name, const std::string& rd, const std:
    else if(name == "lbu") executeLbu(rdVal, addressi, program);
    else
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Unsupported load instruction " << name << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Unsupported load instruction " << name << std::endl;
       abort();
    }
 
@@ -672,7 +673,7 @@ void CPU::executeStore(const std::string& name, const std::string& rs, const std
    else if(name == "sb") executeSb(rsi, addressi, program);
    else
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Unsupported store instruction " << name << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Unsupported store instruction " << name << std::endl;
       abort();
    }
 }
@@ -701,7 +702,7 @@ void CPU::executeSystem(const std::string& name)
    //else if(name == "sb") ;
    else
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Unsupported system instruction " << name << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Unsupported system instruction " << name << std::endl;
       abort();
    }
 }
@@ -720,13 +721,13 @@ void CPU::resolve12ImmOffset(const std::string& offset, int& value)
    }
    catch(std::exception&)
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Failed to parse offset = " + off12 << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Failed to parse offset = " + off12 << std::endl;
       abort();
    }
 
    if((offi12 > 0x7ff) || (offi12 < (int)0xfffff800))
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Illegal value " << offi12 << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offi12 << std::endl;
       abort();
    }
 

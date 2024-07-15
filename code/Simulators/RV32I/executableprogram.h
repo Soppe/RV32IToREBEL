@@ -23,12 +23,13 @@ public:
       int size;
    }*/
    ExecutableProgram();
+   ~ExecutableProgram();
 
    void addInstruction(Expressions::Instruction* instruction, int instructionSize);
    void addToHeap(int value, int numBytes);
    void addSymbol(const std::string& symbolName, int value);
 
-   Expressions::Instruction* loadInstruction(int programCounter, int& instructionSize);
+   Expressions::Instruction* loadInstruction(int programCounter, int& instructionSize) const;
    int loadFromHeap(int address, int numBytes) const;
    int loadSymbolValue(const std::string& symbolName) const;
 
@@ -49,6 +50,7 @@ private:
    using InstructionMemoryMap = std::map<int, Expressions::Instruction*>; // Address | Instruction
    using SymbolTableMap = std::map<std::string, int>; // Label name | Start address of value
    using HeapVector = std::vector<unsigned char>;
+
    InstructionMemoryMap m_instructions; // Address, Instruction
    int m_instructionsSize;
    int m_heapSize;

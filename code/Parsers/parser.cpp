@@ -48,7 +48,7 @@ void Parser::nextToken()
 }
 
 //TODO: Update this according to actual documentation found at https://sourceware.org/binutils/docs/as/ (chapter 5) and https://github.com/riscv-non-isa/riscv-asm-manual/blob/master/riscv-asm.md
-void Parser::parse(std::list<Expression*>& expressions)
+void Parser::parse(std::list<Expressions::Expression*>& expressions)
 {
    while(!checkToken(TokenType::EndOfFile))
    {
@@ -64,7 +64,7 @@ void Parser::parse(std::list<Expression*>& expressions)
       else if(checkToken(TokenType::Dot))
       {
          std::cout << "Checking label or directive" << std::endl;
-         Expression* e = getLabelOrDirective();
+         Expressions::Expression* e = getLabelOrDirective();
          expressions.push_back(e);
       }
 
@@ -167,9 +167,9 @@ Expressions::Directive* Parser::getDirective(bool includeDot)
 ;
 }
 
-Expression* Parser::getLabelOrDirective()
+Expressions::Expression* Parser::getLabelOrDirective()
 {
-   Expression* retval = nullptr;
+   Expressions::Expression* retval = nullptr;
    std::string str = m_token->literal;
 
    nextToken(); // Bypass the dot

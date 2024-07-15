@@ -1,11 +1,8 @@
 #ifndef TERNARYOPERANDCONVERTER_H
 #define TERNARYOPERANDCONVERTER_H
 
+#include <Expressions/expression.h>
 
-#include <list>
-#include <string>
-
-class Expression;
 class ExpressionParser;
 
 namespace Expressions
@@ -16,7 +13,7 @@ class Instruction;
 class TernaryOperandConverter
 {
 public:
-   TernaryOperandConverter(std::list<Expression*>& ternaryExpressions);
+   TernaryOperandConverter(Expressions::ExpressionList& ternaryExpressions);
    ~TernaryOperandConverter();
 
    void convertOperands();

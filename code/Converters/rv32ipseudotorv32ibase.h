@@ -11,7 +11,8 @@ public:
    RV32IPseudoToRV32IBase();
    virtual ~RV32IPseudoToRV32IBase() = default;
 
-   virtual void initMap();
+private:
+   void fillExpressionMap();
 };
 }
 

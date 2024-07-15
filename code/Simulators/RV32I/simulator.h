@@ -1,22 +1,16 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 
-#include <list>
-#include "Cpus/cpu.h"
+#include <Expressions/expression.h>
 
-
-namespace Converters
-{
-class RV32IPseudoToRV32IBase;
-}
-
-class Expression;
-class ExecutableProgram;
 
 namespace Simulators
 {
 namespace RV32I
 {
+
+class ExecutableProgram;
+class CPU;
 
 class Simulator
 {
@@ -24,11 +18,9 @@ public:
    Simulator();
    ~Simulator();
 
-   void init(std::list<Expression*>& expressions);
-   void run();
+   void run(ExecutableProgram& executable);
 
 private:
-   ExecutableProgram* m_executable;
    CPU* m_cpu;
 };
 

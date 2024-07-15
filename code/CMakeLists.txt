@@ -12,6 +12,7 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 # Header files
 set(HEADERS
+   logger.h
    ternarymapper.h
    ternaryoperandconverter.h
    Converters/converter.h
@@ -44,6 +45,7 @@ set(SOURCES
    ternarymapper.cpp
    ternaryoperandconverter.cpp
    Converters/converter.cpp
+   Converters/instructionconverterbase.cpp
    Converters/rv32ipseudotorv32ibase.cpp
    Converters/rv32itorebel2.cpp
    Expressions/directive.cpp

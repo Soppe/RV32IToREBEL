@@ -1,27 +1,27 @@
 #ifndef INSTRUCTIONCONVERTERBASE_H
 #define INSTRUCTIONCONVERTERBASE_H
 
-#include <vector>
-#include <list>
-#include <string>
+#include <Expressions/expression.h>
+
 #include <unordered_map>
 #include <functional>
 
-class Expression;
 
 namespace Converters
 {
 using StringList = std::vector<std::string>;
-using ExpressionList = std::list<Expression*>;
-using ConverterFunc = std::function<void(const StringList& bOperands, ExpressionList& expressions)>;
+using ConverterFunc = std::function<void(const StringList& bOperands, Expressions::ExpressionList& expressions)>;
 
-class InstructionConverterBase : public std::unordered_map<std::string, ConverterFunc>
+class InstructionConverterBase
 {
 public:
    InstructionConverterBase() = default;
    virtual ~InstructionConverterBase() = default;
 
-   virtual void initMap() = 0;
+   const ConverterFunc& at(const std::string& name) const;
+
+protected:
+   std::unordered_map<std::string, ConverterFunc> m_expressionMap;
 };
 }
 

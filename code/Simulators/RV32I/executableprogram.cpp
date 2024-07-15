@@ -1,5 +1,7 @@
 #include "executableprogram.h"
+
 #include <Expressions/instruction.h>
+#include <logger.h>
 
 #include <iostream>
 
@@ -20,6 +22,20 @@ ExecutableProgram::ExecutableProgram()
 
 }
 
+ExecutableProgram::~ExecutableProgram()
+{
+   InstructionMemoryMap::iterator iter = m_instructions.begin();
+   for(; iter != m_instructions.end(); )
+   {
+      if (iter->second != nullptr)
+      {
+         delete iter->second;
+         iter->second == nullptr;
+      }
+      iter = m_instructions.erase(iter);
+   }
+}
+
 void ExecutableProgram::addInstruction(Expressions::Instruction* instruction, int instructionSize)
 {
    m_instructions.insert({m_instructionsSize, instruction});
@@ -30,7 +46,7 @@ void ExecutableProgram::addToHeap(int value, int numBytes)
 {
    if((numBytes > 4) || (numBytes < 0))
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Trying to store data of unsupported size = " << numBytes << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Trying to store data of unsupported size = " << numBytes << std::endl;
       abort();
    }
 
@@ -45,7 +61,7 @@ void ExecutableProgram::addSymbol(const std::string& symbolName, int value)
    m_symbolTable.insert({symbolName, value});
 }
 
-Expressions::Instruction* ExecutableProgram::loadInstruction(int programCounter, int& instructionSize)
+Expressions::Instruction* ExecutableProgram::loadInstruction(int programCounter, int& instructionSize) const
 {
    Expressions::Instruction* instr = nullptr;
    InstructionMemoryMap::const_iterator it = m_instructions.find(programCounter);
@@ -70,7 +86,7 @@ int ExecutableProgram::loadFromHeap(int address, int numBytes) const
    int retVal = 0;
    if((numBytes > 4) || (numBytes < 0))
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Trying to load data of unsupported byte size " << numBytes << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Trying to load data of unsupported byte size " << numBytes << std::endl;
       abort();
    }
 
@@ -106,7 +122,7 @@ void ExecutableProgram::storeToHeap(int address, int value, int numBytes)
 {
    if((numBytes > 4) || (numBytes < 0))
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Trying to store data of unsupported byte size " << numBytes << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Trying to store data of unsupported byte size " << numBytes << std::endl;
       abort();
    }
 
@@ -121,7 +137,7 @@ void ExecutableProgram::recalculateHeapSize()
    m_heapSize = getProgramSize() - getInstructionsSize();
    if((m_heapSize < 0 ) || (m_heap.size() > m_heapSize))
    {
-      std::cerr << __PRETTY_FUNCTION__ << ": Tried recalcuating heap, but heap already overflowing" << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Tried recalcuating heap, but heap already overflowing" << std::endl;
       abort();
    }
 
