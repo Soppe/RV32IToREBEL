@@ -59,7 +59,7 @@ void AssemblerAndLinker::run()
       expr = m_parser.nextExpression();
    }
 
-   m_executable.recalculateHeapSize();
+   m_executable.finishUp();
 
    // Finished setting up the instruction memory, now we need to set up heap labels
    HeapLabelMap::const_iterator it = m_tempHeapLabels.begin();
@@ -445,6 +445,16 @@ void AssemblerAndLinker::resolveOperands()
       {
          int opInt = stoi(operands.back());
          opInt = opInt - pc;
+         if((opInt % 2) != 0)
+         {
+            std::cerr << __PRETTY_FUNC__ << ": offset not 2 byte aligned: ";
+            instr->print();
+            std::cout << std::endl;
+            abort();
+         }
+         // Last bit should always be 0 since every instruction should be at least 2-byte aligned - we discard it because the CPU adds it automatically.
+         // This correlates with the values of machine instructions from dissassembled code. This also means that the immediate should always be considered to be size 13, not 12.
+         opInt >>= 1;
          operands.back() = std::to_string(opInt);
       }
 

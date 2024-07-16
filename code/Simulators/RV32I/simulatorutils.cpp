@@ -1,6 +1,14 @@
 #include "simulatorutils.h"
 
+#include "executableprogram.h"
+#include "Cpus/registry.h"
+
+#include <logger.h>
+#include <Expressions/instruction.h>
+
 #include <unordered_map>
+#include <iostream>
+
 namespace
 {
 const std::unordered_map<std::string, const Simulators::RV32I::SimulatorUtils::InstructionType> InstructionMap =
@@ -85,6 +93,86 @@ SimulatorUtils::InstructionType SimulatorUtils::getInstructionType(const std::st
    }
 
    return retVal;
+}
+
+void SimulatorUtils::generateAssemblyFileForMRCS(const ExecutableProgram& program, const std::string& fileName)
+{
+   int pc = 0;
+   int instructionSize = 0;
+   int binaryRepresentation = 0;
+   const Expressions::Instruction* instr = program.loadInstruction(pc, instructionSize);
+
+   SimulatorUtils::InstructionType type = SimulatorUtils::InstructionType::UNDEFINED;
+
+   while(instr != nullptr)
+   {
+      const std::string& name = instr->getInstructionName();
+      const std::vector<std::string>& operands = instr->getInstructionOperands();
+      type = SimulatorUtils::getInstructionType(name);
+
+      switch(type)
+      {
+      case SimulatorUtils::InstructionType::REGISTER:
+      {
+         int rd = Registry::getIntegerValue(operands[0]);
+         int rs1 = Registry::getIntegerValue(operands[1]);
+         int rs2 = Registry::getIntegerValue(operands[2]);
+
+         std::cout << "rd = " << operands[0] << " = " << rd << std::endl;
+         std::cout << "rs1 = " << operands[1] << " = " << rs1 << std::endl;
+         std::cout << "rs2 = " << operands[2] << " = " << rs2 << std::endl;
+         break;
+      }
+      case SimulatorUtils::InstructionType::IMMEDIATE:
+         break;
+      case SimulatorUtils::InstructionType::UPPER:
+         break;
+      case SimulatorUtils::InstructionType::BRANCH:
+         break;
+      case SimulatorUtils::InstructionType::JUMP:
+         break;
+      case SimulatorUtils::InstructionType::JUMP_REGISTER:
+         break;
+      case SimulatorUtils::InstructionType::LOAD:
+         break;
+      case SimulatorUtils::InstructionType::STORE:
+         break;
+      case SimulatorUtils::InstructionType::SYSTEM:
+      {
+         std::string systemInstructionName;
+         systemInstructionName.resize(name.length());
+         std::transform(name.begin(), name.end(), systemInstructionName.begin(), [](unsigned char c){ return std::tolower(c); });
+         if(systemInstructionName == "fence")
+         {
+            // This is only the opcode. FENCE consists of multiple other fields, but since we don't support fence in the first place we won't add any more data
+            binaryRepresentation = 0b1111;
+         }
+         else if(systemInstructionName == "ecall")
+         {
+            binaryRepresentation = 0b1110011;
+         }
+         else if(systemInstructionName == "ebreak")
+         {
+            binaryRepresentation = 0b100000000000001110011;
+         }
+         else
+         {
+            std::cerr << __PRETTY_FUNC__ << ": Unsupported system instruction: " << name << std::endl;
+         }
+         break;
+      }
+      default:
+         std::cerr << __PRETTY_FUNC__ << ": Unsupported instruction " << name << std::endl;
+      }
+
+      /*
+      std::cout << "Binary representation of ";
+      instr->print();
+      std::cout << " is " << binaryRepresentation << std::endl;*/
+
+      pc += instructionSize;
+      instr = program.loadInstruction(pc, instructionSize);
+   };
 }
 
 }

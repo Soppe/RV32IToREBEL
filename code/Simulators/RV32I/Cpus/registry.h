@@ -22,6 +22,8 @@ public:
 
    void printRegistry();
 
+   static int getIntegerValue(const std::string& regName);
+
 private:
    std::unordered_map<std::string, int> m_registry;
    int m_numBitFlips;

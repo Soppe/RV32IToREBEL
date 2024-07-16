@@ -15,9 +15,10 @@
 #include "Expressions/expression.h"
 #include "Expressions/all_expressions.h"
 
-#include "Simulators/RV32I/simulator.h"
 #include "Simulators/RV32I/assemblerandlinker.h"
 #include "Simulators/RV32I/executableprogram.h"
+#include "Simulators/RV32I/simulator.h"
+#include "Simulators/RV32I/simulatorutils.h"
 
 #include <iostream>
 #include <fstream>
@@ -137,7 +138,8 @@ int main(int argc, char* argv[])
 
    std::string fileName = std::filesystem::path(inputPath).stem();
    std::cout << "Path name = " << inputPath << "; fileName = " << fileName << std::endl;
-   //rv32iExecutable.generateAssemblyFileForMRCS(filename + ".mbo"); // Output as binary object file for MRCS. mbo = MRCS Binary Object file;
+   // Output as binary object file for MRCS. mbo = MRCS Binary Object file.
+   Simulators::RV32I::SimulatorUtils::generateAssemblyFileForMRCS(rv32iExecutable, fileName + ".mbo");
 
    Simulators::RV32I::Simulator rv32iSim;
    rv32iSim.run(rv32iExecutable);

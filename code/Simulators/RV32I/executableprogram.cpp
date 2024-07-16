@@ -132,7 +132,7 @@ void ExecutableProgram::storeToHeap(int address, int value, int numBytes)
 
 }
 
-void ExecutableProgram::recalculateHeapSize()
+void ExecutableProgram::finishUp()
 {
    m_heapSize = getProgramSize() - getInstructionsSize();
    if((m_heapSize < 0 ) || (m_heap.size() > m_heapSize))

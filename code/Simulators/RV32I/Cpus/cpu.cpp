@@ -40,7 +40,7 @@ void executeSrl(int& rd, int rs1, int rs2)
    {
       rd = rs1 >> rs2;
 
-      // Since the >> operand in c++ functions as sra we have to simulate shifting 0's into the upper bits
+      // Since the >> operand in c++ functions as sra -sign extending the number - we have to simulate shifting 0's into the upper bits
       int mask = 0x7fffffff;
       mask = mask >> (rs2 - 1);
       rd = rd & mask;
@@ -565,12 +565,15 @@ void CPU::executeBranch(const std::string& name, const std::string& rs1, const s
       abort();
    }
 
-   // Bitshift the immediate left 1 bit to compensate for how there is a "hidden" 0-bit in the LSB that isn't part of the instruction per the branch documentation
-   if((offi12 > (0x7ff << 1)) || (offi12 < (int)(0xfffff800 << 1)))
+   if((offi12 > (0x7ff)) || (offi12 < (int)(0xfffff800)))
    {
       std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offi12 << std::endl;
       abort();
    }
+
+   // Bitshift the immediate left 1 bit to add the "hidden" 0-bit in the LSB that isn't part of the instruction, but is "added" by the CPU because any instruction is to be at least 2-byte aligned.
+   // Not needing to add the last 0 in the immediate means there's instead space for an extra bit in the MSB, doubling the range of the offset.
+   offi12 <<= 1;
 
    if     (name == "beq")  executeBeq(rs1i, rs2i, offi12, pcVal);
    else if(name == "bne")  executeBne(rs1i, rs2i, offi12, pcVal);
@@ -603,12 +606,15 @@ void CPU::executeJump(const std::string& name, const std::string& rd, const std:
       abort();
    }
 
-   // Bitshift the immediate left 1 bit to compensate for how there is a "hidden" 0-bit in the LSB that isn't part of the instruction per the jump documentation
-   if((offseti > (0x0007ffff << 1)) || (offseti < (int)(0xfff80000 << 1)))
+   if((offseti > (0x0007ffff)) || (offseti < (int)(0xfff80000)))
    {
       std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offseti << std::endl;
       abort();
    }
+
+   // Bitshift the immediate left 1 bit to add the "hidden" 0-bit in the LSB that isn't part of the instruction, but is "added" by the CPU because any instruction is to be at least 2-byte aligned.
+   // Not needing to add the last 0 in the immediate means there's instead space for an extra bit in the MSB, doubling the range of the offset.
+   offseti <<= 1;
 
    if(name == "jal") executeJal(rdVal, offseti, pcVal);
    else

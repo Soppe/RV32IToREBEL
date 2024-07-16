@@ -35,8 +35,8 @@ public:
 
    void storeToHeap(int address, int value, int numBytes);
 
-   // Should be called after all instructions and initial heap values have been added.
-   void recalculateHeapSize();
+   // Should be called after all instructions and initial heap values have been added, to recalculate heap size and other necessary data.
+   void finishUp();
 
    int getProgramSize() const;
    int getInstructionsSize();
