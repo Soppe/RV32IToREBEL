@@ -19,6 +19,7 @@ set(HEADERS
    Converters/instructionconverterbase.h
    Converters/rv32ipseudotorv32ibase.h
    Converters/rv32itorebel2.h
+   Converters/rv32itorebel6.h
    Expressions/all_expressions.h
    Expressions/directive.h
    Expressions/expression.h
@@ -48,6 +49,7 @@ set(SOURCES
    Converters/instructionconverterbase.cpp
    Converters/rv32ipseudotorv32ibase.cpp
    Converters/rv32itorebel2.cpp
+   Converters/rv32itorebel6.cpp
    Expressions/directive.cpp
    Expressions/expression.cpp
    Expressions/instruction.cpp

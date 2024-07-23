@@ -478,12 +478,13 @@ int AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MOD
       break;
    case ParseUtils::ASSEMBLER_MODIFIER::PCRELHI:
    {
-      // Store what symbol %pcrel_hi points to, as %pcrel_lo points to the the address of the instruction related to %pcrel_hi rather than the symbol itself, but is still interested in the symbol value
-      // pc is the address of the %pcrel_hi-related instruction, whereas imm is the symbol name
+      // Store what symbol %pcrel_hi points to, as %pcrel_lo points to the the address of the instruction related to %pcrel_hi rather than the symbol itself,
+      // but is still interested in the symbol value.
+      // Pc is the address of the %pcrel_hi-related instruction, whereas imm is the symbol name
       m_relocationTable.insert({pc, imm});
 
       int delta = immi - pc;
-      // Compensate for signedness from %pcrel_lo, don't sign extend as it makes lui grumpy
+      // Compensate for signedness from %pcrel_lo by adding +1 if its sign bit is set, but don't sign extend as it makes lui grumpy
       immi = ((delta >> 12) + ((delta & 0x800) ? 1 : 0)) & 0xfffff;
       break;
    }

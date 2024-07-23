@@ -126,25 +126,32 @@ int main(int argc, char* argv[])
     * ------------------- BACKEND -------------------
     */
 
-   // RV32I
-   std::cout << "RV32I SIMULATION" << std::endl;
+   // ------------ RV32I------------
+
+   // Conversion
    Expressions::ExpressionList rv32iExpressions;
    Converters::Converter::Convert("rv32i", binaryExpressions, rv32iExpressions);
 
+   // Assembling
    Simulators::RV32I::ExecutableProgram rv32iExecutable;
    Simulators::RV32I::AssemblerAndLinker rv32iAssembler(rv32iExpressions, rv32iExecutable);
    rv32iAssembler.init();
    rv32iAssembler.run();
 
+   // Generating MRSC binary file
    std::string fileName = std::filesystem::path(inputPath).stem();
    std::cout << "Path name = " << inputPath << "; fileName = " << fileName << std::endl;
    // Output as binary object file for MRCS. mbo = MRCS Binary Object file.
    Simulators::RV32I::SimulatorUtils::generateAssemblyFileForMRCS(rv32iExecutable, fileName + ".mbo");
 
+   // Simulation
+   std::cout << "RV32I SIMULATION" << std::endl;
    Simulators::RV32I::Simulator rv32iSim;
    rv32iSim.run(rv32iExecutable);
 
-   // REBEL-6
+
+   // ------------ REBEL-6 ------------
+
    Expressions::ExpressionList rebel2Expressions;
    //Converters::Converter::Convert("rebel-2", binaryExpressions, rebel2Expressions);
 
@@ -193,6 +200,8 @@ int main(int argc, char* argv[])
    std::cout << "TERNARY EXPRESSIONS: " << std::endl;
    //printExpressions(ternaryExpressions);
 
+
+   // Cleanup
    binaryExpressions.remove_if([](const Expressions::Expression* expr) { delete expr; return true;});
    ternaryExpressions.remove_if([](const Expressions::Expression* expr) { delete expr; return true;});
    delete l;

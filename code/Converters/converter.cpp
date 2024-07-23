@@ -86,6 +86,9 @@ void Converter::Convert(const std::string& targetISAName, const Expressions::Exp
          resolveInstruction(instr, to, *converter);
          break;
       }
+      case Expressions::Expression::ExpressionType::COMMENT:
+         // Don't care
+         break;
 
       default:
          // Don't care

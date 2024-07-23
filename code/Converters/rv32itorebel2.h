@@ -12,7 +12,7 @@ public:
    virtual ~RV32IToREBEL2() = default;
 
 private:
-   virtual void fillExpressionMap();
+   void fillExpressionMap();
 };
 }
 #endif // RV32ITOREBEL2_H
