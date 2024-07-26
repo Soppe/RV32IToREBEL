@@ -21,7 +21,7 @@ public:
    virtual const ConverterFunc& at(const std::string& name) const;
 
 protected:
-   std::unordered_map<std::string, ConverterFunc> m_expressionMap;
+   std::unordered_map<std::string, ConverterFunc> m_instructionMap;
 };
 }
 

@@ -72,26 +72,26 @@ void RV32IToREBEL2::fillExpressionMap()
    // BASE INSTRUCTIONS (including pseudoinstructions in the cases where the base and pseudoinstruction has the same name)
 
    // add rd, rs1, rs2 --> add rs1, rs2, rd, x0
-   m_expressionMap.insert( {"add", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "add", op[1], op[2], op[0], "x0"); } } );
+   m_instructionMap.insert( {"add", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "add", op[1], op[2], op[0], "x0"); } } );
 
    // sub rd, rs1, rs2 --> add rs1, rs2, rd1, x1
-   m_expressionMap.insert( {"sub", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "add", op[1], op[2], op[0], "x1"); } } );
+   m_instructionMap.insert( {"sub", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "add", op[1], op[2], op[0], "x1"); } } );
 
    // addi rd, rs1, imm --> addi rs1, imm, rd, 0
-   m_expressionMap.insert( {"addi", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "addi", op[1], op[2], op[0], "0"); } } );
+   m_instructionMap.insert( {"addi", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "addi", op[1], op[2], op[0], "0"); } } );
 
    // TODO: Undefined in REBEL2. Two ways to handle it: Either use imm as is and trust compiler to add %hi, or enforce %hi to the imm. Currently trusting the compiler and letting the
    // operand modifier figure it out as it has to convert the value either way
    // lui rd, imm --> addi X0, imm, rd, 0
-   m_expressionMap.insert( {"lui", [] (const StringList& op, Expressions::ExpressionList& el){ createTernaryInstruction(el, "addi", "x0", op[1], op[0], "0"); } } );
+   m_instructionMap.insert( {"lui", [] (const StringList& op, Expressions::ExpressionList& el){ createTernaryInstruction(el, "addi", "x0", op[1], op[0], "0"); } } );
 
    // TODO: Unsupported in REBEL2. Current solution is just placeholder wher auipc is meant to be replaced by addi - if it works-, but with the current operands.
    // auipc rd, imm --> auipc pc, imm, rd, 0
-   m_expressionMap.insert( {"auipc", [] (const StringList& op, Expressions::ExpressionList& el){ createTernaryInstruction(el, "AUIPC", "pc", op[1], op[0], "0"); } } );
+   m_instructionMap.insert( {"auipc", [] (const StringList& op, Expressions::ExpressionList& el){ createTernaryInstruction(el, "AUIPC", "pc", op[1], op[0], "0"); } } );
 
    // jal offset --> jal x1, offset --> jal x0, x1, x1, offset
    // jal rd, offset --> jal x0, x1, rd, offset
-   m_expressionMap.insert( {"jal", [this] (const StringList& op, Expressions::ExpressionList& el)
+   m_instructionMap.insert( {"jal", [this] (const StringList& op, Expressions::ExpressionList& el)
            {
               if(op.size() == 1) at("jal")({"x1", op[0]}, el); // Pseudoinstruction
               else               createTernaryInstruction(el, "jal", "x0", "x1", op[0], op[1]);
@@ -101,7 +101,7 @@ void RV32IToREBEL2::fillExpressionMap()
    // jalr rs --> jalr x1, 0(rs) --> jal rs, x0, x1, 0
    // jalr rd, rs, offset --> jalr rd, offset(rs) --> jal rs, x0, rd, offset // This is an older format, e.g. from version v2.2
    // jalr rd, offset(rs) --> jal rs, x0, rd, offset
-   m_expressionMap.insert( {"jalr", [this] (const StringList& op, Expressions::ExpressionList& el)
+   m_instructionMap.insert( {"jalr", [this] (const StringList& op, Expressions::ExpressionList& el)
            {
               if(op.size() == 1) at("jalr")({"x1", zeroOffset(op[0])}, el); // Pseudoinstruction
               else if(op.size() == 3) at("jalr")({op[0], createOffset(op[2], op[1])}, el); // Older format, e.g. from v2.2
@@ -120,11 +120,11 @@ void RV32IToREBEL2::fillExpressionMap()
    //    l{b|h|w} rd, %pcrel_lo(symbol)(rd) --> addi rd, %pcrel_lo(symbol), rd, 0
    //insert( {"lb", [] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(op, el); } } );
    //insert( {"lh", [] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(op, el); } } );
-   m_expressionMap.insert( {"lw", [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, op, el); } } );
+   m_instructionMap.insert( {"lw", [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, op, el); } } );
 
 
    // lbu rd, offset(rs) --> addi rs, offset, rd, 0
-   m_expressionMap.insert( {"lbu", [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, op, el); } } );
+   m_instructionMap.insert( {"lbu", [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, op, el); } } );
            /*{
               std::string offset;
               std::string rs1;
@@ -148,17 +148,17 @@ void RV32IToREBEL2::fillExpressionMap()
    //    s{b|h|w} rd, %pcrel_lo(symbol)(rt) --> addi rt, %pcrel_lo(symbol), rd, 0
    //insert( {"sb", [] (const StringList& op, Expressions::ExpressionList& el) { handleStore(op, el); } } );
    //insert( {"sh", [] (const StringList& op, Expressions::ExpressionList& el) { handleStore(op, el); } } );
-   m_expressionMap.insert( {"sw", [this] (const StringList& op, Expressions::ExpressionList& el) { handleStore(this, op, el); } } );
+   m_instructionMap.insert( {"sw", [this] (const StringList& op, Expressions::ExpressionList& el) { handleStore(this, op, el); } } );
 
    // beq rs1, rs2, offset --> bceg rs1, rs2, offset, x0
-   m_expressionMap.insert( {"beq", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "bceg", op[0], op[1], op[2], "x0"); } } );
+   m_instructionMap.insert( {"beq", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "bceg", op[0], op[1], op[2], "x0"); } } );
 
    // TODO: Document this
    // bne rs1, rs2, offset -->
    //    comp rs1, rs2, t6, x0
    //    mudi t6, t6, t6, x0
    //    bceg t6, x0, x0, offset
-   m_expressionMap.insert( {"bne", [] (const StringList& op, Expressions::ExpressionList& el)
+   m_instructionMap.insert( {"bne", [] (const StringList& op, Expressions::ExpressionList& el)
            {
               createTernaryInstruction(el, "comp", op[0], op[1], "t6", "x0");
               createTernaryInstruction(el, "mudi", "t6", "t6", "t6", "x0");
@@ -166,16 +166,16 @@ void RV32IToREBEL2::fillExpressionMap()
            } } );
 
    // blt rs1, rs2, offset --> bceg rs2, rs1, x0, offset
-   m_expressionMap.insert( {"blt", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "bceg", op[1], op[0], "x0", op[2]); } } );
+   m_instructionMap.insert( {"blt", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "bceg", op[1], op[0], "x0", op[2]); } } );
 
    // bge rs1, rs2, offset --> bceg rs1, rs2, offset, offset
-   m_expressionMap.insert( {"bge", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "bceg", op[0], op[1], op[2], op[2]); } } );
+   m_instructionMap.insert( {"bge", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "bceg", op[0], op[1], op[2], op[2]); } } );
 
    // bltu rs1, rs2, offset --> bceg rs2, rs1, x0, offset
-   m_expressionMap.insert( {"bltu", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "bceg", op[1], op[0], "x0", op[2]); } } );
+   m_instructionMap.insert( {"bltu", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "bceg", op[1], op[0], "x0", op[2]); } } );
 
    // bgeu rs1, rs2, offset --> bceg rs1, rs2, offset, offset
-   m_expressionMap.insert( {"bgeu", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "bceg", op[0], op[1], op[2], op[2]); } } );
+   m_instructionMap.insert( {"bgeu", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "bceg", op[0], op[1], op[2], op[2]); } } );
 
 // TODO: slti
 
@@ -188,23 +188,23 @@ void RV32IToREBEL2::fillExpressionMap()
 // TODO: andi
 
    // slli rd, rs1, imm --> shi rs1, imm, rd, "-"
-   m_expressionMap.insert( {"slli", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "shi", op[1], op[2], op[0], "-"); } } );
+   m_instructionMap.insert( {"slli", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "shi", op[1], op[2], op[0], "-"); } } );
 
    // srli rd, rs1, imm --> shi rs1, imm, rd, "+"
-   m_expressionMap.insert( {"srli", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "shi", op[1], op[2], op[0], "+"); } } );
+   m_instructionMap.insert( {"srli", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "shi", op[1], op[2], op[0], "+"); } } );
 
    // srai rd, rs1, imm --> shi rs1, imm, rd, "+"
-   m_expressionMap.insert( {"srai", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "shi", op[1], op[2], op[0], "+"); } } );
+   m_instructionMap.insert( {"srai", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "shi", op[1], op[2], op[0], "+"); } } );
 
 // TODO: sll
 
    //TODO: Not sure if the last param should be x0 for word-wise comparison or something else for trit-wise comparison
    // slt rd, rs1, rs2 --> comp rs1, rs2, rd, x1
-   m_expressionMap.insert( {"slt", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "comp", op[1], op[2], op[0], "x1"); } } );
+   m_instructionMap.insert( {"slt", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "comp", op[1], op[2], op[0], "x1"); } } );
 
    //TODO: Not sure if the last param should be x0 for word-wise comparison or something else for trit-wise comparison
    // sltu rd, rs1, rs2 --> comp rs1, rs2, rd, x1
-   m_expressionMap.insert( {"sltu", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "comp", op[1], op[2], op[0], "x1"); } } );
+   m_instructionMap.insert( {"sltu", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "comp", op[1], op[2], op[0], "x1"); } } );
 
 // TODO: xor
 
@@ -213,16 +213,16 @@ void RV32IToREBEL2::fillExpressionMap()
 // TODO: sra
 
    // or rd, rs1, rs2 --> mima rs1, rs2, rd, "+0"
-   m_expressionMap.insert( {"or", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "mima", op[1], op[2], op[0], "+0"); } } );
+   m_instructionMap.insert( {"or", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "mima", op[1], op[2], op[0], "+0"); } } );
 
    // and rd, rs1, rs2 --> mima rs1, rs2, rd, "-0"
-   m_expressionMap.insert( {"and", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "mima", op[1], op[2], op[0], "-0"); } } );
+   m_instructionMap.insert( {"and", [] (const StringList& op, Expressions::ExpressionList& el) { createTernaryInstruction(el, "mima", op[1], op[2], op[0], "-0"); } } );
 
    // fence --> nop
-   m_expressionMap.insert( { "fence", [this] (const StringList&, Expressions::ExpressionList& el) { at("nop")({}, el); } });
+   m_instructionMap.insert( { "fence", [this] (const StringList&, Expressions::ExpressionList& el) { at("nop")({}, el); } });
 
    // ecall --> ecall
-   m_expressionMap.insert( { "ecall", [] (const StringList&, Expressions::ExpressionList& el) { createTernaryInstruction(el, "ecall"); } });
+   m_instructionMap.insert( { "ecall", [] (const StringList&, Expressions::ExpressionList& el) { createTernaryInstruction(el, "ecall"); } });
 
    // ebreak --> ebreak
    //insert( { "ebreak", [] (const StringList&, Expressions::ExpressionList& el) { createTernaryInstruction(el, "ebreak"); } });
@@ -233,7 +233,7 @@ void RV32IToREBEL2::fillExpressionMap()
    // la rd, symbol -->
    //    auipc rd, %pcrel_hi(symbol)
    //    addi rd, rd, %pcrel_lo(symbol)
-   m_expressionMap.insert( { "la", [this] (const StringList& op, Expressions::ExpressionList& el)
+   m_instructionMap.insert( { "la", [this] (const StringList& op, Expressions::ExpressionList& el)
            {
               at("auipc")({op[0], pcrel_hi(op[1])}, el);
               at("addi")({op[0], op[0], pcrel_lo(op[1])}, el); // For nopic only. Modify when/if pic-support is added
@@ -242,19 +242,19 @@ void RV32IToREBEL2::fillExpressionMap()
    // lla rd, symbol -->
    //    auipc rd, %pcrel_hi(symbol)
    //    addi rd, rd, %pcrel_lo(symbol)
-   m_expressionMap.insert( { "lla", [this] (const StringList& op, Expressions::ExpressionList& el)
+   m_instructionMap.insert( { "lla", [this] (const StringList& op, Expressions::ExpressionList& el)
            {
               at("auipc")({op[0], pcrel_hi(op[1])}, el);
               at("addi")({op[0], op[0], pcrel_lo(op[1])}, el);
            } } );
 
    // nop --> addi x0, x0, 0
-   m_expressionMap.insert( { "nop", [this] (const StringList&, Expressions::ExpressionList& el) { at("addi")({"x0", "x0", "0"}, el); } } );
+   m_instructionMap.insert( { "nop", [this] (const StringList&, Expressions::ExpressionList& el) { at("addi")({"x0", "x0", "0"}, el); } } );
 
    // li rd, imm -->
    //    lui rd, imm
    //    addi rd, rd, imm
-   m_expressionMap.insert( { "li", [this] (const StringList& op, Expressions::ExpressionList& el) // TODO: Can possibly be converted to a single addi and then let operand converter deal with too large numbers
+   m_instructionMap.insert( { "li", [this] (const StringList& op, Expressions::ExpressionList& el) // TODO: Can possibly be converted to a single addi and then let operand converter deal with too large numbers
            {
               int val;
               if(ParseUtils::parseImmediate(32, op[1], val))
@@ -289,7 +289,7 @@ void RV32IToREBEL2::fillExpressionMap()
            } });
 
    // mv rd, rs --> addi rd, rs, 0
-   m_expressionMap.insert( {"mv", [this] (const StringList& op, Expressions::ExpressionList& el) { at("addi")({op[0], op[1], "0"}, el); } } );
+   m_instructionMap.insert( {"mv", [this] (const StringList& op, Expressions::ExpressionList& el) { at("addi")({op[0], op[1], "0"}, el); } } );
 
 
 // TODO: "not" - requires xori
@@ -331,7 +331,7 @@ void RV32IToREBEL2::fillExpressionMap()
    //insert( {"bgt", [this] (const StringList& op, Expressions::ExpressionList& el) { at("blt")({ op[1], op[0], op[2] }, el); } } );
 
    // ble rs, rt, offset --> bge rt, rs, offset
-   m_expressionMap.insert( {"ble", [this] (const StringList& op, Expressions::ExpressionList& el) { at("bge")({op[1], op[0], op[2]}, el); } } );
+   m_instructionMap.insert( {"ble", [this] (const StringList& op, Expressions::ExpressionList& el) { at("bge")({op[1], op[0], op[2]}, el); } } );
 
    // bgtu rs, rt, offset --> bltu rt, rs, offset
    //insert( {"bgtu", [this] (const StringList& op, Expressions::ExpressionList& el) { at("bltu")({ op[1], op[0], op[2] }, el); } } );
@@ -340,10 +340,10 @@ void RV32IToREBEL2::fillExpressionMap()
    //insert( {"bleu", [this] (const StringList& op, Expressions::ExpressionList& el) { at("bgeu")({op[1], op[0], op[2]}, el); } } );
 
    // j offset --> jal x0, offset
-   m_expressionMap.insert( {"j", [this] (const StringList& op, Expressions::ExpressionList& el) { at("jal")({"x0", op[0]}, el); } } );
+   m_instructionMap.insert( {"j", [this] (const StringList& op, Expressions::ExpressionList& el) { at("jal")({"x0", op[0]}, el); } } );
 
    // jr rs --> jalr x0, 0(rs)
-   m_expressionMap.insert( {"jr", [this] (const StringList& op, Expressions::ExpressionList& el) { at("jalr")({"x0", zeroOffset(op[0])}, el); } } );
+   m_instructionMap.insert( {"jr", [this] (const StringList& op, Expressions::ExpressionList& el) { at("jalr")({"x0", zeroOffset(op[0])}, el); } } );
 
    // ret --> jalr x0, 0(x1)
    //insert( {"ret", [this] (const StringList&, Expressions::ExpressionList& el) { at("jalr")({"x0", zeroOffset("x1")}, el); } } );
@@ -351,7 +351,7 @@ void RV32IToREBEL2::fillExpressionMap()
    // call offset -->
    //    auipc x1, %pcrel_hi(offset)
    //    jalr x1, %pcrel_lo(offset)(x1)
-   m_expressionMap.insert( {"call", [this] (const StringList& op, Expressions::ExpressionList& el)
+   m_instructionMap.insert( {"call", [this] (const StringList& op, Expressions::ExpressionList& el)
            {
               at("auipc")({"x1", pcrel_hi(op[0])}, el);
               at("jalr")({"x1", createOffset(pcrel_lo(op[0]), "x1")}, el);
@@ -360,7 +360,7 @@ void RV32IToREBEL2::fillExpressionMap()
    // tail offset -->
    //    auipc x6, %pcrel_hi(offset)
    //    jalr x0, %pcrel_lo(offset)(x6)
-   m_expressionMap.insert( {"tail", [this] (const StringList& op, Expressions::ExpressionList& el)
+   m_instructionMap.insert( {"tail", [this] (const StringList& op, Expressions::ExpressionList& el)
            {
               at("auipc")({"x6", pcrel_hi(op[0])}, el);
               at("jalr")({"x0", createOffset(pcrel_lo(op[0]), "x6")}, el);
