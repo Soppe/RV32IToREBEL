@@ -30,8 +30,10 @@ set(HEADERS
    Parsers/parser.h
    Parsers/parseutils.h
    Parsers/token.h
-   Simulators/RV32I/Cpus/cpu.h
-   Simulators/RV32I/Cpus/registry.h
+   Simulators/REBEL6/executableprogram.h
+   Simulators/REBEL6/ternarylogic.h
+   Simulators/RV32I/Cpu/cpu.h
+   Simulators/RV32I/Cpu/registry.h
    Simulators/RV32I/assemblerandlinker.h
    Simulators/RV32I/executableprogram.h
    Simulators/RV32I/simulator.h
@@ -58,8 +60,10 @@ set(SOURCES
    Parsers/lexer.cpp
    Parsers/parser.cpp
    Parsers/parseutils.cpp
-   Simulators/RV32I/Cpus/cpu.cpp
-   Simulators/RV32I/Cpus/registry.cpp
+   Simulators/REBEL6/executableprogram.cpp
+   Simulators/REBEL6/ternarylogic.cpp
+   Simulators/RV32I/Cpu/cpu.cpp
+   Simulators/RV32I/Cpu/registry.cpp
    Simulators/RV32I/assemblerandlinker.cpp
    Simulators/RV32I/executableprogram.cpp
    Simulators/RV32I/simulator.cpp

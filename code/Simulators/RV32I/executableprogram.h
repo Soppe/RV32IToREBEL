@@ -17,23 +17,18 @@ namespace RV32I
 class ExecutableProgram
 {
 public:
-   /*typedef struct Symbol
-   {
-      int value;
-      int size;
-   }*/
    ExecutableProgram();
    ~ExecutableProgram();
 
-   void addInstruction(Expressions::Instruction* instruction, int instructionSize);
-   void addToHeap(int value, int numBytes);
+   void addInstruction(Expressions::Instruction* instruction, uint instructionSize);
+   void addToHeap(int value, ushort numBytes);
    void addSymbol(const std::string& symbolName, int value);
 
-   Expressions::Instruction* loadInstruction(int programCounter, int& instructionSize) const;
-   int loadFromHeap(int address, int numBytes) const;
+   Expressions::Instruction* loadInstruction(int programCounter, ushort& instructionSize) const;
+   int loadFromHeap(int address, ushort numBytes) const;
    int loadSymbolValue(const std::string& symbolName) const;
 
-   void storeToHeap(int address, int value, int numBytes);
+   void storeToHeap(int address, int value, ushort numBytes);
 
    // Should be called after all instructions and initial heap values have been added, to recalculate heap size and other necessary data.
    void finishUp();
@@ -45,7 +40,7 @@ public:
    void printSymbols() const;
 
 private:
-   void doStoreToHeap(int index, int value, int numBytes);
+   void doStoreToHeap(int index, int value, ushort numBytes);
 
    using InstructionMemoryMap = std::map<int, Expressions::Instruction*>; // Address | Instruction
    using SymbolTableMap = std::map<std::string, int>; // Label name | Start address of value

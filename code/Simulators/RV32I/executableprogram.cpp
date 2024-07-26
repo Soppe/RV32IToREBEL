@@ -36,13 +36,13 @@ ExecutableProgram::~ExecutableProgram()
    }
 }
 
-void ExecutableProgram::addInstruction(Expressions::Instruction* instruction, int instructionSize)
+void ExecutableProgram::addInstruction(Expressions::Instruction* instruction, uint instructionSize)
 {
    m_instructions.insert({m_instructionsSize, instruction});
    m_instructionsSize += instructionSize;
 }
 
-void ExecutableProgram::addToHeap(int value, int numBytes)
+void ExecutableProgram::addToHeap(int value, ushort numBytes)
 {
    if((numBytes > 4) || (numBytes < 0))
    {
@@ -61,7 +61,7 @@ void ExecutableProgram::addSymbol(const std::string& symbolName, int value)
    m_symbolTable.insert({symbolName, value});
 }
 
-Expressions::Instruction* ExecutableProgram::loadInstruction(int programCounter, int& instructionSize) const
+Expressions::Instruction* ExecutableProgram::loadInstruction(int programCounter, ushort& instructionSize) const
 {
    Expressions::Instruction* instr = nullptr;
    InstructionMemoryMap::const_iterator it = m_instructions.find(programCounter);
@@ -81,7 +81,7 @@ Expressions::Instruction* ExecutableProgram::loadInstruction(int programCounter,
    return instr;
 }
 
-int ExecutableProgram::loadFromHeap(int address, int numBytes) const
+int ExecutableProgram::loadFromHeap(int address, ushort numBytes) const
 {
    int retVal = 0;
    if((numBytes > 4) || (numBytes < 0))
@@ -92,7 +92,7 @@ int ExecutableProgram::loadFromHeap(int address, int numBytes) const
 
    int shiftCounter = 0;
    int index = address - m_instructionsSize;
-   for(int i = 0; i < numBytes; ++i)
+   for(ushort i = 0; i < numBytes; ++i)
    {
       retVal = retVal | (m_heap[index] << shiftCounter);
       std::cout << "Loading from memory = " << static_cast<int>(m_heap[index]) << " at index " << index << std::endl;
@@ -118,7 +118,7 @@ int ExecutableProgram::loadSymbolValue(const std::string& symbolName) const
    return retVal;
 }
 
-void ExecutableProgram::storeToHeap(int address, int value, int numBytes)
+void ExecutableProgram::storeToHeap(int address, int value, ushort numBytes)
 {
    if((numBytes > 4) || (numBytes < 0))
    {
@@ -178,10 +178,10 @@ void ExecutableProgram::printSymbols() const
    }
 }
 
-void ExecutableProgram::doStoreToHeap(int index, int value, int numBytes)
+void ExecutableProgram::doStoreToHeap(int index, int value, ushort numBytes)
 {
    std::cout << "Initial value = " << std::hex << value << std::dec << std::endl;
-   for(int i = 0; i < numBytes; ++i)
+   for(ushort i = 0; i < numBytes; ++i)
    {
       m_heap[index + i] = (value & 0xff);
       std::cout << "Storing value to heap = " << std::hex << (value & 0xff) << std::dec << " at index " << (index + i) << std::endl;

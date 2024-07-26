@@ -1,7 +1,7 @@
 #include "simulatorutils.h"
 
 #include "executableprogram.h"
-#include "Cpus/registry.h"
+#include "Cpu/registry.h"
 
 #include <logger.h>
 #include <Expressions/instruction.h>
@@ -98,7 +98,7 @@ SimulatorUtils::InstructionType SimulatorUtils::getInstructionType(const std::st
 void SimulatorUtils::generateAssemblyFileForMRCS(const ExecutableProgram& program, const std::string& fileName)
 {
    int pc = 0;
-   int instructionSize = 0;
+   ushort instructionSize = 0;
    int binaryRepresentation = 0;
    const Expressions::Instruction* instr = program.loadInstruction(pc, instructionSize);
 

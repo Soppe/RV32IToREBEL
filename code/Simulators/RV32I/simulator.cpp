@@ -1,7 +1,7 @@
 #include "simulator.h"
 #include "assemblerandlinker.h"
 #include "executableprogram.h"
-#include "Cpus/cpu.h"
+#include "Cpu/cpu.h"
 
 #include <Converters/rv32ipseudotorv32ibase.h>
 #include <Expressions/all_expressions.h>

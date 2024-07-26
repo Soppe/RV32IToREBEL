@@ -402,7 +402,7 @@ void CPU::executeProgram(ExecutableProgram& program)
 {
    initRegisters(program.getProgramSize());
 
-   int instructionSize = 0;
+   ushort instructionSize = 0;
    const Expressions::Instruction* instr = program.loadInstruction(m_PC, instructionSize);
 
    SimulatorUtils::InstructionType type = SimulatorUtils::InstructionType::UNDEFINED;

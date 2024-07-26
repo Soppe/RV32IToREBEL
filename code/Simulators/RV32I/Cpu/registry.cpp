@@ -10,7 +10,7 @@ namespace
 int countBitFlips(int oldVal, int newVal)
 {
    int num = (oldVal ^ newVal);
-   unsigned int flips = 0;
+   uint flips = 0;
 
    // Brian Kernighan’s algorithm
    while(num)

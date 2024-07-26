@@ -389,7 +389,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
 void AssemblerAndLinker::resolveOperands()
 {
    int pc = 0;
-   int instrSize;
+   ushort instrSize;
    Expressions::Instruction* instr = m_executable.loadInstruction(pc, instrSize);
    while(instr != nullptr)
    {
