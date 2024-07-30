@@ -6,9 +6,10 @@ namespace Expressions
 {
 
 Directive::Directive(const std::string& directiveName, const std::vector<std::string>& directiveParameters)
-    : m_name(directiveName)
-    , m_parameters(directiveParameters)
+    : m_parameters(directiveParameters)
 {
+   m_name.resize(directiveName.length());
+   std::transform(directiveName.begin(), directiveName.end(), m_name.begin(), [](unsigned char c){ return std::tolower(c); });
 }
 
 Expression::ExpressionType Directive::getExpressionType() const

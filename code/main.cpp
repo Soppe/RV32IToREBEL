@@ -16,9 +16,9 @@
 #include "Expressions/all_expressions.h"
 
 #include "Simulators/RV32I/assemblerandlinker.h"
+#include "Simulators/RV32I/assemblerutils.h"
 #include "Simulators/RV32I/executableprogram.h"
 #include "Simulators/RV32I/simulator.h"
-#include "Simulators/RV32I/simulatorutils.h"
 
 #include <iostream>
 #include <fstream>
@@ -138,17 +138,16 @@ int main(int argc, char* argv[])
    rv32iAssembler.init();
    rv32iAssembler.run();
 
-   // Generating MRSC binary file
-   std::string fileName = std::filesystem::path(inputPath).stem();
-   std::cout << "Path name = " << inputPath << "; fileName = " << fileName << std::endl;
-   // Output as binary object file for MRCS. mbo = MRCS Binary Object file.
-   Simulators::RV32I::SimulatorUtils::generateAssemblyFileForMRCS(rv32iExecutable, fileName + ".mbo");
-
    // Simulation
    std::cout << "RV32I SIMULATION" << std::endl;
    Simulators::RV32I::Simulator rv32iSim;
    rv32iSim.run(rv32iExecutable);
 
+   // Generating MRSC binary file
+   std::string fileName = std::filesystem::path(inputPath).stem();
+   std::cout << "Path name = " << inputPath << "; fileName = " << fileName << std::endl;
+   // Output as binary object file for MRCS. mbo = MRCS Binary Object file.
+   Simulators::RV32I::AssemblerUtils::generateAssemblyFileForMRCS(rv32iExecutable, fileName + ".mbo");
 
    // ------------ REBEL-6 ------------
 

@@ -6,14 +6,14 @@ namespace
 {
 std::unordered_map<std::string, Simulators::DirectiveHelper::SectionType> directiveSectionMap =
     {
-    {".text", Simulators::DirectiveHelper::SectionType::TEXT},
-    {".bss", Simulators::DirectiveHelper::SectionType::BSS},
-    {".sbss", Simulators::DirectiveHelper::SectionType::BSS},
-    {".data", Simulators::DirectiveHelper::SectionType::DATA},
-    {".sdata", Simulators::DirectiveHelper::SectionType::DATA},
-    {".rodata", Simulators::DirectiveHelper::SectionType::RODATA},
-    {".srodata", Simulators::DirectiveHelper::SectionType::RODATA}
-    };
+        {".text", Simulators::DirectiveHelper::SectionType::TEXT},
+        {".bss", Simulators::DirectiveHelper::SectionType::BSS},
+        {".sbss", Simulators::DirectiveHelper::SectionType::BSS},
+        {".data", Simulators::DirectiveHelper::SectionType::DATA},
+        {".sdata", Simulators::DirectiveHelper::SectionType::DATA},
+        {".rodata", Simulators::DirectiveHelper::SectionType::RODATA},
+        {".srodata", Simulators::DirectiveHelper::SectionType::RODATA}
+};
 }
 namespace Simulators
 {

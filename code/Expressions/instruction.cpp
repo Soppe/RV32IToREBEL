@@ -1,15 +1,15 @@
 #include "instruction.h"
 
 #include <iostream>
-#include <unordered_map>
 
 namespace Expressions
 {
 
 Instruction::Instruction(const std::string& instructionName, const std::vector<std::string>& instructionOperands)
-    : m_name(instructionName)
-    , m_operands(instructionOperands)
+    : m_operands(instructionOperands)
 {
+   m_name.resize(instructionName.length());
+   std::transform(instructionName.begin(), instructionName.end(), m_name.begin(), [](unsigned char c){ return std::tolower(c); });
 }
 
 Expression::ExpressionType Instruction::getExpressionType() const

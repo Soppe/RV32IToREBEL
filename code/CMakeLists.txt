@@ -35,6 +35,7 @@ set(HEADERS
    Simulators/RV32I/Cpu/cpu.h
    Simulators/RV32I/Cpu/registry.h
    Simulators/RV32I/assemblerandlinker.h
+   Simulators/RV32I/assemblerutils.h
    Simulators/RV32I/executableprogram.h
    Simulators/RV32I/simulator.h
    Simulators/RV32I/simulatorutils.h
@@ -65,6 +66,7 @@ set(SOURCES
    Simulators/RV32I/Cpu/cpu.cpp
    Simulators/RV32I/Cpu/registry.cpp
    Simulators/RV32I/assemblerandlinker.cpp
+   Simulators/RV32I/assemblerutils.cpp
    Simulators/RV32I/executableprogram.cpp
    Simulators/RV32I/simulator.cpp
    Simulators/RV32I/simulatorutils.cpp

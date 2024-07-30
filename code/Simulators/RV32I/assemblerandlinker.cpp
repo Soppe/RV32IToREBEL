@@ -59,7 +59,7 @@ void AssemblerAndLinker::run()
       expr = m_parser.nextExpression();
    }
 
-   m_executable.finishUp();
+   m_executable.calculateHeapSize();
 
    // Finished setting up the instruction memory, now we need to set up heap labels
    HeapLabelMap::const_iterator it = m_tempHeapLabels.begin();
