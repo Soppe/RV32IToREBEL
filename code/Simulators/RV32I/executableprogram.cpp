@@ -142,6 +142,8 @@ void ExecutableProgram::calculateHeapSize()
    }
 
    m_heap.resize(m_heapSize, 0);
+
+   std::cout << "Heap size calculated to be " << m_heap.size() << std::endl;
 }
 
 int ExecutableProgram::getProgramSize() const

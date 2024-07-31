@@ -448,6 +448,13 @@ void CPU::executeProgram(ExecutableProgram& program)
       default:
          std::cerr << __PRETTY_FUNC__ << ": Undefined instruction " << name << std::endl;
       }
+
+      // End of program. GCC (and maybe other compilers too) seem to add a "jr ra" at the end of main, which for us jumps back to the start of the program,
+      // resulting in an infinite loop
+      if(m_PC < 0)
+      {
+         break;
+      }
       m_PC += instructionSize;
       instr = program.loadInstruction(m_PC, instructionSize);
    }
