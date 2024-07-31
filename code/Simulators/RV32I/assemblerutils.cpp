@@ -320,7 +320,7 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
    };
 
    std::ofstream file(fileName + ".mbo");
-   file << "isa: rv32i" << std::endl;
+   file << "// isa: rv32i" << std::endl;
    for(const std::bitset<32>& binaryRepresentation: binaryRepresentedInstructions)
    {
       file << binaryRepresentation.to_string() << std::endl;
