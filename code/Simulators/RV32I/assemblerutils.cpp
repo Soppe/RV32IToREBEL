@@ -319,14 +319,14 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
       instr = program.loadInstruction(pc, instructionSize);
    };
 
-   std::ofstream file("BinaryInstructions.mbo");
+   std::ofstream file(fileName + ".mbo");
    file << "isa: rv32i" << std::endl;
    for(const std::bitset<32>& binaryRepresentation: binaryRepresentedInstructions)
    {
       file << binaryRepresentation.to_string() << std::endl;
    }
    file.close();
-   std::cout << "Finished writing binary represented instructions to BinaryInstructions.mbo" << std::endl;
+   std::cout << "Finished writing binary represented instructions to " << fileName << ".mbo" << std::endl;
 }
 
 }

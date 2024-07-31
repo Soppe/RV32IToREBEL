@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
    std::string fileName = std::filesystem::path(inputPath).stem();
    std::cout << "Path name = " << inputPath << "; fileName = " << fileName << std::endl;
    // Output as binary object file for MRCS. mbo = MRCS Binary Object file.
-   Simulators::RV32I::AssemblerUtils::generateAssemblyFileForMRCS(rv32iExecutable, fileName + ".mbo");
+   Simulators::RV32I::AssemblerUtils::generateAssemblyFileForMRCS(rv32iExecutable, fileName);
 
    // ------------ REBEL-6 ------------
 
