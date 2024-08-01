@@ -1,7 +1,7 @@
 #include "converter.h"
 
 #include "rv32ipseudotorv32ibase.h"
-#include "rv32itorebel2.h"
+#include "rv32itorebel6.h"
 
 #include <Expressions/all_expressions.h>
 #include <Parsers/expressionparser.h>
@@ -12,7 +12,7 @@
 namespace
 {
 const Converters::RV32IPseudoToRV32IBase rv32i;
-const Converters::RV32IToREBEL2 rebel2;
+const Converters::RV32IToREBEL6 rebel6;
 
 void resolveInstruction(const Expressions::Instruction* instr, Expressions::ExpressionList& out, const Converters::InstructionConverterBase& converter)
 {
@@ -53,9 +53,9 @@ void Converter::Convert(const std::string& targetISAName, const Expressions::Exp
    {
       converter = &rv32i;
    }
-   else if((isaName == "rebel2") || (isaName == "rebel-2"))
+   else if((isaName == "rebel6") || (isaName == "rebel-6"))
    {
-      converter = &rebel2;
+      converter = &rebel6;
    }
    else
    {
