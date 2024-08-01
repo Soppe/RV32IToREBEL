@@ -1,5 +1,4 @@
-#ifndef ASSEMBLERANDLINKER_H
-#define ASSEMBLERANDLINKER_H
+#pragma once
 
 #include <Parsers/expressionparser.h>
 #include <Parsers/parseutils.h>
@@ -59,4 +58,3 @@ private:
 
 }
 }
-#endif // ASSEMBLERANDLINKER_H

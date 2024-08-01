@@ -1,5 +1,4 @@
-#ifndef TERNARYLOGIC_H
-#define TERNARYLOGIC_H
+#pragma once
 
 #include <cstdint>
 
@@ -25,5 +24,3 @@ public:
 
 }
 }
-
-#endif // TERNARYLOGIC_H

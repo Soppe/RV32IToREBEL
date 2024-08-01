@@ -1,5 +1,4 @@
-#ifndef ASSEMBLERUTILS_H
-#define ASSEMBLERUTILS_H
+#pragma once
 
 #include <string>
 
@@ -21,4 +20,3 @@ public:
 
 }
 }
-#endif // ASSEMBLERUTILS_H

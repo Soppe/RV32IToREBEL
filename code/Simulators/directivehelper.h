@@ -1,5 +1,4 @@
-#ifndef DIRECTIVEHELPER_H
-#define DIRECTIVEHELPER_H
+#pragma once
 
 
 namespace Expressions
@@ -20,4 +19,3 @@ public:
 };
 
 }
-#endif // DIRECTIVEHELPER_H

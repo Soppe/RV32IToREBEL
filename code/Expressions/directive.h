@@ -1,5 +1,4 @@
-#ifndef DIRECTIVE_H
-#define DIRECTIVE_H
+#pragma once
 
 #include "expression.h"
 
@@ -26,4 +25,3 @@ private:
    std::vector<std::string> m_parameters;
 };
 }
-#endif // DIRECTIVE_H

@@ -1,5 +1,4 @@
-#ifndef PARSEUTILS_H
-#define PARSEUTILS_H
+#pragma once
 
 #include <string>
 
@@ -15,6 +14,3 @@ public:
    static bool parseImmediate(std::uint8_t immediateSize, std::int32_t in, std::int32_t &out);
    static void generateReloLabel(std::string& out);
 };
-
-
-#endif // PARSEUTILS_H

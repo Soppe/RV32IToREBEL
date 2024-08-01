@@ -1,5 +1,4 @@
-#ifndef CPU_H
-#define CPU_H
+#pragma once
 
 #include "registry.h"
 #include <list>
@@ -45,5 +44,3 @@ protected:
 
 }
 }
-
-#endif // CPU_H

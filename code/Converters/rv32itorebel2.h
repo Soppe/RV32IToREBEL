@@ -1,5 +1,4 @@
-#ifndef RV32ITOREBEL2_H
-#define RV32ITOREBEL2_H
+#pragma once
 
 #include "instructionconverterbase.h"
 
@@ -15,4 +14,3 @@ private:
    void fillExpressionMap();
 };
 }
-#endif // RV32ITOREBEL2_H

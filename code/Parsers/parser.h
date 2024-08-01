@@ -1,5 +1,4 @@
-#ifndef PARSER_H
-#define PARSER_H
+#pragma once
 
 #include "lexer.h"
 
@@ -38,5 +37,3 @@ private:
    Token* m_token;
    Token* m_peek;
 };
-
-#endif // PARSER_H

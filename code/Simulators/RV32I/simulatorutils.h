@@ -1,5 +1,4 @@
-#ifndef SIMULATORUTILS_H
-#define SIMULATORUTILS_H
+#pragma once
 
 #include <string>
 
@@ -22,5 +21,3 @@ public:
 
 }
 }
-
-#endif // SIMULATORUTILS_H

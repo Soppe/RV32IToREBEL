@@ -1,5 +1,4 @@
-#ifndef LABEL_H
-#define LABEL_H
+#pragma once
 
 #include "expression.h"
 
@@ -21,5 +20,3 @@ private:
    std::string m_name;
 };
 }
-
-#endif // LABEL_H

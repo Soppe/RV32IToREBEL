@@ -1,5 +1,4 @@
-#ifndef TERNARYMAPPER_H
-#define TERNARYMAPPER_H
+#pragma once
 
 #include <Expressions/expression.h>
 
@@ -29,5 +28,3 @@ private:
    ExpressionParser* m_parser;
    const Converters::InstructionConverterBase* m_converter;
 };
-
-#endif // TERNARYMAPPER_H

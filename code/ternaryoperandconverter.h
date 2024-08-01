@@ -1,5 +1,4 @@
-#ifndef TERNARYOPERANDCONVERTER_H
-#define TERNARYOPERANDCONVERTER_H
+#pragma once
 
 #include <Expressions/expression.h>
 
@@ -24,5 +23,3 @@ private:
 
    ExpressionParser* m_parser;
 };
-
-#endif // TERNARYOPERANDCONVERTER_H

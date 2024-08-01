@@ -1,5 +1,4 @@
-#ifndef INSTRUCTIONCONVERTERBASE_H
-#define INSTRUCTIONCONVERTERBASE_H
+#pragma once
 
 #include <Expressions/expression.h>
 
@@ -24,5 +23,3 @@ protected:
    std::unordered_map<std::string, ConverterFunc> m_instructionMap;
 };
 }
-
-#endif // INSTRUCTIONCONVERTERBASE_H

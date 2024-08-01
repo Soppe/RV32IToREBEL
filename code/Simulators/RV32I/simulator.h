@@ -1,5 +1,4 @@
-#ifndef SIMULATOR_H
-#define SIMULATOR_H
+#pragma once
 
 #include <Expressions/expression.h>
 
@@ -26,4 +25,3 @@ private:
 
 }
 }
-#endif // SIMULATOR_H

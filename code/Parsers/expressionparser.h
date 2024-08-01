@@ -1,5 +1,4 @@
-#ifndef EXPRESSIONPARSER_H
-#define EXPRESSIONPARSER_H
+#pragma once
 
 #include <Expressions/expression.h>
 
@@ -23,5 +22,3 @@ private:
    const Expressions::ExpressionList& m_expressions;
    ExpressionIterator m_iter;
 };
-
-#endif // EXPRESSIONPARSER_H

@@ -1,5 +1,4 @@
-#ifndef LEXER_H
-#define LEXER_H
+#pragma once
 
 #include <string>
 #include "token.h"
@@ -23,5 +22,3 @@ private:
    bool isSpace();
    void skipSpaces();
 };
-
-#endif //LEXER_H

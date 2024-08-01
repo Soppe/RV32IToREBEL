@@ -1,5 +1,4 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#pragma once
 
 // Extend as seen fit
 #ifdef _MSC_VER
@@ -7,5 +6,3 @@
 #else
 #define __PRETTY_FUNC__ __PRETTY_FUNCTION__
 #endif
-
-#endif // LOGGER_H

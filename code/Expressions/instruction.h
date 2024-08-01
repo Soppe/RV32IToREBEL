@@ -1,5 +1,4 @@
-#ifndef INSTRUCTION_H
-#define INSTRUCTION_H
+#pragma once
 
 #include "expression.h"
 
@@ -26,5 +25,3 @@ private:
    std::vector<std::string> m_operands;
 };
 }
-
-#endif // INSTRUCTION_H

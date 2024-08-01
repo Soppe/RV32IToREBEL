@@ -1,5 +1,4 @@
-#ifndef EXECUTABLEPROGRAM_H
-#define EXECUTABLEPROGRAM_H
+#pragma once
 
 #include "ternarylogic.h"
 
@@ -57,5 +56,3 @@ private:
 };
 }
 }
-
-#endif // EXECUTABLEPROGRAM_H

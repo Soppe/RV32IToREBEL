@@ -1,5 +1,4 @@
-#ifndef RV32IPSEUDOTORV32IBASE_H
-#define RV32IPSEUDOTORV32IBASE_H
+#pragma once
 
 #include "instructionconverterbase.h"
 
@@ -15,5 +14,3 @@ private:
    void fillExpressionMap();
 };
 }
-
-#endif // RV32IPSEUDOTORV32IBASE_H

@@ -1,5 +1,4 @@
-#ifndef CONVERTER_H
-#define CONVERTER_H
+#pragma once
 
 #include "instructionconverterbase.h"
 
@@ -14,5 +13,3 @@ public:
 };
 
 }
-
-#endif // CONVERTER_H

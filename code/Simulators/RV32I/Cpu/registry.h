@@ -1,5 +1,4 @@
-#ifndef REGISTRY_H
-#define REGISTRY_H
+#pragma once
 
 #include <unordered_map>
 #include <string>
@@ -31,5 +30,3 @@ private:
 
 }
 }
-
-#endif // REGISTRY_H

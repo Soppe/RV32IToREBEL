@@ -1,5 +1,4 @@
-#ifndef TOKEN_H
-#define TOKEN_H
+#pragma once
 
 #include <string>
 
@@ -26,5 +25,3 @@ public:
    TokenType type;
    std::string literal;
 };
-
-#endif // TOKEN_H

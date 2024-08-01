@@ -1,5 +1,4 @@
-#ifndef EXPRESSION_H
-#define EXPRESSION_H
+#pragma once
 
 #include <string>
 #include <list>
@@ -23,5 +22,3 @@ protected:
 
 using ExpressionList = std::list<Expression*>;
 }
-
-#endif // EXPRESSION_H

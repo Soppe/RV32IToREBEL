@@ -1,5 +1,4 @@
-#ifndef RV32ITOREBEL6_H
-#define RV32ITOREBEL6_H
+#pragma once
 
 #include "rv32ipseudotorv32ibase.h"
 
@@ -15,4 +14,3 @@ private:
    void fillExpressionMap();
 };
 }
-#endif // RV32ITOREBEL6_H

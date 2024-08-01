@@ -1,5 +1,4 @@
-#ifndef EXECUTABLEPROGRAM_H
-#define EXECUTABLEPROGRAM_H
+#pragma once
 
 #include <string>
 #include <map>
@@ -56,5 +55,3 @@ private:
 
 }
 }
-
-#endif // EXECUTABLEPROGRAM_H
