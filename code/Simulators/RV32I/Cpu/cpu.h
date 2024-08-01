@@ -21,10 +21,10 @@ public:
    ~CPU();
 
    void executeProgram(ExecutableProgram& program);
-   int getAccumulatedCost() const;
+   std::uint32_t getAccumulatedCost() const;
 
 protected:
-   void initRegisters(int programSize);
+   void initRegisters(std::int32_t programSize);
 
    void executeRegister(const std::string& name, const std::string& rd, const std::string& rs1, const std::string& rs2);
    void executeImmediate(const std::string& name, const std::string& rd, const std::string& rs1, const std::string& imm);
@@ -36,11 +36,11 @@ protected:
    void executeStore(const std::string& name, const std::string& rs, const std::string& address, ExecutableProgram& program);
    void executeSystem(const std::string& name);
 
-   void resolve12ImmOffset(const std::string& offset, int& value);
+   void resolve12ImmOffset(const std::string& offset, std::int32_t& value);
 
    Registry m_registers;
-   int m_PC;
-   int m_accumulatedCost;
+   std::uint32_t m_PC;
+   std::uint32_t m_accumulatedCost;
 };
 
 }

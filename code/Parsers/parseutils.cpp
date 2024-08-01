@@ -70,29 +70,29 @@ bool ParseUtils::parseRegisterOffset(const std::string& in, std::string& offset,
    return retVal;
 }
 
-bool ParseUtils::parseImmediate(int immediateSize, const std::string& in, int& out)
+bool ParseUtils::parseImmediate(std::uint8_t immediateSize, const std::string& in, std::int32_t& out)
 {
-   int number = 0;
+   std::int32_t number = 0;
    bool retVal = false;
 
    try {
       if(in.starts_with("0x") || in.starts_with("0X"))
       {
          // All hex values are considered positive by the std::sto-functions, so we first have to convert hex values to unsigned values before translating them to signed values.
-         //unsigned int unumber = 0;
+         //std::uint32_t unumber = 0;
          //std::cout << "Before: " << in;
          //unumber = std::stoul(in, nullptr, 16);
          //std::cout << "; Between: " << unumber;
-         number = static_cast<int>(std::stoul(in, nullptr, 16));
+         number = static_cast<std::int32_t>(std::stoul(in, nullptr, 16));
          //std::cout << "; After: " << number << std::endl;
          /*if(unumber <= INT_MAX)
          {
-            number = static_cast<int>(unumber);
+            number = static_cast<std::int32_t>(unumber);
             retVal = true;
          }
          else if(unumber >= INT_MIN)
          {
-            number = static_cast<int>(unumber - INT_MIN) + INT_MIN;
+            number = static_cast<std::int32_t>(unumber - INT_MIN) + INT_MIN;
             retVal = true;
          }
          else
@@ -103,7 +103,7 @@ bool ParseUtils::parseImmediate(int immediateSize, const std::string& in, int& o
       }
       else
       {
-         number = static_cast<int>(std::stoul(in));
+         number = static_cast<std::int32_t>(std::stoul(in));
          //std::cout << "Before: " << in << "; After = " << number << std::endl;
          retVal = true;
       }
@@ -113,19 +113,20 @@ bool ParseUtils::parseImmediate(int immediateSize, const std::string& in, int& o
    catch(std::exception& e)
    {
       std::cerr << __PRETTY_FUNC__ << ": Failed to parse immediate " << in << " of indended size " << immediateSize << " because of " << e.what() << std::endl;
+      abort();
    }
 
    return retVal;
 }
 
-bool ParseUtils::parseImmediate(int immediateSize, int in, int& out)
+bool ParseUtils::parseImmediate(std::uint8_t immediateSize, std::int32_t in, std::int32_t& out)
 {
    return parseImmediate(immediateSize, std::to_string(in), out);
 }
 
 void ParseUtils::generateReloLabel(std::string& out)
 {
-   static int counter = 0;
+   static std::uint32_t counter = 0;
    out = RELO_LABEL_PREFIX + std::to_string(counter);
    counter++;
 }

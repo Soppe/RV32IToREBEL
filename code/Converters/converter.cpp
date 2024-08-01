@@ -46,7 +46,7 @@ void Converter::Convert(const std::string& targetISAName, const Expressions::Exp
    ExpressionParser parser(from);
    std::string isaName;
    isaName.resize(targetISAName.length());
-   std::transform(targetISAName.begin(), targetISAName.end(), isaName.begin(), [](unsigned char c){ return std::tolower(c); });
+   std::transform(targetISAName.begin(), targetISAName.end(), isaName.begin(), [](std::uint8_t c){ return std::tolower(c); });
 
    std::cout << "Isa name = " << isaName << std::endl;
    if(isaName == "rv32i")

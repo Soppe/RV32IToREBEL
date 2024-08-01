@@ -13,22 +13,22 @@ namespace
 //======================================
 // Register instructions
 //======================================
-void executeAdd(int& rd, int rs1, int rs2)
+void executeAdd(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 {
    rd = rs1 + rs2;
 }
 
-void executeSub(int& rd, int rs1, int rs2)
+void executeSub(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 {
    rd = rs1 - rs2;
 }
 
-void executeSll(int& rd, int rs1, int rs2)
+void executeSll(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 {
    rd = rs1 << rs2;
 }
 
-void executeSrl(int& rd, int rs1, int rs2)
+void executeSrl(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 {
    rs2 = rs2 & 0x1f; // Use only the 5 lowest bits
 
@@ -41,18 +41,18 @@ void executeSrl(int& rd, int rs1, int rs2)
       rd = rs1 >> rs2;
 
       // Since the >> operand in c++ functions as sra -sign extending the number - we have to simulate shifting 0's into the upper bits
-      int mask = 0x7fffffff;
+      std::int32_t mask = 0x7fffffff;
       mask = mask >> (rs2 - 1);
       rd = rd & mask;
    }
 }
 
-void executeSra(int& rd, int rs1, int rs2)
+void executeSra(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 {
    rd = rs1 >> rs2;
 }
 
-void executeSlt(int& rd, int rs1, int rs2)
+void executeSlt(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 {
    if(rs1 < rs2)
    {
@@ -60,10 +60,10 @@ void executeSlt(int& rd, int rs1, int rs2)
    }
 }
 
-void executeSltu(int& rd, int rs1, int rs2)
+void executeSltu(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 {
-   uint rs1u = rs1;
-   uint rs2u = rs2;
+   std::uint32_t rs1u = rs1;
+   std::uint32_t rs2u = rs2;
 
    if(rs1u < rs2u)
    {
@@ -71,17 +71,17 @@ void executeSltu(int& rd, int rs1, int rs2)
    }
 }
 
-void executeOr(int& rd, int rs1, int rs2)
+void executeOr(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 {
    rd = rs1 | rs2;
 }
 
-void executeXor(int& rd, int rs1, int rs2)
+void executeXor(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 {
    rd = rs1 ^ rs2;
 }
 
-void executeAnd(int& rd, int rs1, int rs2)
+void executeAnd(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 {
    rd = rs1 & rs2;
 }
@@ -89,7 +89,7 @@ void executeAnd(int& rd, int rs1, int rs2)
 //======================================
 // Immediate instructions
 //======================================
-void executeAddi(int& rd, int rs1, int imm)
+void executeAddi(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
 
    if((imm > 0x7ff) || (imm < (int)0xfffff800))
@@ -98,18 +98,18 @@ void executeAddi(int& rd, int rs1, int imm)
       abort();
    }
 
-   int imm12;
+   std::int32_t imm12;
    ParseUtils::parseImmediate(12, imm, imm12);
 
    rd = rs1 + imm12;
 }
 
 
-void executeSlli(int& rd, int rs1, int imm)
+void executeSlli(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
    // This is based on tests with the GCC assembler using values represented with more than 5 bits, and negative numbers, where errors related to negative numbers inferred they had been converted
-   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit unsigned integer
-   uint immu = imm;
+   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit std::uint32_teger
+   std::uint32_t immu = imm;
    if(immu > 0x1f)
    {
       std::cerr << __PRETTY_FUNC__ << "Value too large: " << immu << std::endl;
@@ -119,11 +119,11 @@ void executeSlli(int& rd, int rs1, int imm)
    rd = rs1 << immu;
 }
 
-void executeSrli(int& rd, int rs1, int imm)
+void executeSrli(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
    // This is based on tests with the GCC assembler using values represented with more than 5 bits, and negative numbers, where errors related to negative numbers inferred they had been converted
-   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit unsigned integer
-   uint immu = imm;
+   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit std::uint32_teger
+   std::uint32_t immu = imm;
    if(immu > 0x1f)
    {
       std::cerr << __PRETTY_FUNC__ << "Value too large: " << immu << std::endl;
@@ -139,17 +139,17 @@ void executeSrli(int& rd, int rs1, int imm)
       rd = rs1 >> immu;
 
       // Since the >> operand in c++ functions as sra we have to simulate shifting 0's into the upper bits
-      int mask = 0x7fffffff;
+      std::int32_t mask = 0x7fffffff;
       mask = mask >> (immu - 1);
       rd = rd & mask;
    }
 }
 
-void executeSrai(int& rd, int rs1, int imm)
+void executeSrai(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
    // This is based on tests with the GCC assembler using values represented with more than 5 bits, and negative numbers, where errors related to negative numbers inferred they had been converted
-   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit unsigned integer
-   uint immu = imm;
+   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit std::uint32_teger
+   std::uint32_t immu = imm;
    if(immu > 0x1f)
    {
       std::cerr << __PRETTY_FUNC__ << "Value too large: " << immu << std::endl;
@@ -159,7 +159,7 @@ void executeSrai(int& rd, int rs1, int imm)
    rd = rs1 >> immu;
 }
 
-void executeSlti(int& rd, int rs1, int imm)
+void executeSlti(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
    if((imm > 0x7ff) || (imm < (int)0xfffff800))
    {
@@ -167,7 +167,7 @@ void executeSlti(int& rd, int rs1, int imm)
       abort();
    }
 
-   int imm12;
+   std::int32_t imm12;
    ParseUtils::parseImmediate(12, imm, imm12);
 
 
@@ -178,7 +178,7 @@ void executeSlti(int& rd, int rs1, int imm)
 }
 
 // The standard says the imm value is to first be sign-extended, then converted to an unsigned value. Ergo, the limits for sltiu are the same as for slti.
-void executeSltiu(int& rd, int rs1, int imm)
+void executeSltiu(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
    if((imm > 0x7ff) || (imm < (int)0xfffff800))
    {
@@ -186,11 +186,11 @@ void executeSltiu(int& rd, int rs1, int imm)
       abort();
    }
 
-   int imm12;
+   std::int32_t imm12;
    ParseUtils::parseImmediate(12, imm, imm12);
 
-   uint rs1u = rs1;
-   uint immu12 = imm12;
+   std::uint32_t rs1u = rs1;
+   std::uint32_t immu12 = imm12;
 
    if(rs1u < immu12)
    {
@@ -198,7 +198,7 @@ void executeSltiu(int& rd, int rs1, int imm)
    }
 }
 
-void executeOri(int& rd, int rs1, int imm)
+void executeOri(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
    if((imm > 0x7ff) || (imm < (int)0xfffff800))
    {
@@ -206,13 +206,13 @@ void executeOri(int& rd, int rs1, int imm)
       abort();
    }
 
-   int imm12;
+   std::int32_t imm12;
    ParseUtils::parseImmediate(12, imm, imm12);
 
    rd = rs1 | imm12;
 }
 
-void executeXori(int& rd, int rs1, int imm)
+void executeXori(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
    if((imm > 0x7ff) || (imm < (int)0xfffff800))
    {
@@ -220,13 +220,13 @@ void executeXori(int& rd, int rs1, int imm)
       abort();
    }
 
-   int imm12;
+   std::int32_t imm12;
    ParseUtils::parseImmediate(12, imm, imm12);
 
    rd = rs1 ^ imm12;
 }
 
-void executeAndi(int& rd, int rs1, int imm)
+void executeAndi(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
    if((imm > 0x7ff) || (imm < (int)0xfffff800))
    {
@@ -234,7 +234,7 @@ void executeAndi(int& rd, int rs1, int imm)
       abort();
    }
 
-   int imm12;
+   std::int32_t imm12;
    ParseUtils::parseImmediate(12, imm, imm12);
 
    rd = rs1 & imm12;
@@ -243,13 +243,13 @@ void executeAndi(int& rd, int rs1, int imm)
 //======================================
 // Upper instructions
 //======================================
-void executeLui(int& rd, int imm20)
+void executeLui(std::int32_t& rd, std::int32_t imm20)
 {
    ParseUtils::parseImmediate(20, imm20, imm20);
    rd = imm20 << 12;
 }
 
-void executeAuipc(int& rd, int imm20, int pc)
+void executeAuipc(std::int32_t& rd, std::int32_t imm20, std::int32_t pc)
 {
    ParseUtils::parseImmediate(20, imm20, imm20);
    rd = (imm20 << 12) + pc;
@@ -258,7 +258,7 @@ void executeAuipc(int& rd, int imm20, int pc)
 //======================================
 // Branch instructions
 //======================================
-void executeBeq(int rs1, int rs2, int offset, int& pc)
+void executeBeq(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
 {
    if(rs1 == rs2)
    {
@@ -266,7 +266,7 @@ void executeBeq(int rs1, int rs2, int offset, int& pc)
    }
 }
 
-void executeBne(int rs1, int rs2, int offset, int& pc)
+void executeBne(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
 {
    if(rs1 != rs2)
    {
@@ -274,7 +274,7 @@ void executeBne(int rs1, int rs2, int offset, int& pc)
    }
 }
 
-void executeBlt(int rs1, int rs2, int offset, int& pc)
+void executeBlt(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
 {
    if(rs1 < rs2)
    {
@@ -282,10 +282,10 @@ void executeBlt(int rs1, int rs2, int offset, int& pc)
    }
 }
 
-void executeBltu(int rs1, int rs2, int offset, int& pc)
+void executeBltu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
 {
-   uint rs1u = rs1;
-   uint rs2u = rs2;
+   std::uint32_t rs1u = rs1;
+   std::uint32_t rs2u = rs2;
 
    if(rs1u < rs2u)
    {
@@ -293,7 +293,7 @@ void executeBltu(int rs1, int rs2, int offset, int& pc)
    }
 }
 
-void executeBge(int rs1, int rs2, int offset, int& pc)
+void executeBge(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
 {
    if(rs1 >= rs2)
    {
@@ -301,10 +301,10 @@ void executeBge(int rs1, int rs2, int offset, int& pc)
    }
 }
 
-void executeBgeu(int rs1, int rs2, int offset, int& pc)
+void executeBgeu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
 {
-   uint rs1u = rs1;
-   uint rs2u = rs2;
+   std::uint32_t rs1u = rs1;
+   std::uint32_t rs2u = rs2;
    if(rs1u >= rs2u)
    {
       pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
@@ -314,7 +314,7 @@ void executeBgeu(int rs1, int rs2, int offset, int& pc)
 //======================================
 // Jump instructions
 //======================================
-void executeJal(int& rd, int offset, int& pc)
+void executeJal(std::int32_t& rd, std::int32_t offset, std::uint32_t& pc)
 {
    ParseUtils::parseImmediate(12, offset, offset);
    rd = pc + 4;
@@ -324,7 +324,7 @@ void executeJal(int& rd, int offset, int& pc)
 //======================================
 // Jump register instructions
 //======================================
-void executeJalr(int& rd, int target, int& pc)
+void executeJalr(std::int32_t& rd, std::int32_t target, std::uint32_t& pc)
 {
    rd = pc + 4;
    pc = target - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
@@ -333,7 +333,7 @@ void executeJalr(int& rd, int target, int& pc)
 //======================================
 // Load instructions
 //======================================
-void executeLw(int& rd, int srcAddress, Simulators::RV32I::ExecutableProgram& program)
+void executeLw(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
 {
    std::cout << "Wanting to load something from source = " << srcAddress << std::endl;
    rd = program.loadFromHeap(srcAddress, 4);
@@ -341,24 +341,24 @@ void executeLw(int& rd, int srcAddress, Simulators::RV32I::ExecutableProgram& pr
    std::cout << "Value read from memory is " << rd << std::endl;
 }
 
-void executeLh(int& rd, int srcAddress, Simulators::RV32I::ExecutableProgram& program)
+void executeLh(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
 {
    rd = program.loadFromHeap(srcAddress, 2);
    ParseUtils::parseImmediate(16, rd, rd);
 }
 
-void executeLb(int& rd, int srcAddress, Simulators::RV32I::ExecutableProgram& program)
+void executeLb(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
 {
    rd = program.loadFromHeap(srcAddress, 1);
    ParseUtils::parseImmediate(8, rd, rd);
 }
 
-void executeLhu(int& rd, int srcAddress, Simulators::RV32I::ExecutableProgram& program)
+void executeLhu(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
 {
    rd = program.loadFromHeap(srcAddress, 2);
 }
 
-void executeLbu(int& rd, int srcAddress, Simulators::RV32I::ExecutableProgram& program)
+void executeLbu(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
 {
    rd = program.loadFromHeap(srcAddress, 1);
 }
@@ -366,17 +366,17 @@ void executeLbu(int& rd, int srcAddress, Simulators::RV32I::ExecutableProgram& p
 //======================================
 // Store instructions
 //======================================
-void executeSw(int rs, int targetAddress, Simulators::RV32I::ExecutableProgram& program)
+void executeSw(std::int32_t rs, std::int32_t targetAddress, Simulators::RV32I::ExecutableProgram& program)
 {
    program.storeToHeap(targetAddress, rs, 4);
 }
 
-void executeSh(int rs, int targetAddress, Simulators::RV32I::ExecutableProgram& program)
+void executeSh(std::int32_t rs, std::int32_t targetAddress, Simulators::RV32I::ExecutableProgram& program)
 {
    program.storeToHeap(targetAddress, rs, 2);
 }
 
-void executeSb(int rs, int targetAddress, Simulators::RV32I::ExecutableProgram& program)
+void executeSb(std::int32_t rs, std::int32_t targetAddress, Simulators::RV32I::ExecutableProgram& program)
 {
    program.storeToHeap(targetAddress, rs, 1);
 }
@@ -400,9 +400,9 @@ CPU::~CPU()
 
 void CPU::executeProgram(ExecutableProgram& program)
 {
-   initRegisters(program.getProgramSize());
+   initRegisters(program.getProgramSizeBytes());
 
-   ushort instructionSize = 0;
+   std::uint8_t instructionSize = 0;
    const Expressions::Instruction* instr = program.loadInstruction(m_PC, instructionSize);
 
    SimulatorUtils::InstructionType type = SimulatorUtils::InstructionType::UNDEFINED;
@@ -464,9 +464,9 @@ void CPU::executeProgram(ExecutableProgram& program)
 
 void CPU::executeRegister(const std::string& name, const std::string& rd, const std::string& rs1, const std::string& rs2)
 {
-   int rs1i = m_registers.load(rs1);
-   int rs2i = m_registers.load(rs2);
-   int rdVal = 0;
+   std::int32_t rs1i = m_registers.load(rs1);
+   std::int32_t rs2i = m_registers.load(rs2);
+   std::int32_t rdVal = 0;
 
    if     (name == "add")  executeAdd(rdVal, rs1i, rs2i);
    else if(name == "sub")  executeSub(rdVal, rs1i, rs2i);
@@ -489,9 +489,9 @@ void CPU::executeRegister(const std::string& name, const std::string& rd, const 
 
 void CPU::executeImmediate(const std::string& name, const std::string& rd, const std::string& rs1, const std::string& imm)
 {
-   int rs1i = m_registers.load(rs1);
-   int rdVal = 0;
-   int immi = 0;
+   std::int32_t rs1i = m_registers.load(rs1);
+   std::int32_t rdVal = 0;
+   std::int32_t immi = 0;
 
    try
    {
@@ -523,8 +523,8 @@ void CPU::executeImmediate(const std::string& name, const std::string& rd, const
 
 void CPU::executeUpper(const std::string& name, const std::string& rd, const std::string& imm)
 {
-   int rdVal = 0;
-   int immi20 = 0;
+   std::int32_t rdVal = 0;
+   std::int32_t immi20 = 0;
 
    try
    {
@@ -557,10 +557,10 @@ void CPU::executeUpper(const std::string& name, const std::string& rd, const std
 
 void CPU::executeBranch(const std::string& name, const std::string& rs1, const std::string& rs2, const std::string& offset)
 {
-   int rs1i = m_registers.load(rs1);
-   int rs2i = m_registers.load(rs2);
-   int offi12 = 0;
-   int pcVal = m_PC;
+   std::int32_t rs1i = m_registers.load(rs1);
+   std::int32_t rs2i = m_registers.load(rs2);
+   std::int32_t offi12 = 0;
+   std::uint32_t pcVal = m_PC;
 
    try
    {
@@ -599,9 +599,9 @@ void CPU::executeBranch(const std::string& name, const std::string& rs1, const s
 
 void CPU::executeJump(const std::string& name, const std::string& rd, const std::string& offset)
 {
-   int offseti = 0;
-   int pcVal = m_PC;
-   int rdVal = 0;
+   std::int32_t offseti = 0;
+   std::uint32_t pcVal = m_PC;
+   std::int32_t rdVal = 0;
 
    try
    {
@@ -636,9 +636,9 @@ void CPU::executeJump(const std::string& name, const std::string& rd, const std:
 
 void CPU::executeJumpRegister(const std::string& name, const std::string& rd, const std::string& target)
 {
-   int targeti = 0;
-   int pcVal = m_PC;
-   int rdVal = 0;
+   std::int32_t targeti = 0;
+   std::uint32_t pcVal = m_PC;
+   std::int32_t rdVal = 0;
 
    resolve12ImmOffset(target, targeti);
 
@@ -655,8 +655,8 @@ void CPU::executeJumpRegister(const std::string& name, const std::string& rd, co
 
 void CPU::executeLoad(const std::string& name, const std::string& rd, const std::string& address, ExecutableProgram& program)
 {
-   int addressi = 0;
-   int rdVal = 0;
+   std::int32_t addressi = 0;
+   std::int32_t rdVal = 0;
 
    resolve12ImmOffset(address, addressi);
 
@@ -676,8 +676,8 @@ void CPU::executeLoad(const std::string& name, const std::string& rd, const std:
 
 void CPU::executeStore(const std::string& name, const std::string& rs, const std::string& address, ExecutableProgram& program)
 {
-   int addressi = 0;
-   int rsi = m_registers.load(rs);
+   std::int32_t addressi = 0;
+   std::int32_t rsi = m_registers.load(rs);
 
    resolve12ImmOffset(address, addressi);
 
@@ -698,14 +698,14 @@ void CPU::executeSystem(const std::string& name)
       m_registers.printRegistry();
       std::cout << std::endl;
 
-      int statusVal = m_registers.load("a0");
+      std::int32_t statusVal = m_registers.load("a0");
       if(statusVal == 0)
       {
          std::cout << "TEST PASSED" << std::endl;
       }
       else
       {
-         int failedTestNum = m_registers.load("gp");
+         std::int32_t failedTestNum = m_registers.load("gp");
          std::cout << "TEST FAILED" << std::endl;
          std::cout << "Test number " << failedTestNum << " failed" << std::endl;
          abort(); // A bit excessive, but practicing what seems to be the similar behavior for the RISC-V "official" instruction tests
@@ -720,14 +720,14 @@ void CPU::executeSystem(const std::string& name)
    }
 }
 
-void CPU::resolve12ImmOffset(const std::string& offset, int& value)
+void CPU::resolve12ImmOffset(const std::string& offset, std::int32_t& value)
 {
    std::string off12;
    std::string rs;
    ParseUtils::parseRegisterOffset(offset, off12, rs);
 
-   int regVal = m_registers.load(rs);
-   int offi12 = 0;
+   std::int32_t regVal = m_registers.load(rs);
+   std::int32_t offi12 = 0;
    try
    {
       offi12 = stoi(off12);
@@ -747,12 +747,12 @@ void CPU::resolve12ImmOffset(const std::string& offset, int& value)
    value = regVal + offi12;
 }
 
-int CPU::getAccumulatedCost() const
+std::uint32_t CPU::getAccumulatedCost() const
 {
    return m_accumulatedCost;
 }
 
-void CPU::initRegisters(int programSize)
+void CPU::initRegisters(std::int32_t programSize)
 {
    m_registers.store("zero", 0);
    m_registers.store("sp", programSize);

@@ -14,6 +14,8 @@ class AssemblerUtils
 {
 public:
 
+   AssemblerUtils() = delete;
+
    static void generateAssemblyFileForMRCS(const ExecutableProgram& program, const std::string& fileName);
 };
 

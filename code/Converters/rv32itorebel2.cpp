@@ -256,12 +256,12 @@ void RV32IToREBEL2::fillExpressionMap()
    //    addi rd, rd, imm
    m_instructionMap.insert( { "li", [this] (const StringList& op, Expressions::ExpressionList& el) // TODO: Can possibly be converted to a single addi and then let operand converter deal with too large numbers
            {
-              int val;
+              std::int32_t val;
               if(ParseUtils::parseImmediate(32, op[1], val))
               {
                  // Compensate for signedness for botVal
-                 int topVal = (val >> 12) + ((val & 0x800) ? 1 : 0);
-                 int botVal;
+                 std::int32_t topVal = (val >> 12) + ((val & 0x800) ? 1 : 0);
+                 std::int32_t botVal;
                  ParseUtils::parseImmediate(12, val, botVal);
 
                  at("lui")({op[0], std::to_string(topVal)}, el);
@@ -274,9 +274,9 @@ void RV32IToREBEL2::fillExpressionMap()
 
               /*try
               {
-                 int val = stoi(op[1]);
-                 int topVal = (val & 0xfffff000);
-                 int botVal = (val & 0xfff);
+                 std::int32_t val = stoi(op[1]);
+                 std::int32_t topVal = (val & 0xfffff000);
+                 std::int32_t botVal = (val & 0xfff);
 
                  at("lui")({op[0], std::to_string(topVal)}, el);
                  at("addi")({op[0], op[0], std::to_string(botVal)}, el);

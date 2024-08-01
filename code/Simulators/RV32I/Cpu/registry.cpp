@@ -7,10 +7,10 @@
 
 namespace
 {
-int countBitFlips(int oldVal, int newVal)
+std::uint32_t countBitFlips(std::int32_t oldVal, std::int32_t newVal)
 {
-   int num = (oldVal ^ newVal);
-   uint flips = 0;
+   std::int32_t num = (oldVal ^ newVal);
+   std::uint32_t flips = 0;
 
    // Brian Kernighan’s algorithm
    while(num)
@@ -32,13 +32,13 @@ const std::vector<std::string> RegisterABINames = {"zero", "ra", "sp", "gp", "tp
 void convertToABI(const std::string& in, std::string& out)
 {
    out.resize(in.length());
-   std::transform(in.begin(), in.end(), out.begin(), [](unsigned char c){ return std::tolower(c); });
+   std::transform(in.begin(), in.end(), out.begin(), [](std::uint8_t c){ return std::tolower(c); });
 
    if(out[0] == 'x')
    {
       try
       {
-         int index = stoi(out.substr(1, out.length()));
+         std::int32_t index = stoi(out.substr(1, out.length()));
          out = RegisterABINames[index];
       }
       catch(std::exception&)
@@ -64,7 +64,7 @@ Registry::Registry()
 {
    std::string reg;
    std::string regABI;
-   for(int i = 0; i < 32; ++i)
+   for(std::int32_t i = 0; i < 32; ++i)
    {
       reg = "x" + std::to_string(i);
       convertToABI(reg, regABI);
@@ -73,7 +73,7 @@ Registry::Registry()
 
 }
 
-void Registry::store(const std::string& regName, int regValue)
+void Registry::store(const std::string& regName, std::int32_t regValue)
 {
    std::string abiName;
    convertToABI(regName, abiName);
@@ -84,7 +84,7 @@ void Registry::store(const std::string& regName, int regValue)
       return;
    }
 
-   int oldVal = 0;
+   std::int32_t oldVal = 0;
 
    auto it = m_registry.find(abiName);
    if(it != m_registry.end())
@@ -101,12 +101,12 @@ void Registry::store(const std::string& regName, int regValue)
    m_numBitFlips += countBitFlips(oldVal, regValue);
 }
 
-int Registry::load(const std::string& regName)
+std::int32_t Registry::load(const std::string& regName)
 {
    std::string abiName;
    convertToABI(regName, abiName);
 
-   int retVal = 0;
+   std::int32_t retVal = 0;
 
    auto it = m_registry.find(abiName);
    if(it != m_registry.end())
@@ -122,13 +122,13 @@ int Registry::load(const std::string& regName)
    return retVal;
 }
 
-int Registry::getIntegerValue(const std::string& regName)
+std::uint8_t Registry::getIntegerValue(const std::string& regName)
 {
    std::string name;
    name.resize(regName.length());
-   std::transform(regName.begin(), regName.end(), name.begin(), [](unsigned char c){ return std::tolower(c); });
+   std::transform(regName.begin(), regName.end(), name.begin(), [](std::uint8_t c){ return std::tolower(c); });
 
-   int value = 0;
+   std::uint8_t value = 0;
    if(name[0] == 'x')
    {
       try
@@ -155,7 +155,7 @@ int Registry::getIntegerValue(const std::string& regName)
    return value;
 }
 
-int Registry::getAccumulatedBitFlips() const
+std::int32_t Registry::getAccumulatedBitFlips() const
 {
    return m_numBitFlips;
 }
@@ -165,11 +165,11 @@ void Registry::printRegistry()
    std::string abiName;
    std::cout << "x\t" << "abi\t" << "hex\t\t" << "dec" << std::endl;
    std::cout << "------------------------------------" << std::endl;
-   for(int i = 0; i < 32; ++i)
+   for(std::int32_t i = 0; i < 32; ++i)
    {
       const std::string xName = "x" + std::to_string(i);
       convertToABI(xName, abiName);
-      int val = load(abiName);
+      std::int32_t val = load(abiName);
 
       std::cout << xName << "\t" << abiName << "\t0x" << std::hex << val << "\t\t" << std::dec << val << std::endl;
    }

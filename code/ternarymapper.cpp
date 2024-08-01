@@ -57,7 +57,7 @@ void TernaryMapper::mapExpressions(Expressions::ExpressionList& ternaryExpressio
          // TODO: std::cerr << "Found undefined expression with name = " << e->getExpressionName() << std::endl;
          break;
       default:
-         std::cerr << "Unsupported expression type with value = " << static_cast<int>(binaryExpression->getExpressionType()) << std::endl;
+         std::cerr << "Unsupported expression type with value = " << static_cast<std::int32_t>(binaryExpression->getExpressionType()) << std::endl;
          break;
       }
 

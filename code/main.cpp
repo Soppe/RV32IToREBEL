@@ -29,7 +29,7 @@ namespace
 {
 void printOperands(const std::vector<std::string>& operands)
 {
-   for(int i = 0; i < operands.size(); ++i)
+   for(std::uint32_t i = 0; i < operands.size(); ++i)
    {
       if(i != 0)
       {
@@ -42,7 +42,7 @@ void printOperands(const std::vector<std::string>& operands)
 
 void printExpressions(const Expressions::ExpressionList& expressions)
 {
-   int pc = 0;
+   std::uint32_t pc = 0;
    for(const Expressions::Expression* e: expressions)
    {
       std::cout << std::hex << pc << std::dec << "\t";
@@ -76,7 +76,7 @@ void printExpressions(const Expressions::ExpressionList& expressions)
          // TODO: std::cerr << "Found undefined expression with name = " << e->getExpressionName() << std::endl;
          break;
       default:
-         std::cerr << "Unsupported expression type with value = " << static_cast<int>(e->getExpressionType()) << std::endl;
+         std::cerr << "Unsupported expression type with value = " << static_cast<std::int32_t>(e->getExpressionType()) << std::endl;
       }
 
       /*if(peekNextExpression == comment && e->lineNumber == next->lineNumber)
@@ -143,10 +143,10 @@ int main(int argc, char* argv[])
    Simulators::RV32I::Simulator rv32iSim;
    rv32iSim.run(rv32iExecutable);
 
-   // Generating MRSC binary file
+   //
    std::string fileName = std::filesystem::path(inputPath).stem();
    std::cout << "Path name = " << inputPath << "; fileName = " << fileName << std::endl;
-   // Output as binary object file for MRCS. mbo = MRCS Binary Object file.
+   // Generate MRSC binary object file.
    Simulators::RV32I::AssemblerUtils::generateAssemblyFileForMRCS(rv32iExecutable, fileName);
 
    // ------------ REBEL-6 ------------

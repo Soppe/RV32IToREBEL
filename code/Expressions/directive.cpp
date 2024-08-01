@@ -9,7 +9,7 @@ Directive::Directive(const std::string& directiveName, const std::vector<std::st
     : m_parameters(directiveParameters)
 {
    m_name.resize(directiveName.length());
-   std::transform(directiveName.begin(), directiveName.end(), m_name.begin(), [](unsigned char c){ return std::tolower(c); });
+   std::transform(directiveName.begin(), directiveName.end(), m_name.begin(), [](std::uint8_t c){ return std::tolower(c); });
 }
 
 Expression::ExpressionType Directive::getExpressionType() const
@@ -21,7 +21,7 @@ void Directive::print() const
 {
    std::cout << m_name << "\t";
 
-   for(int i = 0; i < m_parameters.size(); ++i)
+   for(std::int32_t i = 0; i < m_parameters.size(); ++i)
    {
       if(i != 0)
       {

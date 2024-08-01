@@ -7,7 +7,7 @@
 
 namespace
 {
-const int PROGRAM_SIZE = 1024 * 1024; // 1 MB
+const std::uint32_t PROGRAM_SIZE_BYTES = 1024 * 1024; // 1 MB
 }
 
 namespace Simulators
@@ -16,8 +16,8 @@ namespace RV32I
 {
 
 ExecutableProgram::ExecutableProgram()
-    : m_instructionsSize(0)
-    , m_heapSize(0)
+    : m_instructionsSizeBytes(0)
+    , m_heapSizeBytes(0)
 {
 
 }
@@ -36,32 +36,32 @@ ExecutableProgram::~ExecutableProgram()
    }
 }
 
-void ExecutableProgram::addInstruction(Expressions::Instruction* instruction, uint instructionSize)
+void ExecutableProgram::addInstruction(Expressions::Instruction* instruction, std::uint8_t instructionSizeBytes)
 {
-   m_instructions.insert({m_instructionsSize, instruction});
-   m_instructionsSize += instructionSize;
+   m_instructions.insert({m_instructionsSizeBytes, instruction});
+   m_instructionsSizeBytes += instructionSizeBytes;
 }
 
-void ExecutableProgram::addToHeap(int value, ushort numBytes)
+void ExecutableProgram::addToHeap(std::int32_t value, std::uint8_t numBytes)
 {
    if((numBytes > 4) || (numBytes < 0))
    {
-      std::cerr << __PRETTY_FUNC__ << ": Trying to store data of unsupported size = " << numBytes << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Trying to store data of unsupported size = " << numBytes << " bytes" << std::endl;
       abort();
    }
 
-   int heapSize = m_heap.size();
-   m_heap.resize(heapSize + numBytes, 0);
+   std::uint32_t heapSizeBytes = m_heap.size();
+   m_heap.resize(heapSizeBytes + numBytes, 0);
 
-   doStoreToHeap(heapSize, value, numBytes);
+   doStoreToHeap(heapSizeBytes, value, numBytes);
 }
 
-void ExecutableProgram::addSymbol(const std::string& symbolName, int value)
+void ExecutableProgram::addSymbol(const std::string& symbolName, std::uint32_t address)
 {
-   m_symbolTable.insert({symbolName, value});
+   m_symbolTable.insert({symbolName, address});
 }
 
-Expressions::Instruction* ExecutableProgram::loadInstruction(int programCounter, ushort& instructionSize) const
+Expressions::Instruction* ExecutableProgram::loadInstruction(std::uint32_t programCounter, std::uint8_t& instructionSizeBytes) const
 {
    Expressions::Instruction* instr = nullptr;
    InstructionMemoryMap::const_iterator it = m_instructions.find(programCounter);
@@ -71,41 +71,40 @@ Expressions::Instruction* ExecutableProgram::loadInstruction(int programCounter,
       ++it;
       if(it == m_instructions.end())
       {
-         instructionSize = m_instructionsSize - programCounter;
+         instructionSizeBytes = m_instructionsSizeBytes - programCounter;
       }
       else
       {
-         instructionSize = it->first - programCounter;
+         instructionSizeBytes = it->first - programCounter;
       }
    }
    return instr;
 }
 
-int ExecutableProgram::loadFromHeap(int address, ushort numBytes) const
+std::int32_t ExecutableProgram::loadFromHeap(std::uint32_t address, std::uint8_t numBytes) const
 {
-   int retVal = 0;
+   std::int32_t retVal = 0;
    if((numBytes > 4) || (numBytes < 0))
    {
       std::cerr << __PRETTY_FUNC__ << ": Trying to load data of unsupported byte size " << numBytes << std::endl;
       abort();
    }
 
-   int shiftCounter = 0;
-   int index = address - m_instructionsSize;
-   for(ushort i = 0; i < numBytes; ++i)
+   std::uint8_t shiftCounter = 0;
+   std::uint32_t index = address - m_instructionsSizeBytes;
+   for(std::uint8_t i = 0; i < numBytes; ++i, ++index)
    {
       retVal = retVal | (m_heap[index] << shiftCounter);
-      std::cout << "Loading from memory = " << static_cast<int>(m_heap[index]) << " at index " << index << std::endl;
-      ++index;
+      std::cout << "Loading from memory = " << m_heap[index] << " at index " << index << std::endl;
       shiftCounter += 8;
    }
 
    return retVal;
 }
 
-int ExecutableProgram::loadSymbolValue(const std::string& symbolName) const
+std::uint32_t ExecutableProgram::loadSymbolAddress(const std::string& symbolName) const
 {
-   int retVal = -1;
+   std::uint32_t retVal = 0;
    try
    {
       retVal = m_symbolTable.at(symbolName);
@@ -118,7 +117,7 @@ int ExecutableProgram::loadSymbolValue(const std::string& symbolName) const
    return retVal;
 }
 
-void ExecutableProgram::storeToHeap(int address, int value, ushort numBytes)
+void ExecutableProgram::storeToHeap(std::uint32_t address, std::int32_t value, std::uint8_t numBytes)
 {
    if((numBytes > 4) || (numBytes < 0))
    {
@@ -126,7 +125,7 @@ void ExecutableProgram::storeToHeap(int address, int value, ushort numBytes)
       abort();
    }
 
-   int index = address - getInstructionsSize();
+   std::uint32_t index = address - getInstructionsSizeBytes();
 
    doStoreToHeap(index, value, numBytes);
 
@@ -134,31 +133,31 @@ void ExecutableProgram::storeToHeap(int address, int value, ushort numBytes)
 
 void ExecutableProgram::calculateHeapSize()
 {
-   m_heapSize = getProgramSize() - getInstructionsSize();
-   if((m_heapSize < 0 ) || (m_heap.size() > m_heapSize))
+   m_heapSizeBytes = getProgramSizeBytes() - getInstructionsSizeBytes();
+   if((m_heapSizeBytes < 0 ) || (m_heap.size() > m_heapSizeBytes))
    {
-      std::cerr << __PRETTY_FUNC__ << ": Tried recalcuating heap, but heap already overflowing" << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Tried recalcuating heap size, but heap already overflowing" << std::endl;
       abort();
    }
 
-   m_heap.resize(m_heapSize, 0);
+   m_heap.resize(m_heapSizeBytes, 0);
 
-   std::cout << "Heap size calculated to be " << m_heap.size() << std::endl;
+   std::cout << "Heap size calculated to be " << m_heap.size() << " bytes" << std::endl;
 }
 
-int ExecutableProgram::getProgramSize() const
+std::uint32_t ExecutableProgram::getProgramSizeBytes() const
 {
-   return PROGRAM_SIZE;
+   return PROGRAM_SIZE_BYTES;
 }
 
-int ExecutableProgram::getInstructionsSize()
+std::uint32_t ExecutableProgram::getInstructionsSizeBytes() const
 {
-   return m_instructionsSize;
+   return m_instructionsSizeBytes;
 }
 
 void ExecutableProgram::printInstructions() const
 {
-   int pc = 0;
+   std::uint32_t pc = 0;
    InstructionMemoryMap::const_iterator it = m_instructions.begin();
    while(it != m_instructions.end())
    {
@@ -180,13 +179,13 @@ void ExecutableProgram::printSymbols() const
    }
 }
 
-void ExecutableProgram::doStoreToHeap(int index, int value, ushort numBytes)
+void ExecutableProgram::doStoreToHeap(std::uint32_t index, std::int32_t value, std::uint8_t numBytes)
 {
-   std::cout << "Initial value = " << std::hex << value << std::dec << std::endl;
-   for(ushort i = 0; i < numBytes; ++i)
+   std::cout << "Initial  value = " << std::hex << value << std::dec << std::endl;
+   for(std::uint8_t i = 0; i < numBytes; ++i, ++index)
    {
-      m_heap[index + i] = (value & 0xff);
-      std::cout << "Storing value to heap = " << std::hex << (value & 0xff) << std::dec << " at index " << (index + i) << std::endl;
+      m_heap[index] = (value & 0xff);
+      std::cout << "Storing binary value to heap = " << std::hex << (value & 0xff) << std::dec << " at index " << index << std::endl;
       value = value >> 8;
    }
    std::cout << std::endl;

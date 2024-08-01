@@ -1,9 +1,9 @@
 #ifndef EXECUTABLEPROGRAM_H
 #define EXECUTABLEPROGRAM_H
 
-#include <vector>
-#include <map>
 #include <string>
+#include <map>
+#include <vector>
 
 namespace Expressions
 {
@@ -20,37 +20,36 @@ public:
    ExecutableProgram();
    ~ExecutableProgram();
 
-   void addInstruction(Expressions::Instruction* instruction, uint instructionSize);
-   void addToHeap(int value, ushort numBytes);
-   void addSymbol(const std::string& symbolName, int value);
+   void addInstruction(Expressions::Instruction* instruction, std::uint8_t instructionSizeBytes);
+   void addToHeap(std::int32_t value, std::uint8_t numBytes);
+   void addSymbol(const std::string& symbolName, std::uint32_t address);
 
-   Expressions::Instruction* loadInstruction(int programCounter, ushort& instructionSize) const;
-   int loadFromHeap(int address, ushort numBytes) const;
-   int loadSymbolValue(const std::string& symbolName) const;
+   Expressions::Instruction* loadInstruction(std::uint32_t programCounter, std::uint8_t& instructionSizeBytes) const;
+   std::int32_t loadFromHeap(std::uint32_t address, std::uint8_t numBytes) const;
+   std::uint32_t loadSymbolAddress(const std::string& symbolName) const; // Can throw exception
 
-   void storeToHeap(int address, int value, ushort numBytes);
+   void storeToHeap(std::uint32_t address, std::int32_t value, std::uint8_t numBytes);
 
-   // Should be called after all instructions and initial heap values have been added, to recalculate heap size.
+   // Must be called after all instructions and initial heap values have been added, to recalculate heap size.
    void calculateHeapSize();
 
-   int getProgramSize() const;
-   int getInstructionsSize();
+   std::uint32_t getProgramSizeBytes() const;
+   std::uint32_t getInstructionsSizeBytes() const;
 
    void printInstructions() const;
    void printSymbols() const;
 
 private:
-   void doStoreToHeap(int index, int value, ushort numBytes);
+   void doStoreToHeap(std::uint32_t index, std::int32_t value, std::uint8_t numBytes);
 
-   using InstructionMemoryMap = std::map<int, Expressions::Instruction*>; // Address | Instruction
-   using SymbolTableMap = std::map<std::string, int>; // Label name | Start address of value
-   using HeapVector = std::vector<unsigned char>;
+   using InstructionMemoryMap = std::map<std::int32_t, Expressions::Instruction*>; // Address | Instruction
+   using SymbolTableMap = std::map<std::string, std::uint32_t>; // Label name | Start address of value
+   using HeapVector = std::vector<std::uint8_t>;
 
    InstructionMemoryMap m_instructions; // Address, Instruction
-   int m_instructionsSize;
-   int m_heapSize;
+   std::uint32_t m_instructionsSizeBytes;
+   std::uint32_t m_heapSizeBytes;
 
-   // Might have to use SymbolValues or char class since the size of each negative binary value is relevant for number of bitflips.
    HeapVector m_heap; // Starts at m_instructionsSize;
    SymbolTableMap m_symbolTable;
 };

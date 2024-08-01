@@ -112,7 +112,7 @@ void RV32IToREBEL6::fillExpressionMap()
    // lui is defined as putting the 20 lsb of the immediate into the 20 msb of the target registry.
    m_instructionMap["lui"] = [this] (const StringList& op, Expressions::ExpressionList& el)
    {
-      int val = 0;
+      std::int32_t val = 0;
       if(ParseUtils::parseImmediate(20, op[1], val))
       {
          val <<= 12;
@@ -145,7 +145,7 @@ void RV32IToREBEL6::fillExpressionMap()
          // Doesn't make sense that we'll get here
          std::cout << __PRETTY_FUNC__ << ": Unexpectedly got auipc without %pcrel_hi." << std::endl;
 
-         int val = 0;
+         std::int32_t val = 0;
          if(ParseUtils::parseImmediate(20, op[1], val))
          {
             val <<= 12;

@@ -11,8 +11,8 @@ public:
    enum class ASSEMBLER_MODIFIER{HI, LO, PCRELHI, PCRELLO, UNDEFINED};
    static bool parseAssemblerModifier(const std::string& in, ASSEMBLER_MODIFIER& type, std::string& value);
    static bool parseRegisterOffset(const std::string& in, std::string& offset, std::string& rs1);
-   static bool parseImmediate(int immediateSize, const std::string& in, int& out);
-   static bool parseImmediate(int immediateSize, int in, int &out);
+   static bool parseImmediate(std::uint8_t immediateSize, const std::string& in, std::int32_t& out);
+   static bool parseImmediate(std::uint8_t immediateSize, std::int32_t in, std::int32_t &out);
    static void generateReloLabel(std::string& out);
 };
 

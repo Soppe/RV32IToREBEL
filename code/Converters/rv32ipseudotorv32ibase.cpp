@@ -259,12 +259,12 @@ void RV32IPseudoToRV32IBase::fillExpressionMap()
    //    addi rd, rd, imm12
    m_instructionMap[ "li"] = [this] (const StringList& op, Expressions::ExpressionList& el)
            {
-              int val;
+              std::int32_t val;
               if(ParseUtils::parseImmediate(32, op[1], val))
               {
                  // Compensate for signedness for botVal, and mask away any of the 12 MSB from topVal as it makes lui grumpy
-                 int topVal = ((val >> 12) + ((val & 0x800) ? 1 : 0)) & 0xfffff;
-                 int botVal;
+                 std::int32_t topVal = ((val >> 12) + ((val & 0x800) ? 1 : 0)) & 0xfffff;
+                 std::int32_t botVal;
                  ParseUtils::parseImmediate(12, val, botVal);
 
                  at("lui")({op[0], std::to_string(topVal)}, el);
@@ -278,9 +278,9 @@ void RV32IPseudoToRV32IBase::fillExpressionMap()
 
               /*try
               {
-                 int val = stoi(op[1]);
-                 int topVal = (val & 0xfffff000);
-                 int botVal = (val & 0xfff);
+                 std::int32_t val = stoi(op[1]);
+                 std::int32_t topVal = (val & 0xfffff000);
+                 std::int32_t botVal = (val & 0xfff);
 
                  at("lui")({op[0], std::to_string(topVal)}, el);
                  at("addi")({op[0], op[0], std::to_string(botVal)}, el);

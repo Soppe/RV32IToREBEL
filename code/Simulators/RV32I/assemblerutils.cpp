@@ -15,7 +15,7 @@
 
 namespace
 {
-std::unordered_map<std::string, int> Funct3Map =
+std::unordered_map<std::string, std::uint8_t> Funct3Map =
     {
     // R - Register
     {"add", 0b000},
@@ -68,9 +68,9 @@ std::unordered_map<std::string, int> Funct3Map =
     {"ebreak", 0b000}
 };
 
-int getFunc3(const std::string& instructionName)
+std::uint8_t getFunc3(const std::string& instructionName)
 {
-   int retVal;
+   std::uint8_t retVal;
 
    try
    {
@@ -85,7 +85,7 @@ int getFunc3(const std::string& instructionName)
    return retVal;
 }
 
-void machineFormatRegister(int& result, int opcode, int rd, int rs1, int rs2, int funct3, int funct7)
+void machineFormatRegister(std::int32_t& result, std::uint8_t opcode, std::uint8_t rd, std::uint8_t rs1, std::uint8_t rs2, std::uint8_t funct3, std::uint8_t funct7)
 {
    result = opcode; // 7 bit opcode
    result |= (rd << 7); // 5 bit rd
@@ -95,7 +95,7 @@ void machineFormatRegister(int& result, int opcode, int rd, int rs1, int rs2, in
    result |= (funct7 << 25); // 7 bit funct7
 }
 
-void machineFormatImmediate(int& result, int opcode, int rd, int rs1, int imm, int funct3)
+void machineFormatImmediate(std::int32_t& result, std::uint8_t opcode, std::uint8_t rd, std::uint8_t rs1, std::int32_t imm, std::uint8_t funct3)
 {
    result = opcode; // 7 bit opcode
    result |= (rd << 7); // 5 bit rd
@@ -104,7 +104,7 @@ void machineFormatImmediate(int& result, int opcode, int rd, int rs1, int imm, i
    result |= (imm << 20); // 12 bit immediate [11:0]
 }
 
-void machineFormatStore(int& result, int opcode, int rs1, int rs2, int imm, int funct3)
+void machineFormatStore(std::int32_t& result, std::uint8_t opcode, std::uint8_t rs1, std::uint8_t rs2, std::int32_t imm, std::uint8_t funct3)
 {
    result = opcode; // 7 bit opcode
    result |= ((imm & 0x1F) << 7); // 5 bit - imm[4:0]
@@ -114,7 +114,7 @@ void machineFormatStore(int& result, int opcode, int rs1, int rs2, int imm, int 
    result |= (((imm & 0xFE0) >> 5) << 25); // 7 bit - imm[11:5]
 }
 
-void machineFormatBranch(int& result, int opcode, int rs1, int rs2, int imm, int funct3)
+void machineFormatBranch(std::int32_t& result, std::uint8_t opcode, std::uint8_t rs1, std::uint8_t rs2, std::int32_t imm, std::uint8_t funct3)
 {
    result = opcode; // 7 bit opcode
    result |= (((imm & 0x800) >> 11) << 7); // 1 bit - imm[11]
@@ -126,14 +126,14 @@ void machineFormatBranch(int& result, int opcode, int rs1, int rs2, int imm, int
    result |= (((imm & 0x1000) >> 12) << 31); // 1 bit - imm[12]
 }
 
-void machineFormatUpper(int& result, int opcode, int rd, int imm)
+void machineFormatUpper(std::int32_t& result, std::uint8_t opcode, std::uint8_t rd, std::int32_t imm)
 {
    result = opcode; // 7 bit opcode
    result |= (rd << 7); // 5 bit rd
    result |= (imm & 0xFFFFF000); // 20 bit immediate - imm[31:12]
 }
 
-void machineFormatJump(int& result, int opcode, int rd, int imm)
+void machineFormatJump(std::int32_t& result, std::uint8_t opcode, std::uint8_t rd, std::int32_t imm)
 {
    result = opcode; // 7 bit opcode
    result |= (rd << 7); // 5 bit rd
@@ -151,9 +151,9 @@ namespace RV32I
 
 void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& program, const std::string& fileName)
 {
-   int pc = 0;
-   ushort instructionSize = 0;
-   int binaryValue = 0;
+   std::uint32_t pc = 0;
+   std::uint8_t instructionSize = 0;
+   std::int32_t binaryValue = 0;
    const Expressions::Instruction* instr = program.loadInstruction(pc, instructionSize);
    std::vector<std::bitset<32>> binaryRepresentedInstructions;
 
@@ -169,23 +169,23 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
       {
       case SimulatorUtils::InstructionType::REGISTER:
       {
-         int rd = Registry::getIntegerValue(operands[0]);
-         int rs1 = Registry::getIntegerValue(operands[1]);
-         int rs2 = Registry::getIntegerValue(operands[2]);
-         int opcode = 0b0110011;
-         int funct3 = getFunc3(name);
-         int funct7 = ((name == "sub") || (name == "sra")) ? 0b0100000 : 0b0;
+         std::uint8_t rd = Registry::getIntegerValue(operands[0]);
+         std::uint8_t rs1 = Registry::getIntegerValue(operands[1]);
+         std::uint8_t rs2 = Registry::getIntegerValue(operands[2]);
+         std::uint8_t opcode = 0b0110011;
+         std::uint8_t funct3 = getFunc3(name);
+         std::uint8_t funct7 = ((name == "sub") || (name == "sra")) ? 0b0100000 : 0b0;
 
          machineFormatRegister(binaryValue, opcode, rd, rs1, rs2, funct3, funct7);
          break;
       }
       case SimulatorUtils::InstructionType::IMMEDIATE:
       {
-         int rd = Registry::getIntegerValue(operands[0]);
-         int rs = Registry::getIntegerValue(operands[1]);
-         int imm = stoi(operands[2]);
-         int opcode = 0b0010011;
-         int funct3 = getFunc3(name);
+         std::uint8_t rd = Registry::getIntegerValue(operands[0]);
+         std::uint8_t rs = Registry::getIntegerValue(operands[1]);
+         std::int32_t imm = stoi(operands[2]);
+         std::uint8_t opcode = 0b0010011;
+         std::uint8_t funct3 = getFunc3(name);
 
          if((name == "slli") || (name == "srli")) // Use only the 5 LSB. The top 7 shall be 0 according to documentation
          {
@@ -202,9 +202,9 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
       }
       case SimulatorUtils::InstructionType::UPPER:
       {
-         int rd = Registry::getIntegerValue(operands[0]);
-         int imm = stoi(operands[1]);
-         int opcode = (name == "lui") ? 0b0110111 : 0b0010111;
+         std::uint8_t rd = Registry::getIntegerValue(operands[0]);
+         std::int32_t imm = stoi(operands[1]);
+         std::uint8_t opcode = (name == "lui") ? 0b0110111 : 0b0010111;
 
          imm <<= 12; // Documentation states the Upper format takes bits [31:12] of the immediate, so we have to pad the immediate to put the relevant bits in the right place.
 
@@ -213,11 +213,11 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
       }
       case SimulatorUtils::InstructionType::BRANCH:
       {
-         int rs1 = Registry::getIntegerValue(operands[0]);
-         int rs2 = Registry::getIntegerValue(operands[1]);
-         int offset = stoi(operands[2]);
-         int opcode = 0b1100011;
-         int funct3 = getFunc3(name);
+         std::uint8_t rs1 = Registry::getIntegerValue(operands[0]);
+         std::uint8_t rs2 = Registry::getIntegerValue(operands[1]);
+         std::int32_t offset = stoi(operands[2]);
+         std::uint8_t opcode = 0b1100011;
+         std::uint8_t funct3 = getFunc3(name);
 
          offset <<= 1; // Add back the lsb 0 that the assemblerandlinker shifts away
 
@@ -226,9 +226,9 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
       }
       case SimulatorUtils::InstructionType::JUMP:
       {
-         int rd = Registry::getIntegerValue(operands[0]);
-         int offset = stoi(operands[1]);
-         int opcode = 0b1101111;
+         std::uint8_t rd = Registry::getIntegerValue(operands[0]);
+         std::int32_t offset = stoi(operands[1]);
+         std::uint8_t opcode = 0b1101111;
 
          offset <<= 1; // Add back the lsb 0 that the assemblerandlinker shifts away
 
@@ -237,11 +237,11 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
       }
       case SimulatorUtils::InstructionType::JUMP_REGISTER:
       {
-         int rd = Registry::getIntegerValue(operands[0]);
-         int rs1 = 0;
-         int offset = 0;
-         int opcode = 0b1100111;
-         int funct3 = getFunc3(name);
+         std::uint8_t rd = Registry::getIntegerValue(operands[0]);
+         std::uint8_t rs1 = 0;
+         std::int32_t offset = 0;
+         std::uint8_t opcode = 0b1100111;
+         std::uint8_t funct3 = getFunc3(name);
 
          std::string off;
          std::string rs;
@@ -254,11 +254,11 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
       }
       case SimulatorUtils::InstructionType::LOAD:
       {
-         int rd = Registry::getIntegerValue(operands[0]);
-         int rs1 = 0;
-         int offset = 0;
-         int opcode = 0b0000011;
-         int funct3 = getFunc3(name);
+         std::uint8_t rd = Registry::getIntegerValue(operands[0]);
+         std::uint8_t rs1 = 0;
+         std::int32_t offset = 0;
+         std::uint8_t opcode = 0b0000011;
+         std::uint8_t funct3 = getFunc3(name);
 
          std::string off;
          std::string rs;
@@ -271,11 +271,11 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
       }
       case SimulatorUtils::InstructionType::STORE:
       {
-         int rs1 = 0;
-         int rs2 = Registry::getIntegerValue(operands[0]);
-         int offset = 0;
-         int opcode = 0b0100011;
-         int funct3 = getFunc3(name);
+         std::uint8_t rs1 = 0;
+         std::uint8_t rs2 = Registry::getIntegerValue(operands[0]);
+         std::int32_t offset = 0;
+         std::uint8_t opcode = 0b0100011;
+         std::uint8_t funct3 = getFunc3(name);
 
          std::string off;
          std::string rs;
@@ -319,6 +319,7 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
       instr = program.loadInstruction(pc, instructionSize);
    };
 
+   // .mbo = MRCS Binary Object file
    std::ofstream file(fileName + ".mbo");
    file << "// isa: rv32i" << std::endl;
    for(const std::bitset<32>& binaryRepresentation: binaryRepresentedInstructions)

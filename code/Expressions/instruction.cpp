@@ -9,7 +9,7 @@ Instruction::Instruction(const std::string& instructionName, const std::vector<s
     : m_operands(instructionOperands)
 {
    m_name.resize(instructionName.length());
-   std::transform(instructionName.begin(), instructionName.end(), m_name.begin(), [](unsigned char c){ return std::tolower(c); });
+   std::transform(instructionName.begin(), instructionName.end(), m_name.begin(), [](std::uint8_t c){ return std::tolower(c); });
 }
 
 Expression::ExpressionType Instruction::getExpressionType() const
@@ -21,7 +21,7 @@ void Instruction::print() const
 {
    std::cout << m_name << "\t";
 
-   for(int i = 0; i < m_operands.size(); ++i)
+   for(std::int32_t i = 0; i < m_operands.size(); ++i)
    {
       if(i != 0)
       {

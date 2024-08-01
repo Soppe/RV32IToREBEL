@@ -15,18 +15,18 @@ class Registry
 public:
    Registry();
 
-   void store(const std::string& regName, int regValue);
-   int load(const std::string& regName);
+   void store(const std::string& regName, std::int32_t regValue);
+   std::int32_t load(const std::string& regName);
 
-   int getAccumulatedBitFlips() const;
+   std::int32_t getAccumulatedBitFlips() const;
 
    void printRegistry();
 
-   static int getIntegerValue(const std::string& regName);
+   static std::uint8_t getIntegerValue(const std::string& regName);
 
 private:
-   std::unordered_map<std::string, int> m_registry;
-   int m_numBitFlips;
+   std::unordered_map<std::string, std::int32_t> m_registry;
+   std::uint32_t m_numBitFlips;
 };
 
 }

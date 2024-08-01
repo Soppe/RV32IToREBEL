@@ -51,7 +51,7 @@ void AssemblerAndLinker::run()
          handleRoDataSection(expr);
          break;
       default:
-         std::cerr << __PRETTY_FUNC__ << ": Unknown section type " << static_cast<int>(m_sectionType) << std::endl;
+         std::cerr << __PRETTY_FUNC__ << ": Unknown section type " << static_cast<std::int32_t>(m_sectionType) << std::endl;
          abort();
          break;
       }
@@ -63,7 +63,7 @@ void AssemblerAndLinker::run()
 
    // Finished setting up the instruction memory, now we need to set up heap labels
    HeapLabelMap::const_iterator it = m_tempHeapLabels.begin();
-   int instructionsSize = m_executable.getInstructionsSize();
+   std::uint32_t instructionsSize = m_executable.getInstructionsSizeBytes();
 
    while(it != m_tempHeapLabels.end())
    {
@@ -222,12 +222,12 @@ void AssemblerAndLinker::handleRoDataSection(const Expressions::Expression* expr
    }
 }
 
-bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive, int& byteSizePerElement, std::vector<int>& values)
+bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive, std::uint8_t& byteSizePerElement, std::vector<std::int32_t>& values)
 {
    bool retVal = true;
    const std::string& name = directive->getDirectiveName();
    const std::vector<std::string> parameters = directive->getDirectiveParameters();
-   static int value;
+   std::int32_t value;
 
    if(name == ".ascii") // 8 bits per letter
    {
@@ -276,7 +276,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
    }
    else if(name == ".int") // 32 bits according to ABI
    {
-      // 7.49 .int expressions
+      // 7.49 .std::int32_t expressions
       // Expect zero or more expressions, of any section, separated by commas. For each expression, emit a number that, at run time, is the value of that expression.
       // The byte order and bit size of the number depends on what kind of target the assembly is for.
 
@@ -388,8 +388,8 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
 
 void AssemblerAndLinker::resolveOperands()
 {
-   int pc = 0;
-   ushort instrSize;
+   std::uint32_t pc = 0;
+   std::uint8_t instrSize;
    Expressions::Instruction* instr = m_executable.loadInstruction(pc, instrSize);
    while(instr != nullptr)
    {
@@ -402,10 +402,10 @@ void AssemblerAndLinker::resolveOperands()
             ParseUtils::ASSEMBLER_MODIFIER type;
             if(ParseUtils::parseAssemblerModifier(operand, type, value))
             {
-               //std::cout << "Operand: " << operand << "; value: " << value << "; type: " << static_cast<int>(type) << std::endl;
+               //std::cout << "Operand: " << operand << "; value: " << value << "; type: " << static_cast<std::int32_t>(type) << std::endl;
                try
                {
-                  int imm = resolveAssemblerModifier(type, value, pc);
+                  std::int32_t imm = resolveAssemblerModifier(type, value, pc);
                   operand = std::to_string(imm);
                }
                catch(std::exception&)
@@ -420,7 +420,7 @@ void AssemblerAndLinker::resolveOperands()
          }
          else if(operand.starts_with("0x") || operand.starts_with("0X"))
          {
-            int dummy;
+            std::int32_t dummy;
             ParseUtils::parseImmediate(32, operand, dummy);
             operand = std::to_string(dummy);
             std::cout << "Operand = " << operand << std::endl;
@@ -429,7 +429,7 @@ void AssemblerAndLinker::resolveOperands()
          {
             try
             {
-               int imm = m_executable.loadSymbolValue(operand);
+               std::uint32_t imm = m_executable.loadSymbolAddress(operand);
                operand = std::to_string(imm);
             }
             catch(std::exception&)
@@ -443,7 +443,7 @@ void AssemblerAndLinker::resolveOperands()
       SimulatorUtils::InstructionType instrType = SimulatorUtils::getInstructionType(instr->getInstructionName());
       if((instrType == SimulatorUtils::InstructionType::BRANCH) || (instrType == SimulatorUtils::InstructionType::JUMP))
       {
-         int opInt = stoi(operands.back());
+         std::int32_t opInt = stoi(operands.back());
          opInt = opInt - pc;
          if((opInt % 2) != 0)
          {
@@ -463,9 +463,18 @@ void AssemblerAndLinker::resolveOperands()
    }
 }
 
-int AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MODIFIER& modifier, const std::string& imm, int pc)
+std::int32_t AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MODIFIER& modifier, const std::string& imm, std::uint32_t pc)
 {
-   int immi = m_executable.loadSymbolValue(imm);
+   std::int32_t immi = 0;
+   try
+   {
+      immi = m_executable.loadSymbolAddress(imm);
+   }
+   catch(std::exception&)
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Failed to load symbol address of symbol " << imm << std::endl;
+      abort();
+   }
 
    switch(modifier)
    {
@@ -474,7 +483,7 @@ int AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MOD
       immi = ((immi >> 12) + ((immi & 0x800) ? 1 : 0)) & 0xfffff;
       break;
    case ParseUtils::ASSEMBLER_MODIFIER::LO:
-      ParseUtils::parseImmediate(0xfff, immi, immi);
+      ParseUtils::parseImmediate(12, immi, immi);
       break;
    case ParseUtils::ASSEMBLER_MODIFIER::PCRELHI:
    {
@@ -483,7 +492,7 @@ int AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MOD
       // Pc is the address of the %pcrel_hi-related instruction, whereas imm is the symbol name
       m_relocationTable.insert({pc, imm});
 
-      int delta = immi - pc;
+      std::int32_t delta = immi - pc;
       // Compensate for signedness from %pcrel_lo by adding +1 if its sign bit is set, but don't sign extend as it makes lui grumpy
       immi = ((delta >> 12) + ((delta & 0x800) ? 1 : 0)) & 0xfffff;
       break;
@@ -496,7 +505,7 @@ int AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MOD
          try
          {
             std::string symbol = m_relocationTable.at(pc);
-            immi = m_executable.loadSymbolValue(symbol);
+            immi = m_executable.loadSymbolAddress(symbol);
          }
          catch(std::exception& e)
          {
@@ -504,7 +513,7 @@ int AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MOD
          }
       }
       immi = (immi - pc);
-      ParseUtils::parseImmediate(0xfff, immi, immi);
+      ParseUtils::parseImmediate(12, immi, immi);
       break;
    }
    default:
@@ -517,11 +526,11 @@ int AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MOD
 
 void AssemblerAndLinker::resolveDataDirective(const Expressions::Directive* directive)
 {
-   int byteSizePerElement;
-   std::vector<int> values;
+   std::uint8_t byteSizePerElement;
+   std::vector<std::int32_t> values;
    if(resolveIfObject(directive, byteSizePerElement, values))
    {
-      for(int value: values)
+      for(std::int32_t value: values)
       {
          m_executable.addToHeap(value, byteSizePerElement);
       }

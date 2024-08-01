@@ -17,10 +17,6 @@ std::unordered_map<std::string, Simulators::DirectiveHelper::SectionType> direct
 }
 namespace Simulators
 {
-DirectiveHelper::DirectiveHelper()
-{
-
-}
 
 bool DirectiveHelper::resolveSectionTypeAndIfChanged(const Expressions::Directive& directive, SectionType& sectionType)
 {
