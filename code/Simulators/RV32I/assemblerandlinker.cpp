@@ -1,4 +1,5 @@
 #include "assemblerandlinker.h"
+
 #include "executableprogram.h"
 #include "simulatorutils.h"
 
@@ -77,7 +78,7 @@ void AssemblerAndLinker::run()
 
 void AssemblerAndLinker::handleTextSection(const Expressions::Expression* expr)
 {
-   std::cout << "In text section" << std::endl;
+   std::cout << "In .text section" << std::endl;
 
    while(expr != nullptr)
    {
@@ -86,7 +87,7 @@ void AssemblerAndLinker::handleTextSection(const Expressions::Expression* expr)
       case Expressions::Expression::ExpressionType::DIRECTIVE:
       {
          const Expressions::Directive* directive = static_cast<const Expressions::Directive*>(expr);
-         // No expecting any directives while handling .text
+         // Not expecting any directives while handling .text
          if(DirectiveHelper::resolveSectionTypeAndIfChanged(*directive, m_sectionType))
          {
             return;
@@ -117,7 +118,7 @@ void AssemblerAndLinker::handleTextSection(const Expressions::Expression* expr)
 
 void AssemblerAndLinker::handleDataSection(const Expressions::Expression* expr)
 {
-   std::cout << "In data section" << std::endl;
+   std::cout << "In .data section" << std::endl;
    while(expr != nullptr)
    {
       switch(expr->getExpressionType())
@@ -158,6 +159,8 @@ void AssemblerAndLinker::handleDataSection(const Expressions::Expression* expr)
 
 void AssemblerAndLinker::handleBssSection(const Expressions::Expression* expr)
 {
+   std::cout << "In .bss section" << std::endl;
+
    while(expr != nullptr)
    {
       switch(expr->getExpressionType())
@@ -170,10 +173,16 @@ void AssemblerAndLinker::handleBssSection(const Expressions::Expression* expr)
          {
             return;
          }
+
+         resolveDataDirective(directive);
          break;
       }
       case Expressions::Expression::ExpressionType::LABEL:
+      {
+         const Expressions::Label* label = static_cast<const Expressions::Label*>(expr);
+         m_tempHeapLabels.insert({label->getLabelName(), m_hc});
          break;
+      }
       case Expressions::Expression::ExpressionType::INSTRUCTION:
          std::cerr << __PRETTY_FUNC__ << ": Found instruction \"";
          expr->print();
@@ -191,6 +200,8 @@ void AssemblerAndLinker::handleBssSection(const Expressions::Expression* expr)
 
 void AssemblerAndLinker::handleRoDataSection(const Expressions::Expression* expr)
 {
+   std::cout << "In .rodata section" << std::endl;
+
    while(expr != nullptr)
    {
       switch(expr->getExpressionType())
@@ -203,10 +214,16 @@ void AssemblerAndLinker::handleRoDataSection(const Expressions::Expression* expr
          {
             return;
          }
+
+         resolveDataDirective(directive);
          break;
       }
       case Expressions::Expression::ExpressionType::LABEL:
+      {
+         const Expressions::Label* label = static_cast<const Expressions::Label*>(expr);
+         m_tempHeapLabels.insert({label->getLabelName(), m_hc});
          break;
+      }
       case Expressions::Expression::ExpressionType::INSTRUCTION:
          std::cerr << __PRETTY_FUNC__ << ": Found instruction \"";
          expr->print();
@@ -234,7 +251,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // 7.5 .ascii "string"…
       // .ascii expects zero or more string literals (see Strings) separated by commas. It assembles each string (with no automatic trailing zero byte) into consecutive addresses.
 
-      std::cout << "Unsupported directive object type: " << name << std::endl;
+      std::cout << __PRETTY_FUNC__ << ": Unsupported directive object type: " << name << std::endl;
       abort();
    }
    else if(name == ".asciz") // 8 bits per letter, + terminating zero which is also 8 bits
@@ -243,7 +260,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // .asciz is just like .ascii, but each string is followed by a zero byte. The “z” in ‘.asciz’ stands for “zero”.
       // Note that multiple string arguments not separated by commas will be concatenated together and only one final zero byte will be stored.
 
-      std::cout << "Unsupported directive object type: " << name << std::endl;
+      std::cout << __PRETTY_FUNC__ << ": Unsupported directive object type: " << name << std::endl;
       abort();
    }
    else if(name == ".byte") // 8 bits
@@ -283,7 +300,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // Note - this directive is not intended for encoding instructions, and it will not trigger effects like DWARF line number generation.
       // Instead some targets support special directives for encoding arbitrary binary sequences as instructions such as eg .insn or .inst.
 
-      std::cout << "Unsupported directive object type: " << name << std::endl;
+      std::cout << __PRETTY_FUNC__ << ": Unsupported directive object type: " << name << std::endl;
       abort();
    }
    else if(name == ".long") // 32 bits according to ABI
@@ -291,7 +308,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // 7.62 .long expressions
       // .long is the same as ‘.int’. See .int.
 
-      std::cout << "Unsupported directive object type: " << name << std::endl;
+      std::cout << __PRETTY_FUNC__ << ": Unsupported directive object type: " << name << std::endl;
       abort();
    }
    else if(name == ".short") // 16 bits according to ABI
@@ -304,7 +321,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // Note - this directive is not intended for encoding instructions, and it will not trigger effects like DWARF line number generation.
       // Instead some targets support special directives for encoding arbitrary binary sequences as instructions such as .insn or .inst.
 
-      std::cout << "Unsupported directive object type: " << name << std::endl;
+      std::cout << __PRETTY_FUNC__ << ": Unsupported directive object type: " << name << std::endl;
       abort();
    }
    /*else if(name == ".size") // Currenly not supported, but is normally generated by GCC. It's relevance, however, is unknown.
@@ -316,7 +333,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // 7.90 .skip size [,fill]
       // This directive emits size bytes, each of value fill. Both size and fill are absolute expressions. If the comma and fill are omitted, fill is assumed to be zero. This is the same as ‘.space’.
 
-      std::cout << "Unsupported directive object type: " << name << std::endl;
+      std::cout << __PRETTY_FUNC__ << ": Unsupported directive object type: " << name << std::endl;
       abort();
    }
    else if(name == ".space")
@@ -325,7 +342,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // This directive emits size bytes, each of value fill. Both size and fill are absolute expressions. If the comma and fill are omitted, fill is assumed to be zero. This is the same as ‘.skip’.
 
 
-      std::cout << "Unsupported directive object type: " << name << std::endl;
+      std::cout << __PRETTY_FUNC__ << ": Unsupported directive object type: " << name << std::endl;
       abort();
    }
    else if(name == ".string") // 8 bits per letter, + terminating zero which is also 8 bits
@@ -337,7 +354,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // Unless otherwise specified for a particular machine, the assembler marks the end of each string with a 0 byte. You can use any of the escape sequences described in Strings.
 
       // The variants string16, string32 and string64 differ from the string pseudo opcode in that each 8-bit character from str is copied and expanded to 16, 32 or 64 bits respectively.
-      //The expanded characters are stored in target endianness byte order.
+      // The expanded characters are stored in target endianness byte order.
 
       //Example:
 
@@ -346,7 +363,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
          //.string   "B\0\0\0Y\0\0\0E\0\0\0"  /* On little endian targets.  */
          //.string   "\0\0\0B\0\0\0Y\0\0\0E"  /* On big endian targets.  */
 
-      std::cout << "Unsupported directive object type: " << name << std::endl;
+      std::cout << __PRETTY_FUNC__ << ": Unsupported directive object type: " << name << std::endl;
       abort();
    }
    else if(name == ".word") // 32 bits according to ISA
@@ -370,12 +387,12 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // This directive is actually an alias for the ‘.skip’ directive so it can take an optional second argument of the value to store in the bytes instead of zero.
       // Using ‘.zero’ in this way would be confusing however.
 
-      std::cout << "Unsupported directive object type: " << name << std::endl;
+      std::cout << __PRETTY_FUNC__ << ": Unsupported directive object type: " << name << std::endl;
       abort();
    }
    else if((name == ".2byte") || (name == ".4byte") || (name == ".8byte") || (name == ".string8") || (name == ".string16") || (name == ".string32"))
    {
-      std::cout << "Unsupported directive object type: " << name << std::endl;
+      std::cout << __PRETTY_FUNC__ << ": Unsupported directive object type: " << name << std::endl;
       abort();
    }
    else
@@ -402,7 +419,6 @@ void AssemblerAndLinker::resolveOperands()
             ParseUtils::ASSEMBLER_MODIFIER type;
             if(ParseUtils::parseAssemblerModifier(operand, type, value))
             {
-               //std::cout << "Operand: " << operand << "; value: " << value << "; type: " << static_cast<std::int32_t>(type) << std::endl;
                try
                {
                   std::int32_t imm = resolveAssemblerModifier(type, value, pc);

@@ -7,12 +7,6 @@
 #include <vector>
 #include <map>
 
-namespace Converters
-{
-class InstructionConverterBase;
-}
-
-
 namespace Simulators
 {
 namespace RV32I
