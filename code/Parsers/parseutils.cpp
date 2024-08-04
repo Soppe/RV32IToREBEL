@@ -33,8 +33,14 @@ bool ParseUtils::parseAssemblerModifier(const std::string& in, ASSEMBLER_MODIFIE
 
       if     (modifier == "%pcrel_hi") type = ASSEMBLER_MODIFIER::PCRELHI;
       else if(modifier == "%pcrel_lo") type = ASSEMBLER_MODIFIER::PCRELLO;
+      else if(modifier == "%pcrel") type = ASSEMBLER_MODIFIER::PCREL;
       else if(modifier == "%hi") type = ASSEMBLER_MODIFIER::HI;
       else if(modifier == "%lo") type = ASSEMBLER_MODIFIER::LO;
+      else
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Unsupported assembler modifier " << modifier << std::endl;
+         abort();
+      }
    }
 
    return retVal;

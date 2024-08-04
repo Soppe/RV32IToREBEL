@@ -20,6 +20,7 @@
 #include "Simulators/RV32I/executableprogram.h"
 #include "Simulators/RV32I/simulator.h"
 
+#include "Simulators/REBEL6/assemblerandlinker.h"
 #include "Simulators/REBEL6/executableprogram.h"
 
 #include <iostream>
@@ -159,7 +160,7 @@ int main(int argc, char* argv[])
 
    // Assembling
    Simulators::REBEL6::ExecutableProgram rebel6Executable;
-   //Simulators::REBEL6::AssemblerAndLinker rebel6Assembler(rebel6Expressions, rebel6Executable);
+   Simulators::REBEL6::AssemblerAndLinker rebel6Assembler(rebel6Expressions, rebel6Executable);
 
    // Simulation
    std::cout << "REBEL-6 SIMULATION" << std::endl;

@@ -30,6 +30,7 @@ set(HEADERS
    Parsers/parser.h
    Parsers/parseutils.h
    Parsers/token.h
+   Simulators/REBEL6/assemblerandlinker.h
    Simulators/REBEL6/executableprogram.h
    Simulators/REBEL6/ternarylogic.h
    Simulators/RV32I/Cpu/cpu.h
@@ -40,6 +41,7 @@ set(HEADERS
    Simulators/RV32I/simulator.h
    Simulators/RV32I/simulatorutils.h
    Simulators/directivehelper.h
+
 )
 
 
@@ -61,6 +63,7 @@ set(SOURCES
    Parsers/lexer.cpp
    Parsers/parser.cpp
    Parsers/parseutils.cpp
+   Simulators/REBEL6/assemblerandlinker.cpp
    Simulators/REBEL6/executableprogram.cpp
    Simulators/REBEL6/ternarylogic.cpp
    Simulators/RV32I/Cpu/cpu.cpp
@@ -71,7 +74,10 @@ set(SOURCES
    Simulators/RV32I/simulator.cpp
    Simulators/RV32I/simulatorutils.cpp
    Simulators/directivehelper.cpp
+
 )
 
 # Add the executable
 add_executable(RISCVToRebelTranslator ${SOURCES} ${HEADERS})
+
+
