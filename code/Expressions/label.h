@@ -12,7 +12,7 @@ public:
    virtual ~Label() = default;
 
    virtual ExpressionType getExpressionType() const;
-   virtual void print() const;
+   virtual std::ostream& printToStream(std::ostream& stream) const;
 
    const std::string& getLabelName() const;
 

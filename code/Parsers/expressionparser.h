@@ -15,6 +15,7 @@ public:
    ~ExpressionParser() = default;
 
    const Expressions::Expression* nextExpression();
+   void reset();
    void insertAtCurrent(Expressions::Expression* expression);
 
 private:

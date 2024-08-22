@@ -412,9 +412,7 @@ void CPU::executeProgram(ExecutableProgram& program)
       const std::string& name = instr->getInstructionName();
       const std::vector<std::string>& operands = instr->getInstructionOperands();
       type = SimulatorUtils::getInstructionType(name);
-      std::cout << "pc = " << m_PC << "\t";
-      instr->print();
-      std::cout << std::endl;
+      std::cout << "pc = " << m_PC << "\t" << *instr << std::endl;
 
       switch(type)
       {

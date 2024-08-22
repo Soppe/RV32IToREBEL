@@ -395,7 +395,8 @@ void RV32IToREBEL6::fillExpressionMap()
    //m_instructionMap["jal.t"] = ;
    //m_instructionMap["jalr.t"] = ;
 
-   // Need their own because of memory sizes
+   // Need their own because of memory sizes and overholding binary overflows when storing to memory. Both load and store
+   // should have their own both in binary and ternary to ensure overflows are kept consistent in binary and ternary
    //m_instructionMap["lt.t"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lt.t", op, el); };
    //m_instructionMap["lh.t"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lh.t", op, el); };;
    //m_instructionMap["lw.t"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lw.t", op, el); };

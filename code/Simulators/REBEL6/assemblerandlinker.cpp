@@ -6,6 +6,7 @@
 #include <logger.h>
 
 #include <iostream>
+#include <fstream>
 
 namespace Simulators
 {
@@ -140,9 +141,7 @@ void AssemblerAndLinker::handleDataSection(const Expressions::Expression* expr)
          break;
       }
       case Expressions::Expression::ExpressionType::INSTRUCTION:
-         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"";
-         expr->print();
-         std::cerr << "\" in data section" << std::endl;
+         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"" << *expr << "\" in data section" << std::endl;
          abort();
          break;
 
@@ -182,9 +181,7 @@ void AssemblerAndLinker::handleBssSection(const Expressions::Expression* expr)
          break;
       }
       case Expressions::Expression::ExpressionType::INSTRUCTION:
-         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"";
-         expr->print();
-         std::cerr << "\" in bss section" << std::endl;
+         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"" << *expr << "\" in bss section" << std::endl;
          abort();
          break;
       default:
@@ -223,9 +220,7 @@ void AssemblerAndLinker::handleRoDataSection(const Expressions::Expression* expr
          break;
       }
       case Expressions::Expression::ExpressionType::INSTRUCTION:
-         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"";
-         expr->print();
-         std::cerr << "\" in rodata section" << std::endl;
+         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"" << *expr << "\" in rodata section" << std::endl;
          abort();
          break;
       default:

@@ -70,7 +70,7 @@ void Parser::parse(std::list<Expressions::Expression*>& expressions)
 
       else if(checkToken(TokenType::Symbol))
       {
-         std::cout << "Checking symbol = " << m_token->literal << std::endl;
+         //std::cout << "Checking symbol = " << m_token->literal << std::endl;
          Expressions::Instruction* instruction = getInstruction();
          /*if(instruction->getInstructionType() == Expressions::Instruction::InstructionType::PSEUDO)
          {
@@ -150,7 +150,7 @@ Expressions::Directive* Parser::getDirective(bool includeDot)
       while(checkToken(TokenType::Comma))
       {
          nextToken(); // Bypass comma
-
+         operand = "";
          getOperand(operand);
          operands.push_back(operand);
          /*NextToken();

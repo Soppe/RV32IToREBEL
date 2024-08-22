@@ -17,18 +17,20 @@ Expression::ExpressionType Instruction::getExpressionType() const
    return ExpressionType::INSTRUCTION;
 }
 
-void Instruction::print() const
+std::ostream& Instruction::printToStream(std::ostream& stream) const
 {
-   std::cout << m_name << "\t";
+   stream << m_name << " ";
 
    for(std::int32_t i = 0; i < m_operands.size(); ++i)
    {
       if(i != 0)
       {
-         std::cout << ",";
+         stream << ",";
       }
-      std::cout << m_operands[i];
+      stream << m_operands[i];
    }
+
+   return stream;
 }
 
 const std::string& Instruction::getInstructionName() const

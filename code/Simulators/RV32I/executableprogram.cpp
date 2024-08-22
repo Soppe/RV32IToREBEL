@@ -162,9 +162,7 @@ void ExecutableProgram::printInstructions() const
    while(it != m_instructions.end())
    {
 
-      std::cout << std::hex << pc << ": ";
-      it->second->print();
-      std::cout << std::endl;
+      std::cout << std::hex << pc << ": " << *(it->second) << std::endl;
 
       pc += it->first;
       ++it;

@@ -31,9 +31,7 @@ void resolveInstruction(const Expressions::Instruction* instr, Expressions::Expr
    }
    catch(const std::exception&e)
    {
-      std::cerr << __PRETTY_FUNC__ << ": Failed to convert \"";
-      instr->print();
-      std::cerr << "\": " << e.what() << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Failed to convert \"" << *instr << "\": " << e.what() << std::endl;
    }
 }
 }

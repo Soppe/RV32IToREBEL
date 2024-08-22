@@ -17,18 +17,20 @@ Expression::ExpressionType Directive::getExpressionType() const
    return ExpressionType::DIRECTIVE;
 }
 
-void Directive::print() const
+std::ostream& Directive::printToStream(std::ostream& stream) const
 {
-   std::cout << m_name << "\t";
+   stream << m_name << " ";
 
    for(std::int32_t i = 0; i < m_parameters.size(); ++i)
    {
       if(i != 0)
       {
-         std::cout << ",";
+         stream << ", ";
       }
-      std::cout << m_parameters[i];
+      stream << m_parameters[i];
    }
+
+   return stream;
 }
 
 const std::string& Directive::getDirectiveName() const

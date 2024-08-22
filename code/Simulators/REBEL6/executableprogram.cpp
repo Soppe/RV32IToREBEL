@@ -163,9 +163,7 @@ void ExecutableProgram::printInstructions() const
    while(it != m_instructions.end())
    {
 
-      std::cout << pc << ": ";
-      it->second->print();
-      std::cout << std::endl;
+      std::cout << pc << ": " << *(it->second) << std::endl;
 
       pc += it->first;
       ++it;

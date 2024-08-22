@@ -13,7 +13,7 @@ public:
    virtual ~Instruction() = default;
 
    virtual ExpressionType getExpressionType() const;
-   virtual void print() const;
+   virtual std::ostream& printToStream(std::ostream& stream) const;
 
    const std::string& getInstructionName() const;
    const std::vector<std::string>& getInstructionOperands()const ;

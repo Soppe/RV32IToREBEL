@@ -56,7 +56,6 @@ set(SOURCES
    Converters/rv32itorebel2.cpp
    Converters/rv32itorebel6.cpp
    Expressions/directive.cpp
-   Expressions/expression.cpp
    Expressions/instruction.cpp
    Expressions/label.cpp
    Parsers/expressionparser.cpp
@@ -79,5 +78,3 @@ set(SOURCES
 
 # Add the executable
 add_executable(RISCVToRebelTranslator ${SOURCES} ${HEADERS})
-
-

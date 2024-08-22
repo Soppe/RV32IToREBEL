@@ -8,6 +8,7 @@
 #include <logger.h>
 
 #include <iostream>
+#include <fstream>
 
 namespace Simulators
 {
@@ -33,6 +34,7 @@ void AssemblerAndLinker::init()
 
 void AssemblerAndLinker::run()
 {
+   m_parser.reset();
    const Expressions::Expression* expr = m_parser.nextExpression();
 
    while(expr != nullptr)
@@ -142,9 +144,7 @@ void AssemblerAndLinker::handleDataSection(const Expressions::Expression* expr)
          break;
       }
       case Expressions::Expression::ExpressionType::INSTRUCTION:
-         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"";
-         expr->print();
-         std::cerr << "\" in data section" << std::endl;
+         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"" << *expr << "\" in data section" << std::endl;
          abort();
          break;
 
@@ -184,9 +184,7 @@ void AssemblerAndLinker::handleBssSection(const Expressions::Expression* expr)
          break;
       }
       case Expressions::Expression::ExpressionType::INSTRUCTION:
-         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"";
-         expr->print();
-         std::cerr << "\" in bss section" << std::endl;
+         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"" << *expr << "\" in bss section" << std::endl;
          abort();
          break;
       default:
@@ -225,9 +223,7 @@ void AssemblerAndLinker::handleRoDataSection(const Expressions::Expression* expr
          break;
       }
       case Expressions::Expression::ExpressionType::INSTRUCTION:
-         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"";
-         expr->print();
-         std::cerr << "\" in rodata section" << std::endl;
+         std::cerr << __PRETTY_FUNC__ << ": Found instruction \"" << *expr << "\" in rodata section" << std::endl;
          abort();
          break;
       default:
@@ -439,7 +435,6 @@ void AssemblerAndLinker::resolveOperands()
             std::int32_t dummy;
             ParseUtils::parseImmediate(32, operand, dummy);
             operand = std::to_string(dummy);
-            std::cout << "Operand = " << operand << std::endl;
          }
          else if((std::isalpha(operand[0])) || (operand[0] == '.'))
          {
@@ -463,9 +458,7 @@ void AssemblerAndLinker::resolveOperands()
          opInt = opInt - pc;
          if((opInt % 2) != 0)
          {
-            std::cerr << __PRETTY_FUNC__ << ": offset not 2 byte aligned: ";
-            instr->print();
-            std::cout << std::endl;
+            std::cerr << __PRETTY_FUNC__ << ": offset not 2 byte aligned: " << *instr << std::endl;
             abort();
          }
          // Last bit should always be 0 since every instruction should be at least 2-byte aligned - we discard it because the CPU adds it automatically.
