@@ -508,7 +508,7 @@ std::int32_t AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSE
    }
    case ParseUtils::ASSEMBLER_MODIFIER::PCRELLO:
    {
-      if(imm.starts_with(ParseUtils::RELO_LABEL_PREFIX))
+      if(imm.starts_with(ParseUtils::TEMP_LABEL_PREFIX))
       {
          pc = immi;
          try

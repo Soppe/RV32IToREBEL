@@ -33,8 +33,9 @@ void createInstruction(Expressions::ExpressionList& el, const std::string& name,
 
 // l{b|h|w}{u} rd, offset(rs) --> l{b|h|w}{u} rd, offset(rs)
 // l{b|h|w} rd, symbol -->
+// temp_label:
 //    auipc rd, %pcrel_hi(symbol)
-//    l{b|h|w} rd, %pcrel_lo(symbol)(rd)
+//    l{b|h|w} rd, %pcrel_lo(temp_label)(rd)
 void handleLoad(const Converters::RV32IPseudoToRV32IBase* conv, const std::string& name, const Converters::StringList& op, Expressions::ExpressionList& el)
 {
    std::string offsetDummy; // Placeholder, not used here
@@ -43,19 +44,20 @@ void handleLoad(const Converters::RV32IPseudoToRV32IBase* conv, const std::strin
    else // Pseudoinstruction
    {
       // Add label for the auipc according to the documentation for the %pcrel-modifiers
-      // Note that %pcrel_lo uses the reloLabel address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
-      std::string reloLabel;
-      ParseUtils::generateReloLabel(reloLabel);
-      el.push_back(new Expressions::Label(reloLabel));
+      // Note that %pcrel_lo uses the temp_label address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
+      std::string tempLabel;
+      ParseUtils::generateTempLabel(tempLabel);
+      el.push_back(new Expressions::Label(tempLabel));
       conv->at("auipc")({op[0], pcrel_hi(op[1])}, el);
-      createInstruction(el, name, op[0], createOffset(pcrel_lo(reloLabel), op[0]));
+      createInstruction(el, name, op[0], createOffset(pcrel_lo(tempLabel), op[0]));
    }
 }
 
 // s{b|h|w} rd, offset(rs) --> s{b|h|w} rd, offset(rs)
 // s{b|h|w} rd, symbol, rt -->
+// temp_label:
 //    auipc rt, %pcrel_hi(symbol)
-//    s{b|h|w} rd, %pcrel_lo(symbol)(rt)
+//    s{b|h|w} rd, %pcrel_lo(temp_label)(rt)
 void handleStore(const Converters::RV32IPseudoToRV32IBase* conv, const std::string& name, const Converters::StringList& op, Expressions::ExpressionList& el)
 {
    std::string offsetDummy; // Placeholder, not used here
@@ -64,12 +66,12 @@ void handleStore(const Converters::RV32IPseudoToRV32IBase* conv, const std::stri
    else // Pseudoinstruction
    {
       // Add label for the auipc according to the documentation for the %pcrel-modifiers
-      // Note that %pcrel_lo uses the reloLabel address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
-      std::string reloLabel;
-      ParseUtils::generateReloLabel(reloLabel);
-      el.push_back(new Expressions::Label(reloLabel));
+      // Note that %pcrel_lo uses the temp_label address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
+      std::string tempLabel;
+      ParseUtils::generateTempLabel(tempLabel);
+      el.push_back(new Expressions::Label(tempLabel));
       conv->at("auipc")({op[2], pcrel_hi(op[1])}, el);
-      createInstruction(el, name, op[0], createOffset(pcrel_lo(reloLabel), op[2]));
+      createInstruction(el, name, op[0], createOffset(pcrel_lo(tempLabel), op[2]));
    }
 }
 }
@@ -210,42 +212,42 @@ void RV32IPseudoToRV32IBase::fillExpressionMap()
    m_instructionMap["and"] = [] (const StringList& op, Expressions::ExpressionList& el) { createInstruction(el, "and", op[0], op[1], op[2]); };
 
    // fence --> nop
-   m_instructionMap[ "fence"] = [this] (const StringList&, Expressions::ExpressionList& el) { at("nop")({}, el); };
+   m_instructionMap["fence"] = [this] (const StringList&, Expressions::ExpressionList& el) { at("nop")({}, el); };
 
    // ecall --> ecall
-   m_instructionMap[ "ecall"] = [] (const StringList&, Expressions::ExpressionList& el) { createInstruction(el, "ecall"); };
+   m_instructionMap["ecall"] = [] (const StringList&, Expressions::ExpressionList& el) { createInstruction(el, "ecall"); };
 
    // ebreak --> ebreak
-   m_instructionMap[ "ebreak"] = [] (const StringList&, Expressions::ExpressionList& el) { createInstruction(el, "ebreak"); };
+   m_instructionMap["ebreak"] = [] (const StringList&, Expressions::ExpressionList& el) { createInstruction(el, "ebreak"); };
 
 
    // PSEUDOINSTRUCTIONS
 
    // la rd, symbol -->
-   // reloLabel:
+   // temp_label:
    //    auipc rd, %pcrel_hi(symbol)
    //    addi rd, rd, %pcrel_lo(reloLabel)
-   m_instructionMap[ "la"] = [this] (const StringList& op, Expressions::ExpressionList& el)
+   m_instructionMap["la"] = [this] (const StringList& op, Expressions::ExpressionList& el)
            {
               // Add label for the auipc according to the documentation for the %pcrel-modifiers
               // Note that %pcrel_lo uses the reloLabel address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
               std::string reloLabel;
-              ParseUtils::generateReloLabel(reloLabel);
+              ParseUtils::generateTempLabel(reloLabel);
               el.push_back(new Expressions::Label(reloLabel));
               at("auipc")({op[0], pcrel_hi(op[1])}, el);
               at("addi")({op[0], op[0], pcrel_lo(reloLabel)}, el); // For nopic only. Modify when/if pic-support is added
            };
 
    // lla rd, symbol -->
-   // reloLabel:
+   // temp_label:
    //    auipc rd, %pcrel_hi(symbol)
    //    addi rd, rd, %pcrel_lo(reloLabel)
-   m_instructionMap[ "lla"] = [this] (const StringList& op, Expressions::ExpressionList& el)
+   m_instructionMap["lla"] = [this] (const StringList& op, Expressions::ExpressionList& el)
            {
               // Add label for the auipc according to the documentation for the %pcrel-modifiers
               // Note that %pcrel_lo uses the reloLabel address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
               std::string reloLabel;
-              ParseUtils::generateReloLabel(reloLabel);
+              ParseUtils::generateTempLabel(reloLabel);
               el.push_back(new Expressions::Label(reloLabel));
               at("auipc")({op[0], pcrel_hi(op[1])}, el);
               at("addi")({op[0], op[0], pcrel_lo(reloLabel)}, el);
@@ -364,29 +366,29 @@ void RV32IPseudoToRV32IBase::fillExpressionMap()
    m_instructionMap["ret"] = [this] (const StringList&, Expressions::ExpressionList& el) { at("jalr")({"x0", zeroOffset("x1")}, el); };
 
    // call offset -->
-   // reloLabel:
+   // temp_label:
    //    auipc x1, %pcrel_hi(offset)
-   //    jalr x1, %pcrel_lo(reloLabel)(x1)
+   //    jalr x1, %pcrel_lo(temp_label)(x1)
    m_instructionMap["call"] = [this] (const StringList& op, Expressions::ExpressionList& el)
            {
               // Add label for the auipc according to the documentation for the %pcrel-modifiers
-              // Note that %pcrel_lo uses the reloLabel address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
-              std::string reloLabel;
-              ParseUtils::generateReloLabel(reloLabel);
-              el.push_back(new Expressions::Label(reloLabel));
+              // Note that %pcrel_lo uses the temp_label address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
+              std::string tempLabel;
+              ParseUtils::generateTempLabel(tempLabel);
+              el.push_back(new Expressions::Label(tempLabel));
               at("auipc")({"x1", pcrel_hi(op[0])}, el);
-              at("jalr")({"x1", createOffset(pcrel_lo(reloLabel), "x1")}, el);
+              at("jalr")({"x1", createOffset(pcrel_lo(tempLabel), "x1")}, el);
            };
 
    // tail offset -->
-   // reloLabel:
+   // temp_label:
    //    auipc x6, %pcrel_hi(offset)
-   //    jalr x0, %pcrel_lo(reloLabel)(x6)
+   //    jalr x0, %pcrel_lo(temp_label)(x6)
    /*insert( {"tail"] = [this] (const StringList& op, Expressions::ExpressionList& el)
            {
               // Add label for the auipc according to the documentation for the %pcrel-modifiers
-              // Note that %pcrel_lo uses the reloLabel address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
-              std::string reloLabel;
+              // Note that %pcrel_lo uses the temp_label address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
+              std::string tempLabel;
               ParseUtils::generateReloLabel(reloLabel);
               el.push_back(new Expressions::Label(reloLabel));
               at("auipc")({"x6", pcrel_hi(op[0])}, el);

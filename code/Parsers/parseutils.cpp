@@ -11,7 +11,7 @@
 // Adapted based on how sign extension is included when bitshifting in c++
 #define PARSEUTILS_SEXT_IMM(imm, bits) ((imm << bits) >> bits)
 
-std::string ParseUtils::RELO_LABEL_PREFIX = ".relo_";
+std::string ParseUtils::TEMP_LABEL_PREFIX = ".temp_label_";
 
 bool ParseUtils::parseAssemblerModifier(const std::string& in, ASSEMBLER_MODIFIER& type, std::string& value)
 {
@@ -130,9 +130,9 @@ bool ParseUtils::parseImmediate(std::uint8_t immediateSize, std::int32_t in, std
    return parseImmediate(immediateSize, std::to_string(in), out);
 }
 
-void ParseUtils::generateReloLabel(std::string& out)
+void ParseUtils::generateTempLabel(std::string& out)
 {
    static std::uint32_t counter = 0;
-   out = RELO_LABEL_PREFIX + std::to_string(counter);
+   out = TEMP_LABEL_PREFIX + std::to_string(counter);
    counter++;
 }
