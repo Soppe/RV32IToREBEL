@@ -141,13 +141,13 @@ int main(int argc, char* argv[])
    std::string fileName = std::filesystem::path(inputPath).stem();
    rv32iAssembler.printExpressionsToFile(fileName);
 
-   rv32iAssembler.init();
-   rv32iAssembler.run();
+   //rv32iAssembler.init();
+   //rv32iAssembler.run();
 
    // Simulation
    std::cout << "RV32I SIMULATION" << std::endl;
-   Simulators::RV32I::Simulator rv32iSim;
-   rv32iSim.run(rv32iExecutable);
+   //Simulators::RV32I::Simulator rv32iSim;
+   //rv32iSim.run(rv32iExecutable);
 
    // Generate MRSC binary object file.
    Simulators::RV32I::AssemblerUtils::generateAssemblyFileForMRCS(rv32iExecutable, fileName);
@@ -156,13 +156,13 @@ int main(int argc, char* argv[])
 
    // Conversion
    Expressions::ExpressionList rebel6Expressions;
-   //Converters::Converter::Convert("rebel-6", binaryExpressions, rebel6Expressions);
+   Converters::Converter::Convert("rebel-6", binaryExpressions, rebel6Expressions);
 
    // Assembling
-   //Simulators::REBEL6::ExecutableProgram rebel6Executable;
-   //Simulators::REBEL6::AssemblerAndLinker rebel6Assembler(rebel6Expressions, rebel6Executable);
+   Simulators::REBEL6::ExecutableProgram rebel6Executable;
+   Simulators::REBEL6::AssemblerAndLinker rebel6Assembler(rebel6Expressions, rebel6Executable);
    // Generate ternary assembly file
-   //rebel6Assembler.printExpressionsToFile(fileName);
+   rebel6Assembler.printExpressionsToFile(fileName);
 
    // Simulation
    std::cout << "REBEL-6 SIMULATION" << std::endl;

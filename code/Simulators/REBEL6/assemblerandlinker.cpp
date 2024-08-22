@@ -33,6 +33,7 @@ void AssemblerAndLinker::init()
 
 void AssemblerAndLinker::run()
 {
+   m_parser.reset();
    const Expressions::Expression* expr = m_parser.nextExpression();
 
    while(expr != nullptr)
@@ -537,6 +538,9 @@ std::int32_t AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSE
       ParseUtils::parseImmediate(12, immi, immi);
       break;
    }
+   case ParseUtils::ASSEMBLER_MODIFIER::PCREL:
+      immi = immi - pc;
+      break;
    default:
       immi = 0;
       break;
