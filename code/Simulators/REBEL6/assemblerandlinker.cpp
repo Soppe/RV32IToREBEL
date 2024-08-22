@@ -461,8 +461,8 @@ void AssemblerAndLinker::resolveOperands()
       }
 
       // Offset branching and jumps based on PC
-      SimulatorUtils::InstructionType instrType = SimulatorUtils::getInstructionType(instr->getInstructionName());
-      if((instrType == SimulatorUtils::InstructionType::BRANCH) || (instrType == SimulatorUtils::InstructionType::JUMP))
+      //SimulatorUtils::InstructionType instrType = SimulatorUtils::getInstructionType(instr->getInstructionName());
+      //if((instrType == SimulatorUtils::InstructionType::BRANCH) || (instrType == SimulatorUtils::InstructionType::JUMP))
       {
          std::int32_t opInt = stoi(operands.back());
          opInt = opInt - pc;
@@ -558,5 +558,62 @@ void AssemblerAndLinker::resolveDataDirective(const Expressions::Directive* dire
       m_hc += tritSizePerElement;
    }
 }
+
+void AssemblerAndLinker::printExpressionsToFile(const std::string& fileName)
+{
+   std::ofstream file(fileName + ".ts");
+
+   m_parser.reset();
+   const Expressions::Expression* expr = m_parser.nextExpression();
+
+   while(expr != nullptr)
+   {
+      switch(expr->getExpressionType())
+      {
+      case Expressions::Expression::ExpressionType::DIRECTIVE:
+      {
+         const Expressions::Directive* d = static_cast<const Expressions::Directive*>(expr);
+         file << "\t" << (*d);
+         break;
+      }
+      case Expressions::Expression::ExpressionType::LABEL:
+      {
+         const Expressions::Label* l = static_cast<const Expressions::Label*>(expr);
+         file << (*l);
+         break;
+      }
+      case Expressions::Expression::ExpressionType::INSTRUCTION:
+      {
+         const Expressions::Instruction* i = static_cast<const Expressions::Instruction*>(expr);
+         file << "\t" << (*i);
+         break;
+      }
+      case Expressions::Expression::ExpressionType::COMMENT:
+         //TODO: std::cout << e->getExpressionName();
+         break;
+      case Expressions::Expression::ExpressionType::UNDEFINED:
+         // TODO: std::cerr << "Found undefined expression with name = " << e->getExpressionName() << std::endl;
+         break;
+      default:
+         std::cerr << "Unsupported expression type with value = " << static_cast<std::int32_t>(expr->getExpressionType()) << std::endl;
+      }
+
+      /*if(peekNextExpression == comment && e->lineNumber == next->lineNumber)
+      {
+         Print comment
+             m_helper->nextExpression(); // Skip comment
+      }
+      else
+      {*/
+      file << std::endl;
+      //}
+
+      expr = m_parser.nextExpression();
+   }
+
+   file.close();
+   std::cout << "Finished writing ternary assembly to " << fileName << ".ts" << std::endl;
+}
+
 }
 }

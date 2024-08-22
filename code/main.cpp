@@ -54,21 +54,19 @@ void printExpressions(const Expressions::ExpressionList& expressions)
       case Expressions::Expression::ExpressionType::DIRECTIVE:
       {
          const Expressions::Directive* d = static_cast<const Expressions::Directive*>(e);
-         std::cout << "\t";
-         d->print();
+         std::cout << "\t" << *d;
          break;
       }
       case Expressions::Expression::ExpressionType::LABEL:
       {
          const Expressions::Label* l = static_cast<const Expressions::Label*>(e);
-         l->print();
+         std::cout << *l;
          break;
       }
       case Expressions::Expression::ExpressionType::INSTRUCTION:
       {
          const Expressions::Instruction* i = static_cast<const Expressions::Instruction*>(e);
-         std::cout << "\t";
-         i->print();
+         std::cout << "\t" << *i;
          pc += 4;
          break;
       }
@@ -138,6 +136,11 @@ int main(int argc, char* argv[])
    // Assembling
    Simulators::RV32I::ExecutableProgram rv32iExecutable;
    Simulators::RV32I::AssemblerAndLinker rv32iAssembler(rv32iExpressions, rv32iExecutable);
+
+   // Generate binary assembly file
+   std::string fileName = std::filesystem::path(inputPath).stem();
+   rv32iAssembler.printExpressionsToFile(fileName);
+
    rv32iAssembler.init();
    rv32iAssembler.run();
 
@@ -146,9 +149,6 @@ int main(int argc, char* argv[])
    Simulators::RV32I::Simulator rv32iSim;
    rv32iSim.run(rv32iExecutable);
 
-   //
-   std::string fileName = std::filesystem::path(inputPath).stem();
-   std::cout << "Path name = " << inputPath << "; fileName = " << fileName << std::endl;
    // Generate MRSC binary object file.
    Simulators::RV32I::AssemblerUtils::generateAssemblyFileForMRCS(rv32iExecutable, fileName);
 
@@ -156,37 +156,37 @@ int main(int argc, char* argv[])
 
    // Conversion
    Expressions::ExpressionList rebel6Expressions;
-   Converters::Converter::Convert("rebel-6", binaryExpressions, rebel6Expressions);
+   //Converters::Converter::Convert("rebel-6", binaryExpressions, rebel6Expressions);
 
    // Assembling
-   Simulators::REBEL6::ExecutableProgram rebel6Executable;
-   Simulators::REBEL6::AssemblerAndLinker rebel6Assembler(rebel6Expressions, rebel6Executable);
+   //Simulators::REBEL6::ExecutableProgram rebel6Executable;
+   //Simulators::REBEL6::AssemblerAndLinker rebel6Assembler(rebel6Expressions, rebel6Executable);
+   // Generate ternary assembly file
+   //rebel6Assembler.printExpressionsToFile(fileName);
 
    // Simulation
    std::cout << "REBEL-6 SIMULATION" << std::endl;
    //Simulators::REBEL6::Simulator rebel6Sim;
    //rebel6Sim.run(rebel6Sim);
 
+
    // Generating MRSC ternary file
    //Simulators::REBEL6::AssemblerUtils::generateAssemblyFileForMRCS(rebel6Executable, fileName);
 
-
-
-
-   TernaryMapper mapper(binaryExpressions);
-   Expressions::ExpressionList ternaryExpressions;
+   //TernaryMapper mapper(binaryExpressions);
+   //Expressions::ExpressionList ternaryExpressions;
    //mapper.mapExpressions(ternaryExpressions);
 
 
-   std::cout << "BINARY EXPRESSIONS: " << std::endl;
+   //std::cout << "BINARY EXPRESSIONS: " << std::endl;
    //printExpressions(binaryExpressions);
 
-   std::cout << "TERNARY EXPRESSIONS: " << std::endl;
+   //std::cout << "TERNARY EXPRESSIONS: " << std::endl;
    //printExpressions(ternaryExpressions);
 
    // Cleanup
    binaryExpressions.remove_if([](const Expressions::Expression* expr) { delete expr; return true;});
-   ternaryExpressions.remove_if([](const Expressions::Expression* expr) { delete expr; return true;});
+   //ternaryExpressions.remove_if([](const Expressions::Expression* expr) { delete expr; return true;});
    delete l;
    return 0;
 }

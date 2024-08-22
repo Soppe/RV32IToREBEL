@@ -22,6 +22,7 @@ public:
    void init();
    void run();
 
+   void printExpressionsToFile(const std::string& fileName);
 private:
 
    void handleTextSection(const Expressions::Expression* expr);
