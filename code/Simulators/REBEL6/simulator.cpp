@@ -2,9 +2,8 @@
 
 namespace Simulators
 {
-namespace RV32I
+namespace REBEL6
 {
-
 Simulator::Simulator()
 {
 

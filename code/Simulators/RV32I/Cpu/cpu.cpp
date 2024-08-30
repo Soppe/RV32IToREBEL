@@ -388,8 +388,9 @@ namespace RV32I
 {
 
 CPU::CPU()
-    : m_PC(0)
-    , m_accumulatedCost(0)
+    : m_registers(32)
+    , m_PC(0)
+    , m_numberOfRanInstructions(0)
 {
 }
 
@@ -400,6 +401,8 @@ CPU::~CPU()
 
 void CPU::executeProgram(ExecutableProgram& program)
 {
+   m_numberOfRanInstructions = 0;
+
    initRegisters(program.getProgramSizeBytes());
 
    std::uint8_t instructionSize = 0;
@@ -412,7 +415,7 @@ void CPU::executeProgram(ExecutableProgram& program)
       const std::string& name = instr->getInstructionName();
       const std::vector<std::string>& operands = instr->getInstructionOperands();
       type = SimulatorUtils::getInstructionType(name);
-      std::cout << "pc = " << m_PC << "\t" << *instr << std::endl;
+      //std::cout << "pc = " << m_PC << "\t" << *instr << std::endl;
 
       switch(type)
       {
@@ -447,6 +450,8 @@ void CPU::executeProgram(ExecutableProgram& program)
          std::cerr << __PRETTY_FUNC__ << ": Undefined instruction " << name << std::endl;
       }
 
+      ++m_numberOfRanInstructions;
+
       // End of program. GCC (and maybe other compilers too) seem to add a "jr ra" at the end of main, which for us jumps back to the start of the program,
       // resulting in an infinite loop
       if(m_PC < 0)
@@ -458,6 +463,16 @@ void CPU::executeProgram(ExecutableProgram& program)
    }
 
    std::cout << "Finished executing program" << std::endl;
+}
+
+uint32_t CPU::getNumberOfRanInstructions() const
+{
+   return m_numberOfRanInstructions;
+}
+
+uint32_t CPU::getBitshiftCost() const
+{
+   return m_registers.getAccumulatedBitFlips();
 }
 
 void CPU::executeRegister(const std::string& name, const std::string& rd, const std::string& rs1, const std::string& rs2)
@@ -745,15 +760,11 @@ void CPU::resolve12ImmOffset(const std::string& offset, std::int32_t& value)
    value = regVal + offi12;
 }
 
-std::uint32_t CPU::getAccumulatedCost() const
+void CPU::initRegisters(std::int32_t programSizeBytes)
 {
-   return m_accumulatedCost;
-}
-
-void CPU::initRegisters(std::int32_t programSize)
-{
+   m_registers.reset(32);
    m_registers.store("zero", 0);
-   m_registers.store("sp", programSize);
+   m_registers.store("sp", programSizeBytes);
 }
 
 }

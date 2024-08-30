@@ -4,22 +4,21 @@
 
 #include <Expressions/expression.h>
 
-
 namespace Simulators
 {
-namespace RV32I
+namespace REBEL6
 {
 
 class ExecutableProgram;
 
 class Simulator
 {
-public:
+ public:
    Simulator();
 
    void run(ExecutableProgram& executable);
 
-private:
+ private:
    CPU m_cpu;
 };
 

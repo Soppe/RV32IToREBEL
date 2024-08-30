@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
 
 namespace Simulators
 {
@@ -8,6 +9,7 @@ namespace REBEL6
 {
 
 using Trit = std::int8_t; // Can be -1, 0, 1
+using Trits = std::vector<Trit>;
 using Tint = std::int64_t; // (-3^21, 3^21)
 
 #define TRITS_PER_TRYTE 6
@@ -17,9 +19,11 @@ using Tint = std::int64_t; // (-3^21, 3^21)
 
 class TernaryLogic
 {
-public:
+ public:
    TernaryLogic() = delete;
 
+   static void TintToTrits(Tint in, Trits& out);
+   static void TritsToTint(const Trits& in, Tint& out);
 };
 
 }

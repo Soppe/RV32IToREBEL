@@ -1,6 +1,7 @@
 #include "assemblerandlinker.h"
 
 #include "executableprogram.h"
+#include "simulatorutils.h"
 
 #include <Expressions/all_expressions.h>
 #include <logger.h>
@@ -445,7 +446,6 @@ void AssemblerAndLinker::resolveOperands()
             std::int32_t dummy;
             ParseUtils::parseImmediate(32, operand, dummy);
             operand = std::to_string(dummy);
-            std::cout << "Operand = " << operand << std::endl;
          }
          else if((std::isalpha(operand[0])) || (operand[0] == '.'))
          {
@@ -462,8 +462,8 @@ void AssemblerAndLinker::resolveOperands()
       }
 
       // Offset branching and jumps based on PC
-      //SimulatorUtils::InstructionType instrType = SimulatorUtils::getInstructionType(instr->getInstructionName());
-      //if((instrType == SimulatorUtils::InstructionType::BRANCH) || (instrType == SimulatorUtils::InstructionType::JUMP))
+      SimulatorUtils::InstructionType instrType = SimulatorUtils::getInstructionType(instr->getInstructionName());
+      if((instrType == SimulatorUtils::InstructionType::BRANCH) || (instrType == SimulatorUtils::InstructionType::JUMP))
       {
          std::int32_t opInt = stoi(operands.back());
          opInt = opInt - pc;
@@ -500,7 +500,7 @@ std::int32_t AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSE
 
    switch(modifier)
    {
-   case ParseUtils::ASSEMBLER_MODIFIER::HI:
+   /*case ParseUtils::ASSEMBLER_MODIFIER::HI:
       // Compensate for signedness from %lo, don't sign extend as it makes lui grumpy
       immi = ((immi >> 12) + ((immi & 0x800) ? 1 : 0)) & 0xfffff;
       break;
@@ -537,11 +537,13 @@ std::int32_t AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSE
       immi = (immi - pc);
       ParseUtils::parseImmediate(12, immi, immi);
       break;
-   }
+   }*/
    case ParseUtils::ASSEMBLER_MODIFIER::PCREL:
       immi = immi - pc;
       break;
    default:
+      std::cout << __PRETTY_FUNC__ << "Received unexpected assembler modifier " << static_cast<int>(modifier) << std::endl;
+      abort();
       immi = 0;
       break;
    }
@@ -565,7 +567,7 @@ void AssemblerAndLinker::resolveDataDirective(const Expressions::Directive* dire
 
 void AssemblerAndLinker::printExpressionsToFile(const std::string& fileName)
 {
-   std::ofstream file(fileName + ".ts");
+   std::ofstream file(fileName + ".tas");
 
    m_parser.reset();
    const Expressions::Expression* expr = m_parser.nextExpression();
@@ -616,7 +618,7 @@ void AssemblerAndLinker::printExpressionsToFile(const std::string& fileName)
    }
 
    file.close();
-   std::cout << "Finished writing ternary assembly to " << fileName << ".ts" << std::endl;
+   std::cout << "Finished writing ternary assembly to " << fileName << ".tas" << std::endl;
 }
 
 }

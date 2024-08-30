@@ -1,5 +1,6 @@
 #include "registry.h"
 
+#include <Simulators/REBEL6/ternarylogic.h>
 #include <logger.h>
 
 #include <iostream>
@@ -7,27 +8,51 @@
 
 namespace
 {
-std::uint32_t countBitFlips(std::int32_t oldVal, std::int32_t newVal)
-{
-   std::int32_t num = (oldVal ^ newVal);
-   std::uint32_t flips = 0;
+int tritFlipCostLookup [3][3] = {/*-1, 0, 1*/
+                          /* -1 */ {0, 1, 1},
+                          /* 0 */  {1, 0, 1},
+                          /* 1 */  {1, 1, 0}};
 
-   // Brian Kernighan’s algorithm
-   while(num)
+std::uint32_t countTritFlips(Simulators::REBEL6::Tint oldVal, Simulators::REBEL6::Tint newVal)
+{
+   Simulators::REBEL6::Trits oldTrits;
+   Simulators::REBEL6::Trits newTrits;
+   std::uint32_t tritFlips = 0;
+
+   Simulators::REBEL6::TernaryLogic::TintToTrits(oldVal, oldTrits);
+   Simulators::REBEL6::TernaryLogic::TintToTrits(newVal, newTrits);
+
+   int sizeDiff = oldTrits.size() - newTrits.size();
+
+   if(sizeDiff < 0)
    {
-      num = num & (num - 1); // Clear the rightmost set bit
-      flips += 1;
+      for(int i = 0; i < -sizeDiff; ++i)
+      {
+         oldTrits.insert(oldTrits.end(), 0);
+      }
+   }
+   else
+   {
+      for(int i = 0; i < sizeDiff; ++i)
+      {
+         newTrits.insert(newTrits.end(), 0);
+      }
    }
 
-   return flips;
+   for(int i = 0; i < oldTrits.size(); ++i)
+   {
+      tritFlips += tritFlipCostLookup[oldTrits[i] + 1][newTrits[i] + 1];
+   }
+
+   return tritFlips;
 }
 
 const std::vector<std::string> RegisterABINames = {"zero", "ra", "sp", "gp", "tp",
-                                                   "t0", "t1", "t2",
-                                                   "s0", "s1",
-                                                   "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
-                                                   "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11",
-                                                   "t3", "t4", "t5", "t6"};
+                                                    "t0", "t1", "t2",
+                                                    "s0", "s1",
+                                                    "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
+                                                    "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11",
+                                                    "t3", "t4", "t5", "t6"};
 
 void convertToABI(const std::string& in, std::string& out)
 {
@@ -43,20 +68,20 @@ void convertToABI(const std::string& in, std::string& out)
       }
       catch(std::exception&)
       {
-         std::cout << __PRETTY_FUNC__ << ": Trying to convert unconvertable x-named register " << in << std::endl;
+         //std::cout << __PRETTY_FUNC__ << ": Trying to convert unconvertable x-named register " << in << std::endl;
       }
    }
    else
    {
-      // Already happening in the transform
-      //out = in;
+     // Already happening in the transform
+     //out = in;
    }
 }
 }
 
 namespace Simulators
 {
-namespace RV32I
+namespace REBEL6
 {
 
 Registry::Registry(int size)
@@ -66,12 +91,18 @@ Registry::Registry(int size)
 
 void Registry::reset(int size)
 {
-   m_numBitFlips = 0;
+   m_numTritFlips = 0;
    m_registry.clear();
+
+   int negativeStart = size / -2;
+   if(size % 2 == 0)
+   {
+      ++negativeStart;
+   }
 
    std::string reg;
    std::string regABI;
-   for(std::int32_t i = 0; i < size; ++i)
+   for(std::int32_t i = negativeStart; i <= size / 2; ++i)
    {
       reg = "x" + std::to_string(i);
       convertToABI(reg, regABI);
@@ -79,7 +110,7 @@ void Registry::reset(int size)
    }
 }
 
-void Registry::store(const std::string& regName, std::int32_t regValue)
+void Registry::store(const std::string& regName, Tint regValue)
 {
    std::string abiName;
    convertToABI(regName, abiName);
@@ -90,7 +121,7 @@ void Registry::store(const std::string& regName, std::int32_t regValue)
       return;
    }
 
-   std::int32_t oldVal = 0;
+   Tint oldVal = 0;
 
    auto it = m_registry.find(abiName);
    if(it != m_registry.end())
@@ -104,15 +135,15 @@ void Registry::store(const std::string& regName, std::int32_t regValue)
       abort();
    }
 
-   m_numBitFlips += countBitFlips(oldVal, regValue);
+   m_numTritFlips += countTritFlips(oldVal, regValue);
 }
 
-std::int32_t Registry::load(const std::string& regName)
+Tint Registry::load(const std::string& regName)
 {
    std::string abiName;
    convertToABI(regName, abiName);
 
-   std::int32_t retVal = 0;
+   Tint retVal = 0;
 
    auto it = m_registry.find(abiName);
    if(it != m_registry.end())
@@ -161,9 +192,9 @@ std::uint8_t Registry::getIntegerValue(const std::string& regName)
    return value;
 }
 
-std::int32_t Registry::getAccumulatedBitFlips() const
+std::int32_t Registry::getAccumulatedTritFlips() const
 {
-   return m_numBitFlips;
+   return m_numTritFlips;
 }
 
 void Registry::printRegistry()
@@ -179,11 +210,6 @@ void Registry::printRegistry()
 
       std::cout << xName << "\t" << abiName << "\t0x" << std::hex << val << "\t\t" << std::dec << val << std::endl;
    }
-
-   /*for(const auto& [key, value]: m_registry)
-   {
-      std::cout << key << ": " << value << std::endl;
-   }*/
 }
 
 }

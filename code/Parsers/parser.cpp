@@ -55,7 +55,6 @@ void Parser::parse(std::list<Expressions::Expression*>& expressions)
       // Is it a label?
       if(checkPeek(TokenType::Colon))
       {
-         std::cout << "Checking label = " << m_token->literal << std::endl;
          Expressions::Label* l = getLabel(false);
          expressions.push_back(l);
       }
@@ -63,33 +62,22 @@ void Parser::parse(std::list<Expressions::Expression*>& expressions)
       // Is it a directive or an auto-generated label?
       else if(checkToken(TokenType::Dot))
       {
-         std::cout << "Checking label or directive" << std::endl;
          Expressions::Expression* e = getLabelOrDirective();
          expressions.push_back(e);
       }
 
       else if(checkToken(TokenType::Symbol))
       {
-         //std::cout << "Checking symbol = " << m_token->literal << std::endl;
          Expressions::Instruction* instruction = getInstruction();
-         /*if(instruction->getInstructionType() == Expressions::Instruction::InstructionType::PSEUDO)
-         {
-            resolvePseudoInstruction(instruction, expressions);
-         }
-         else
-         {*/
-            expressions.push_back(instruction);
-         //}
+         expressions.push_back(instruction);
       }
 
       // Is it a comment?
       else if(checkToken(TokenType::Comment))
       {
-         //std::cout << "Checking comment = " << m_token->literal << std::endl;
          nextToken();
       }
 
-      //std::cout << "Checking newline = " << m_token->literal << std::endl;
       match(TokenType::Newline);
    }
 }
@@ -118,7 +106,6 @@ Expressions::Directive* Parser::getDirective(bool includeDot)
    if(checkToken(TokenType::Dot))
    {
       directiveName += m_token->literal;
-      std::cout << "Printing dot token = " << m_token->literal << std::endl;;
       nextToken(); // Consume the leading dot.
    }
    else if(includeDot)
@@ -128,7 +115,6 @@ Expressions::Directive* Parser::getDirective(bool includeDot)
 
    directiveName += m_token->literal;
 
-   //std::cout << "Printing attrivute name = " << m_token->literal << std::endl;
    match(TokenType::Symbol);
 
    std::vector<std::string> operands;

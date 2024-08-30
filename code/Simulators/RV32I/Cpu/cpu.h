@@ -20,10 +20,11 @@ public:
    ~CPU();
 
    void executeProgram(ExecutableProgram& program);
-   std::uint32_t getAccumulatedCost() const;
+   std::uint32_t getNumberOfRanInstructions() const;
+   std::uint32_t getBitshiftCost() const;
 
 protected:
-   void initRegisters(std::int32_t programSize);
+   void initRegisters(std::int32_t programSizeBytes);
 
    void executeRegister(const std::string& name, const std::string& rd, const std::string& rs1, const std::string& rs2);
    void executeImmediate(const std::string& name, const std::string& rd, const std::string& rs1, const std::string& imm);
@@ -39,7 +40,7 @@ protected:
 
    Registry m_registers;
    std::uint32_t m_PC;
-   std::uint32_t m_accumulatedCost;
+   std::uint32_t m_numberOfRanInstructions;
 };
 
 }

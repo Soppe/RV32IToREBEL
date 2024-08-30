@@ -142,7 +142,7 @@ void ExecutableProgram::calculateHeapSize()
 
    m_heap.resize(m_heapSizeBytes, 0);
 
-   std::cout << "Heap size calculated to be " << m_heap.size() << " bytes" << std::endl;
+   std::cout << "Program size: " << getProgramSizeBytes() << " bytes; Instructions size: " << getInstructionsSizeBytes() << " bytes; Heap size: " << m_heap.size() << " bytes" << std::endl;
 }
 
 std::uint32_t ExecutableProgram::getProgramSizeBytes() const

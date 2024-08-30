@@ -143,7 +143,7 @@ void ExecutableProgram::calculateHeapSize()
 
    m_heap.resize(m_heapSizeTrits, 0);
 
-   std::cout << "Heap size calculated to be " << m_heap.size() << " trits" << std::endl;
+   std::cout << "Program size: " << getProgramSizeTrits() << " trits; Instruction size: " << getInstructionsSizeTrits() << " trits; Heap size: " << m_heap.size() << " trits" << std::endl;
 }
 
 uint32_t ExecutableProgram::getProgramSizeTrits() const
@@ -180,9 +180,14 @@ void ExecutableProgram::printSymbols() const
 
 void ExecutableProgram::doStoreToHeap(std::uint32_t index, const Tint& value, std::uint8_t numTrits)
 {
-   std::vector<Trit> trits(numTrits, 0);
+   Trits trits;
 
-   // TODO: TernaryLogic::DecimalToTrits(trits, value); // Could send m_heap directly, but lets keep it safe
+   TernaryLogic::TintToTrits(value, trits); // Could send m_heap directly, but lets keep it safe
+
+   if(trits.size() != numTrits)
+   {
+      std::cout << "Storing an uninteded numbe of trits to heap - Intended = " << numTrits << "; actual = " << trits.size() << std::endl;
+   }
 
    std::cout << "Initial value = " << std::hex << value << std::dec << std::endl;
    for(std::uint8_t i = 0; i < numTrits; ++i, ++index)
