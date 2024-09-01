@@ -1,10 +1,7 @@
 #pragma once
 
 #include "registry.h"
-#include <list>
 
-
-class Expression;
 
 namespace Simulators
 {
@@ -23,7 +20,7 @@ public:
    std::uint32_t getNumberOfRanInstructions() const;
    std::uint32_t getBitshiftCost() const;
 
-protected:
+private:
    void initRegisters(std::int32_t programSizeBytes);
 
    void executeRegister(const std::string& name, const std::string& rd, const std::string& rs1, const std::string& rs2);

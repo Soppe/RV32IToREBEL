@@ -10,6 +10,13 @@
 
 namespace
 {
+
+// Set ra to some irrational and easily detectable value. GCC, and possibly other compilers, adds a "jr ra" at the end of the main routine to return to some caller.
+// This value is used to detect when that happens.
+const char ProgramEndRAValue = -1000;
+
+const char RegisterCount = 32;
+
 //======================================
 // Register instructions
 //======================================
@@ -388,7 +395,7 @@ namespace RV32I
 {
 
 CPU::CPU()
-    : m_registers(32)
+    : m_registers(RegisterCount)
     , m_PC(0)
     , m_numberOfRanInstructions(0)
 {
@@ -451,14 +458,13 @@ void CPU::executeProgram(ExecutableProgram& program)
       }
 
       ++m_numberOfRanInstructions;
+      m_PC += instructionSize;
 
-      // End of program. GCC (and maybe other compilers too) seem to add a "jr ra" at the end of main, which for us jumps back to the start of the program,
-      // resulting in an infinite loop
-      if(m_PC < 0)
+      if(m_PC == ProgramEndRAValue)
       {
          break;
       }
-      m_PC += instructionSize;
+
       instr = program.loadInstruction(m_PC, instructionSize);
    }
 
@@ -473,6 +479,15 @@ uint32_t CPU::getNumberOfRanInstructions() const
 uint32_t CPU::getBitshiftCost() const
 {
    return m_registers.getAccumulatedBitFlips();
+}
+
+void CPU::initRegisters(std::int32_t programSizeBytes)
+{
+   m_registers.reset(RegisterCount);
+   m_registers.store("zero", 0);
+   m_registers.store("sp", programSizeBytes);
+
+   m_registers.store("ra", ProgramEndRAValue);
 }
 
 void CPU::executeRegister(const std::string& name, const std::string& rd, const std::string& rs1, const std::string& rs2)
@@ -758,13 +773,6 @@ void CPU::resolve12ImmOffset(const std::string& offset, std::int32_t& value)
    }
 
    value = regVal + offi12;
-}
-
-void CPU::initRegisters(std::int32_t programSizeBytes)
-{
-   m_registers.reset(32);
-   m_registers.store("zero", 0);
-   m_registers.store("sp", programSizeBytes);
 }
 
 }

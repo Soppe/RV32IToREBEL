@@ -8,7 +8,7 @@
 
 namespace
 {
-int tritFlipCostLookup [3][3] = {/*-1, 0, 1*/
+int TritFlipCostLookup [3][3] = {/*-1, 0, 1*/
                           /* -1 */ {0, 1, 1},
                           /* 0 */  {1, 0, 1},
                           /* 1 */  {1, 1, 0}};
@@ -24,6 +24,8 @@ std::uint32_t countTritFlips(Simulators::REBEL6::Tint oldVal, Simulators::REBEL6
 
    int sizeDiff = oldTrits.size() - newTrits.size();
 
+   // Fill in 0's to make them identically large - there is no need to fill in either one further as whatever remaining trits that may be needed to construct
+   // a full tryte/th/tw for either value will be 0 for both and therefor cause no flips.
    if(sizeDiff < 0)
    {
       for(int i = 0; i < -sizeDiff; ++i)
@@ -41,7 +43,7 @@ std::uint32_t countTritFlips(Simulators::REBEL6::Tint oldVal, Simulators::REBEL6
 
    for(int i = 0; i < oldTrits.size(); ++i)
    {
-      tritFlips += tritFlipCostLookup[oldTrits[i] + 1][newTrits[i] + 1];
+      tritFlips += TritFlipCostLookup[oldTrits[i] + 1][newTrits[i] + 1];
    }
 
    return tritFlips;
@@ -108,6 +110,10 @@ void Registry::reset(int size)
       convertToABI(reg, regABI);
       m_registry[regABI] = 0;
    }
+
+   // Set ra to some irrational and easily detectable value. GCC adds a "jr ra" at the end of the main routine to return to some caller. This value is
+   // used to detect when it happens.
+   m_registry["ra"] = -1000;
 }
 
 void Registry::store(const std::string& regName, Tint regValue)

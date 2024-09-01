@@ -1,13 +1,41 @@
 #pragma once
 
+#include "registry.h"
+
 namespace Simulators
 {
 namespace REBEL6
 {
+
+class ExecutableProgram;
+
 class CPU
 {
  public:
-   CPU ();
+   CPU();
+   ~CPU();
+
+   void executeProgram(ExecutableProgram& program);
+   std::uint32_t getNumberOfRanInstructions() const;
+   std::uint32_t getTritshiftCost() const;
+
+ private:
+   void initRegisters(std::int32_t programSizeTrits);
+
+   void executeRegister(const std::string& name, bool isBinary, const std::string& rd, const std::string& rs1, const std::string& rs2);
+   void executeImmediate(const std::string& name, bool isBinary, const std::string& rd, const std::string& rs1, const std::string& imm);
+   void executeBranch(const std::string& name, bool isBinary, const std::string& rs1, const std::string& rs2, const std::string& offset);
+   void executeJump(const std::string& name, bool isBinary, const std::string& rd, const std::string& offset);
+   void executeJumpRegister(const std::string& name, bool isBinary, const std::string& rd, const std::string& target);
+   void executeLoad(const std::string& name, bool isBinary, const std::string& rd, const std::string& address, ExecutableProgram& program);
+   void executeStore(const std::string& name, bool isBinary, const std::string& rs, const std::string& address, ExecutableProgram& program);
+   void executeSystem(const std::string& name, bool isBinary);
+
+   void resolveBinary12ImmOffset(const std::string& offset, std::int32_t& value);
+
+   Registry m_registers;
+   std::uint32_t m_PC;
+   std::uint32_t m_numberOfRanInstructions;
 };
 
 }
