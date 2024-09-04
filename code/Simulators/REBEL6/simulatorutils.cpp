@@ -58,6 +58,7 @@ const std::unordered_map<std::string, const Simulators::REBEL6::SimulatorUtils::
 
        // I - Immediate
        {"addi.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
+       {"li.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
        {"sli.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
        {"sri.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
        {"slti.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},

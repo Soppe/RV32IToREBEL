@@ -1,5 +1,7 @@
 #include "cpu.h"
 
+#include "instructionexecutor.h"
+
 #include <Expressions/instruction.h>
 #include <Parsers/parseutils.h>
 #include <Simulators/RV32I/simulatorutils.h>
@@ -13,380 +15,9 @@ namespace
 
 // Set ra to some irrational and easily detectable value. GCC, and possibly other compilers, adds a "jr ra" at the end of the main routine to return to some caller.
 // This value is used to detect when that happens.
-const char ProgramEndRAValue = -1000;
-
+const short ProgramEndRAValue = -1000;
 const char RegisterCount = 32;
 
-//======================================
-// Register instructions
-//======================================
-void executeAdd(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
-{
-   rd = rs1 + rs2;
-}
-
-void executeSub(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
-{
-   rd = rs1 - rs2;
-}
-
-void executeSll(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
-{
-   rd = rs1 << rs2;
-}
-
-void executeSrl(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
-{
-   rs2 = rs2 & 0x1f; // Use only the 5 lowest bits
-
-   if(rs2 == 0)
-   {
-      rd = rs1;
-   }
-   else
-   {
-      rd = rs1 >> rs2;
-
-      // Since the >> operand in c++ functions as sra -sign extending the number - we have to simulate shifting 0's into the upper bits
-      std::int32_t mask = 0x7fffffff;
-      mask = mask >> (rs2 - 1);
-      rd = rd & mask;
-   }
-}
-
-void executeSra(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
-{
-   rd = rs1 >> rs2;
-}
-
-void executeSlt(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
-{
-   if(rs1 < rs2)
-   {
-      rd = 1;
-   }
-}
-
-void executeSltu(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
-{
-   std::uint32_t rs1u = rs1;
-   std::uint32_t rs2u = rs2;
-
-   if(rs1u < rs2u)
-   {
-      rd = 1;
-   }
-}
-
-void executeOr(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
-{
-   rd = rs1 | rs2;
-}
-
-void executeXor(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
-{
-   rd = rs1 ^ rs2;
-}
-
-void executeAnd(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
-{
-   rd = rs1 & rs2;
-}
-
-//======================================
-// Immediate instructions
-//======================================
-void executeAddi(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
-{
-
-   if((imm > 0x7ff) || (imm < (int)0xfffff800))
-   {
-      std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
-      abort();
-   }
-
-   std::int32_t imm12;
-   ParseUtils::parseImmediate(12, imm, imm12);
-
-   rd = rs1 + imm12;
-}
-
-
-void executeSlli(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
-{
-   // This is based on tests with the GCC assembler using values represented with more than 5 bits, and negative numbers, where errors related to negative numbers inferred they had been converted
-   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit std::uint32_teger
-   std::uint32_t immu = imm;
-   if(immu > 0x1f)
-   {
-      std::cerr << __PRETTY_FUNC__ << "Value too large: " << immu << std::endl;
-      abort();
-   }
-
-   rd = rs1 << immu;
-}
-
-void executeSrli(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
-{
-   // This is based on tests with the GCC assembler using values represented with more than 5 bits, and negative numbers, where errors related to negative numbers inferred they had been converted
-   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit std::uint32_teger
-   std::uint32_t immu = imm;
-   if(immu > 0x1f)
-   {
-      std::cerr << __PRETTY_FUNC__ << "Value too large: " << immu << std::endl;
-      abort();
-   }
-
-   if(immu == 0)
-   {
-      rd = rs1;
-   }
-   else
-   {
-      rd = rs1 >> immu;
-
-      // Since the >> operand in c++ functions as sra we have to simulate shifting 0's into the upper bits
-      std::int32_t mask = 0x7fffffff;
-      mask = mask >> (immu - 1);
-      rd = rd & mask;
-   }
-}
-
-void executeSrai(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
-{
-   // This is based on tests with the GCC assembler using values represented with more than 5 bits, and negative numbers, where errors related to negative numbers inferred they had been converted
-   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit std::uint32_teger
-   std::uint32_t immu = imm;
-   if(immu > 0x1f)
-   {
-      std::cerr << __PRETTY_FUNC__ << "Value too large: " << immu << std::endl;
-      abort();
-   }
-
-   rd = rs1 >> immu;
-}
-
-void executeSlti(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
-{
-   if((imm > 0x7ff) || (imm < (int)0xfffff800))
-   {
-      std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
-      abort();
-   }
-
-   std::int32_t imm12;
-   ParseUtils::parseImmediate(12, imm, imm12);
-
-
-   if(rs1 < imm12)
-   {
-      rd = 1;
-   }
-}
-
-// The standard says the imm value is to first be sign-extended, then converted to an unsigned value. Ergo, the limits for sltiu are the same as for slti.
-void executeSltiu(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
-{
-   if((imm > 0x7ff) || (imm < (int)0xfffff800))
-   {
-      std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
-      abort();
-   }
-
-   std::int32_t imm12;
-   ParseUtils::parseImmediate(12, imm, imm12);
-
-   std::uint32_t rs1u = rs1;
-   std::uint32_t immu12 = imm12;
-
-   if(rs1u < immu12)
-   {
-      rd = 1;
-   }
-}
-
-void executeOri(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
-{
-   if((imm > 0x7ff) || (imm < (int)0xfffff800))
-   {
-      std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
-      abort();
-   }
-
-   std::int32_t imm12;
-   ParseUtils::parseImmediate(12, imm, imm12);
-
-   rd = rs1 | imm12;
-}
-
-void executeXori(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
-{
-   if((imm > 0x7ff) || (imm < (int)0xfffff800))
-   {
-      std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
-      abort();
-   }
-
-   std::int32_t imm12;
-   ParseUtils::parseImmediate(12, imm, imm12);
-
-   rd = rs1 ^ imm12;
-}
-
-void executeAndi(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
-{
-   if((imm > 0x7ff) || (imm < (int)0xfffff800))
-   {
-      std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
-      abort();
-   }
-
-   std::int32_t imm12;
-   ParseUtils::parseImmediate(12, imm, imm12);
-
-   rd = rs1 & imm12;
-}
-
-//======================================
-// Upper instructions
-//======================================
-void executeLui(std::int32_t& rd, std::int32_t imm20)
-{
-   ParseUtils::parseImmediate(20, imm20, imm20);
-   rd = imm20 << 12;
-}
-
-void executeAuipc(std::int32_t& rd, std::int32_t imm20, std::int32_t pc)
-{
-   ParseUtils::parseImmediate(20, imm20, imm20);
-   rd = (imm20 << 12) + pc;
-}
-
-//======================================
-// Branch instructions
-//======================================
-void executeBeq(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
-{
-   if(rs1 == rs2)
-   {
-      pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
-   }
-}
-
-void executeBne(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
-{
-   if(rs1 != rs2)
-   {
-      pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
-   }
-}
-
-void executeBlt(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
-{
-   if(rs1 < rs2)
-   {
-      pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
-   }
-}
-
-void executeBltu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
-{
-   std::uint32_t rs1u = rs1;
-   std::uint32_t rs2u = rs2;
-
-   if(rs1u < rs2u)
-   {
-      pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
-   }
-}
-
-void executeBge(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
-{
-   if(rs1 >= rs2)
-   {
-      pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
-   }
-}
-
-void executeBgeu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
-{
-   std::uint32_t rs1u = rs1;
-   std::uint32_t rs2u = rs2;
-   if(rs1u >= rs2u)
-   {
-      pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
-   }
-}
-
-//======================================
-// Jump instructions
-//======================================
-void executeJal(std::int32_t& rd, std::int32_t offset, std::uint32_t& pc)
-{
-   ParseUtils::parseImmediate(12, offset, offset);
-   rd = pc + 4;
-   pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
-}
-
-//======================================
-// Jump register instructions
-//======================================
-void executeJalr(std::int32_t& rd, std::int32_t target, std::uint32_t& pc)
-{
-   rd = pc + 4;
-   pc = target - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
-}
-
-//======================================
-// Load instructions
-//======================================
-void executeLw(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
-{
-   std::cout << "Wanting to load something from source = " << srcAddress << std::endl;
-   rd = program.loadFromHeap(srcAddress, 4);
-   ParseUtils::parseImmediate(32, rd, rd);
-   std::cout << "Value read from memory is " << rd << std::endl;
-}
-
-void executeLh(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
-{
-   rd = program.loadFromHeap(srcAddress, 2);
-   ParseUtils::parseImmediate(16, rd, rd);
-}
-
-void executeLb(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
-{
-   rd = program.loadFromHeap(srcAddress, 1);
-   ParseUtils::parseImmediate(8, rd, rd);
-}
-
-void executeLhu(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
-{
-   rd = program.loadFromHeap(srcAddress, 2);
-}
-
-void executeLbu(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
-{
-   rd = program.loadFromHeap(srcAddress, 1);
-}
-
-//======================================
-// Store instructions
-//======================================
-void executeSw(std::int32_t rs, std::int32_t targetAddress, Simulators::RV32I::ExecutableProgram& program)
-{
-   program.storeToHeap(targetAddress, rs, 4);
-}
-
-void executeSh(std::int32_t rs, std::int32_t targetAddress, Simulators::RV32I::ExecutableProgram& program)
-{
-   program.storeToHeap(targetAddress, rs, 2);
-}
-
-void executeSb(std::int32_t rs, std::int32_t targetAddress, Simulators::RV32I::ExecutableProgram& program)
-{
-   program.storeToHeap(targetAddress, rs, 1);
-}
 }
 
 namespace Simulators
@@ -408,6 +39,7 @@ CPU::~CPU()
 
 void CPU::executeProgram(ExecutableProgram& program)
 {
+   m_PC = 0;
    m_numberOfRanInstructions = 0;
 
    initRegisters(program.getProgramSizeBytes());
@@ -496,16 +128,16 @@ void CPU::executeRegister(const std::string& name, const std::string& rd, const 
    std::int32_t rs2i = m_registers.load(rs2);
    std::int32_t rdVal = 0;
 
-   if     (name == "add")  executeAdd(rdVal, rs1i, rs2i);
-   else if(name == "sub")  executeSub(rdVal, rs1i, rs2i);
-   else if(name == "sll")  executeSll(rdVal, rs1i, rs2i);
-   else if(name == "srl")  executeSrl(rdVal, rs1i, rs2i);
-   else if(name == "sra")  executeSra(rdVal, rs1i, rs2i);
-   else if(name == "slt")  executeSlt(rdVal, rs1i, rs2i);
-   else if(name == "sltu") executeSltu(rdVal, rs1i, rs2i);
-   else if(name == "or")   executeOr(rdVal, rs1i, rs2i);
-   else if(name == "xor")  executeXor(rdVal, rs1i, rs2i);
-   else if(name == "and")  executeAnd(rdVal, rs1i, rs2i);
+   if     (name == "add")  InstructionExecutor::executeAdd(rdVal, rs1i, rs2i);
+   else if(name == "sub")  InstructionExecutor::executeSub(rdVal, rs1i, rs2i);
+   else if(name == "sll")  InstructionExecutor::executeSll(rdVal, rs1i, rs2i);
+   else if(name == "srl")  InstructionExecutor::executeSrl(rdVal, rs1i, rs2i);
+   else if(name == "sra")  InstructionExecutor::executeSra(rdVal, rs1i, rs2i);
+   else if(name == "slt")  InstructionExecutor::executeSlt(rdVal, rs1i, rs2i);
+   else if(name == "sltu") InstructionExecutor::executeSltu(rdVal, rs1i, rs2i);
+   else if(name == "or")   InstructionExecutor::executeOr(rdVal, rs1i, rs2i);
+   else if(name == "xor")  InstructionExecutor::executeXor(rdVal, rs1i, rs2i);
+   else if(name == "and")  InstructionExecutor::executeAnd(rdVal, rs1i, rs2i);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported register instruction " << name << std::endl;
@@ -531,15 +163,15 @@ void CPU::executeImmediate(const std::string& name, const std::string& rd, const
       abort();
    }
 
-   if     (name == "addi")  executeAddi(rdVal, rs1i, immi);
-   else if(name == "slli")  executeSlli(rdVal, rs1i, immi);
-   else if(name == "srli")  executeSrli(rdVal, rs1i, immi);
-   else if(name == "srai")  executeSrai(rdVal, rs1i, immi);
-   else if(name == "slti")  executeSlti(rdVal, rs1i, immi);
-   else if(name == "sltiu") executeSltiu(rdVal,rs1i, immi);
-   else if(name == "ori")   executeOri(rdVal, rs1i, immi);
-   else if(name == "xori")  executeXori(rdVal, rs1i, immi);
-   else if(name == "andi")  executeAndi(rdVal, rs1i, immi);
+   if     (name == "addi")  InstructionExecutor::executeAddi(rdVal, rs1i, immi);
+   else if(name == "slli")  InstructionExecutor::executeSlli(rdVal, rs1i, immi);
+   else if(name == "srli")  InstructionExecutor::executeSrli(rdVal, rs1i, immi);
+   else if(name == "srai")  InstructionExecutor::executeSrai(rdVal, rs1i, immi);
+   else if(name == "slti")  InstructionExecutor::executeSlti(rdVal, rs1i, immi);
+   else if(name == "sltiu") InstructionExecutor::executeSltiu(rdVal,rs1i, immi);
+   else if(name == "ori")   InstructionExecutor::executeOri(rdVal, rs1i, immi);
+   else if(name == "xori")  InstructionExecutor::executeXori(rdVal, rs1i, immi);
+   else if(name == "andi")  InstructionExecutor::executeAndi(rdVal, rs1i, immi);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported immediate instruction " << name << std::endl;
@@ -571,8 +203,8 @@ void CPU::executeUpper(const std::string& name, const std::string& rd, const std
       abort();
    }
 
-   if     (name == "lui") executeLui(rdVal, immi20);
-   else if(name == "auipc") executeAuipc(rdVal, immi20, m_PC);
+   if     (name == "lui")   InstructionExecutor::executeLui(rdVal, immi20);
+   else if(name == "auipc") InstructionExecutor::executeAuipc(rdVal, immi20, m_PC);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported upper instruction " << name << std::endl;
@@ -610,12 +242,12 @@ void CPU::executeBranch(const std::string& name, const std::string& rs1, const s
    // Not needing to add the last 0 in the immediate means there's instead space for an extra bit in the MSB, doubling the range of the offset.
    offi12 <<= 1;
 
-   if     (name == "beq")  executeBeq(rs1i, rs2i, offi12, pcVal);
-   else if(name == "bne")  executeBne(rs1i, rs2i, offi12, pcVal);
-   else if(name == "blt")  executeBlt(rs1i, rs2i, offi12, pcVal);
-   else if(name == "bltu") executeBltu(rs1i, rs2i, offi12, pcVal);
-   else if(name == "bge")  executeBge(rs1i, rs2i, offi12, pcVal);
-   else if(name == "bgeu") executeBgeu(rs1i, rs2i, offi12, pcVal);
+   if     (name == "beq")  InstructionExecutor::executeBeq(rs1i, rs2i, offi12, pcVal);
+   else if(name == "bne")  InstructionExecutor::executeBne(rs1i, rs2i, offi12, pcVal);
+   else if(name == "blt")  InstructionExecutor::executeBlt(rs1i, rs2i, offi12, pcVal);
+   else if(name == "bltu") InstructionExecutor::executeBltu(rs1i, rs2i, offi12, pcVal);
+   else if(name == "bge")  InstructionExecutor::executeBge(rs1i, rs2i, offi12, pcVal);
+   else if(name == "bgeu") InstructionExecutor::executeBgeu(rs1i, rs2i, offi12, pcVal);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported branch instruction " << name << std::endl;
@@ -651,7 +283,7 @@ void CPU::executeJump(const std::string& name, const std::string& rd, const std:
    // Not needing to add the last 0 in the immediate means there's instead space for an extra bit in the MSB, doubling the range of the offset.
    offseti <<= 1;
 
-   if(name == "jal") executeJal(rdVal, offseti, pcVal);
+   if(name == "jal") InstructionExecutor::executeJal(rdVal, offseti, pcVal);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported jump instruction " << name << std::endl;
@@ -670,7 +302,7 @@ void CPU::executeJumpRegister(const std::string& name, const std::string& rd, co
 
    resolve12ImmOffset(target, targeti);
 
-   if(name == "jalr") executeJalr(rdVal, targeti, pcVal);
+   if(name == "jalr") InstructionExecutor::executeJalr(rdVal, targeti, pcVal);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported jump register instruction " << name << std::endl;
@@ -688,11 +320,11 @@ void CPU::executeLoad(const std::string& name, const std::string& rd, const std:
 
    resolve12ImmOffset(address, addressi);
 
-   if     (name == "lw")  executeLw(rdVal, addressi, program);
-   else if(name == "lh")  executeLh(rdVal, addressi, program);
-   else if(name == "lb")  executeLb(rdVal, addressi, program);
-   else if(name == "lhu") executeLhu(rdVal, addressi, program);
-   else if(name == "lbu") executeLbu(rdVal, addressi, program);
+   if     (name == "lw")  InstructionExecutor::executeLw(rdVal, addressi, program);
+   else if(name == "lh")  InstructionExecutor::executeLh(rdVal, addressi, program);
+   else if(name == "lb")  InstructionExecutor::executeLb(rdVal, addressi, program);
+   else if(name == "lhu") InstructionExecutor::executeLhu(rdVal, addressi, program);
+   else if(name == "lbu") InstructionExecutor::executeLbu(rdVal, addressi, program);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported load instruction " << name << std::endl;
@@ -709,9 +341,9 @@ void CPU::executeStore(const std::string& name, const std::string& rs, const std
 
    resolve12ImmOffset(address, addressi);
 
-   if     (name == "sw") executeSw(rsi, addressi, program);
-   else if(name == "sh") executeSh(rsi, addressi, program);
-   else if(name == "sb") executeSb(rsi, addressi, program);
+   if     (name == "sw") InstructionExecutor::executeSw(rsi, addressi, program);
+   else if(name == "sh") InstructionExecutor::executeSh(rsi, addressi, program);
+   else if(name == "sb") InstructionExecutor::executeSb(rsi, addressi, program);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported store instruction " << name << std::endl;

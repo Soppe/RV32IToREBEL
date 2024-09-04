@@ -1,5 +1,7 @@
 #include "cpu.h"
 
+#include "instructionexecutor.h"
+
 #include <logger.h>
 
 #include <Expressions/instruction.h>
@@ -35,6 +37,7 @@ CPU::~CPU()
 
 void CPU::executeProgram(ExecutableProgram& program)
 {
+   m_PC = 0;
    m_numberOfRanInstructions = 0;
 
    initRegisters(program.getProgramSizeTrits());
@@ -50,7 +53,7 @@ void CPU::executeProgram(ExecutableProgram& program)
       const std::vector<std::string>& operands = instr->getInstructionOperands();
       type = SimulatorUtils::getInstructionType(name);
       bool isBinary = name.ends_with(".t");
-      //std::cout << "pc = " << m_PC << "\t" << *instr << std::endl;
+      std::cout << "pc = " << m_PC << "\t" << *instr << std::endl;
 
       switch(type)
       {
@@ -61,13 +64,13 @@ void CPU::executeProgram(ExecutableProgram& program)
          executeImmediate(name, isBinary, operands[0], operands[1], operands[2]);
          break;
       case SimulatorUtils::InstructionType::BRANCH:
-         executeBranch(name, isBinary, operands[0], operands[1], operands[2]);
+         executeBranch(name, operands[0], operands[1], operands[2]);
          break;
       case SimulatorUtils::InstructionType::JUMP:
-         executeJump(name, isBinary, operands[0], operands[1]);
+         executeJump(name, operands[0], operands[1]);
          break;
       case SimulatorUtils::InstructionType::JUMP_REGISTER:
-         executeJumpRegister(name, isBinary, operands[0], operands[1]);
+         executeJumpRegister(name, operands[0], operands[1]);
          break;
       case SimulatorUtils::InstructionType::LOAD:
          executeLoad(name, isBinary, operands[0], operands[1], program);
@@ -76,7 +79,7 @@ void CPU::executeProgram(ExecutableProgram& program)
          executeStore(name, isBinary, operands[0], operands[1], program);
          break;
       case SimulatorUtils::InstructionType::SYSTEM:
-         executeSystem(name, isBinary);
+         executeSystem(name);
          break;
       default:
          std::cerr << __PRETTY_FUNC__ << ": Undefined instruction " << name << std::endl;
@@ -117,24 +120,43 @@ void CPU::initRegisters(std::int32_t programSizeTrits)
 
 void CPU::executeRegister(const std::string& name, bool isBinary, const std::string& rd, const std::string& rs1, const std::string& rs2)
 {
-   std::int32_t rs1i = m_registers.load(rs1);
-   std::int32_t rs2i = m_registers.load(rs2);
-   std::int32_t rdVal = 0;
+   Tint rs1i = m_registers.load(rs1);
+   Tint rs2i = m_registers.load(rs2);
+   Tint rdVal = 0;
 
-   if     (name == "add")  executeAdd(rdVal, rs1i, rs2i);
-   else if(name == "sub")  executeSub(rdVal, rs1i, rs2i);
-   else if(name == "sll")  executeSll(rdVal, rs1i, rs2i);
-   else if(name == "srl")  executeSrl(rdVal, rs1i, rs2i);
-   else if(name == "sra")  executeSra(rdVal, rs1i, rs2i);
-   else if(name == "slt")  executeSlt(rdVal, rs1i, rs2i);
-   else if(name == "sltu") executeSltu(rdVal, rs1i, rs2i);
-   else if(name == "or")   executeOr(rdVal, rs1i, rs2i);
-   else if(name == "xor")  executeXor(rdVal, rs1i, rs2i);
-   else if(name == "and")  executeAnd(rdVal, rs1i, rs2i);
+   if(isBinary)
+   {
+      if     (name == "add")  InstructionExecutor::executeAdd(rdVal, rs1i, rs2i);
+      else if(name == "sub")  InstructionExecutor::executeSub(rdVal, rs1i, rs2i);
+      else if(name == "sll")  InstructionExecutor::executeSll(rdVal, rs1i, rs2i);
+      else if(name == "srl")  InstructionExecutor::executeSrl(rdVal, rs1i, rs2i);
+      else if(name == "sra")  InstructionExecutor::executeSra(rdVal, rs1i, rs2i);
+      //else if(name == "slt")  executeSlt(rdVal, rs1i, rs2i);
+      //else if(name == "sltu") executeSltu(rdVal, rs1i, rs2i);
+      else if(name == "or")   InstructionExecutor::executeOr(rdVal, rs1i, rs2i);
+      else if(name == "xor")  InstructionExecutor::executeXor(rdVal, rs1i, rs2i);
+      else if(name == "and")  InstructionExecutor::executeAnd(rdVal, rs1i, rs2i);
+      else
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Unsupported binary register instruction " << name << std::endl;
+         abort();
+      }
+   }
    else
    {
-      std::cerr << __PRETTY_FUNC__ << ": Unsupported register instruction " << name << std::endl;
-      abort();
+      if     (name == "add.t")  InstructionExecutor::executeAdd_t(rdVal, rs1i, rs2i);
+      else if(name == "sub.t")  InstructionExecutor::executeSub_t(rdVal, rs1i, rs2i);
+      else if(name == "sl.t")  InstructionExecutor::executeSl_t(rdVal, rs1i, rs2i);
+      else if(name == "sr.t")  InstructionExecutor::executeSr_t(rdVal, rs1i, rs2i);
+      else if(name == "slt.t")  InstructionExecutor::executeSlt_t(rdVal, rs1i, rs2i);
+      else if(name == "or.t")   InstructionExecutor::executeOr_t(rdVal, rs1i, rs2i);
+      else if(name == "xor.t")  InstructionExecutor::executeXor_t(rdVal, rs1i, rs2i);
+      else if(name == "and.t")  InstructionExecutor::executeAnd_t(rdVal, rs1i, rs2i);
+      else
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Unsupported ternary register instruction " << name << std::endl;
+         abort();
+      }
    }
 
    m_registers.store(rd, rdVal);
@@ -143,7 +165,7 @@ void CPU::executeRegister(const std::string& name, bool isBinary, const std::str
 void CPU::executeImmediate(const std::string& name, bool isBinary, const std::string& rd, const std::string& rs1, const std::string& imm)
 {
    std::int32_t rs1i = m_registers.load(rs1);
-   std::int32_t rdVal = 0;
+   Tint rdVal = 0;
    std::int32_t immi = 0;
 
    try
@@ -156,25 +178,43 @@ void CPU::executeImmediate(const std::string& name, bool isBinary, const std::st
       abort();
    }
 
-   if     (name == "addi")  executeAddi(rdVal, rs1i, immi);
-   else if(name == "slli")  executeSlli(rdVal, rs1i, immi);
-   else if(name == "srli")  executeSrli(rdVal, rs1i, immi);
-   else if(name == "srai")  executeSrai(rdVal, rs1i, immi);
-   else if(name == "slti")  executeSlti(rdVal, rs1i, immi);
-   else if(name == "sltiu") executeSltiu(rdVal,rs1i, immi);
-   else if(name == "ori")   executeOri(rdVal, rs1i, immi);
-   else if(name == "xori")  executeXori(rdVal, rs1i, immi);
-   else if(name == "andi")  executeAndi(rdVal, rs1i, immi);
+   if(isBinary)
+   {
+      if     (name == "addi")  InstructionExecutor::executeAddi(rdVal, rs1i, immi);
+      else if(name == "slli")  InstructionExecutor::executeSlli(rdVal, rs1i, immi);
+      else if(name == "srli")  InstructionExecutor::executeSrli(rdVal, rs1i, immi);
+      else if(name == "srai")  InstructionExecutor::executeSrai(rdVal, rs1i, immi);
+      //else if(name == "slti")  executeSlti(rdVal, rs1i, immi);
+      //else if(name == "sltiu") executeSltiu(rdVal,rs1i, immi);
+      else if(name == "ori")   InstructionExecutor::executeOri(rdVal, rs1i, immi);
+      else if(name == "xori")  InstructionExecutor::executeXori(rdVal, rs1i, immi);
+      else if(name == "andi")  InstructionExecutor::executeAndi(rdVal, rs1i, immi);
+      else
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Unsupported binary immediate instruction " << name << std::endl;
+         abort();
+      }
+   }
    else
    {
-      std::cerr << __PRETTY_FUNC__ << ": Unsupported immediate instruction " << name << std::endl;
-      abort();
+      if     (name == "addi.t")  InstructionExecutor::executeAddi_t(rdVal, rs1i, immi);
+      else if(name == "sli.t")  InstructionExecutor::executeSli_t(rdVal, rs1i, immi);
+      else if(name == "sri.t")  InstructionExecutor::executeSri_t(rdVal, rs1i, immi);
+      else if(name == "slti.t")  InstructionExecutor::executeSlti_t(rdVal, rs1i, immi);
+      else if(name == "ori.t")   InstructionExecutor::executeOri_t(rdVal, rs1i, immi);
+      else if(name == "xori.t")  InstructionExecutor::executeXori_t(rdVal, rs1i, immi);
+      else if(name == "andi.t")  InstructionExecutor::executeAndi_t(rdVal, rs1i, immi);
+      else
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Unsupported ternary immediate instruction " << name << std::endl;
+         abort();
+      }
    }
 
    m_registers.store(rd, rdVal);
 }
 
-void CPU::executeBranch(const std::string& name, bool isBinary, const std::string& rs1, const std::string& rs2, const std::string& offset)
+void CPU::executeBranch(const std::string& name, const std::string& rs1, const std::string& rs2, const std::string& offset)
 {
    std::int32_t rs1i = m_registers.load(rs1);
    std::int32_t rs2i = m_registers.load(rs2);
@@ -197,16 +237,14 @@ void CPU::executeBranch(const std::string& name, bool isBinary, const std::strin
       abort();
    }
 
-          // Bitshift the immediate left 1 bit to add the "hidden" 0-bit in the LSB that isn't part of the instruction, but is "added" by the CPU because any instruction is to be at least 2-byte aligned.
-          // Not needing to add the last 0 in the immediate means there's instead space for an extra bit in the MSB, doubling the range of the offset.
+   // Bitshift the immediate left 1 bit to add the "hidden" 0-bit in the LSB that isn't part of the instruction, but is "added" by the CPU because any instruction is to be at least 2-byte aligned.
+   // Not needing to add the last 0 in the immediate means there's instead space for an extra bit in the MSB, doubling the range of the offset.
    offi12 <<= 1;
 
-   if     (name == "beq")  executeBeq(rs1i, rs2i, offi12, pcVal);
-   else if(name == "bne")  executeBne(rs1i, rs2i, offi12, pcVal);
-   else if(name == "blt")  executeBlt(rs1i, rs2i, offi12, pcVal);
-   else if(name == "bltu") executeBltu(rs1i, rs2i, offi12, pcVal);
-   else if(name == "bge")  executeBge(rs1i, rs2i, offi12, pcVal);
-   else if(name == "bgeu") executeBgeu(rs1i, rs2i, offi12, pcVal);
+   if     (name == "beq.t")  InstructionExecutor::executeBeq_t(rs1i, rs2i, offi12, pcVal);
+   else if(name == "bne.t")  InstructionExecutor::executeBne_t(rs1i, rs2i, offi12, pcVal);
+   else if(name == "blt.t")  InstructionExecutor::executeBlt_t(rs1i, rs2i, offi12, pcVal);
+   else if(name == "bge.t")  InstructionExecutor::executeBge_t(rs1i, rs2i, offi12, pcVal);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported branch instruction " << name << std::endl;
@@ -216,11 +254,11 @@ void CPU::executeBranch(const std::string& name, bool isBinary, const std::strin
    m_PC = pcVal;
 }
 
-void CPU::executeJump(const std::string& name, bool isBinary, const std::string& rd, const std::string& offset)
+void CPU::executeJump(const std::string& name, const std::string& rd, const std::string& offset)
 {
    std::int32_t offseti = 0;
    std::uint32_t pcVal = m_PC;
-   std::int32_t rdVal = 0;
+   Tint rdVal = 0;
 
    try
    {
@@ -238,11 +276,12 @@ void CPU::executeJump(const std::string& name, bool isBinary, const std::string&
       abort();
    }
 
-          // Bitshift the immediate left 1 bit to add the "hidden" 0-bit in the LSB that isn't part of the instruction, but is "added" by the CPU because any instruction is to be at least 2-byte aligned.
-          // Not needing to add the last 0 in the immediate means there's instead space for an extra bit in the MSB, doubling the range of the offset.
+   // Bitshift the immediate left 1 bit to add the "hidden" 0-bit in the LSB that isn't part of the instruction, but is "added" by the CPU because any instruction is to be at least 2-byte aligned.
+   // Not needing to add the last 0 in the immediate means there's instead space for an extra bit in the MSB, doubling the range of the offset.
    offseti <<= 1;
 
-   if(name == "jal") executeJal(rdVal, offseti, pcVal);
+
+   if(name == "jal.t") InstructionExecutor::executeJal_t(rdVal, offseti, pcVal);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported jump instruction " << name << std::endl;
@@ -253,15 +292,15 @@ void CPU::executeJump(const std::string& name, bool isBinary, const std::string&
    m_registers.store(rd, rdVal);
 }
 
-void CPU::executeJumpRegister(const std::string& name, bool isBinary, const std::string& rd, const std::string& target)
+void CPU::executeJumpRegister(const std::string& name, const std::string& rd, const std::string& target)
 {
    std::int32_t targeti = 0;
    std::uint32_t pcVal = m_PC;
-   std::int32_t rdVal = 0;
+   Tint rdVal = 0;
 
    resolveBinary12ImmOffset(target, targeti);
 
-   if(name == "jalr") executeJalr(rdVal, targeti, pcVal);
+   if(name == "jalr.t") InstructionExecutor::executeJalr_t(rdVal, targeti, pcVal);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported jump register instruction " << name << std::endl;
@@ -275,19 +314,33 @@ void CPU::executeJumpRegister(const std::string& name, bool isBinary, const std:
 void CPU::executeLoad(const std::string& name, bool isBinary, const std::string& rd, const std::string& address, ExecutableProgram& program)
 {
    std::int32_t addressi = 0;
-   std::int32_t rdVal = 0;
+   Tint rdVal = 0;
 
    resolveBinary12ImmOffset(address, addressi);
 
-   if     (name == "lw")  executeLw(rdVal, addressi, program);
-   else if(name == "lh")  executeLh(rdVal, addressi, program);
-   else if(name == "lb")  executeLb(rdVal, addressi, program);
-   else if(name == "lhu") executeLhu(rdVal, addressi, program);
-   else if(name == "lbu") executeLbu(rdVal, addressi, program);
+   if(isBinary)
+   {
+      if     (name == "lw")  InstructionExecutor::executeLw(rdVal, addressi, program);
+      else if(name == "lh")  InstructionExecutor::executeLh(rdVal, addressi, program);
+      else if(name == "lb")  InstructionExecutor::executeLb(rdVal, addressi, program);
+      else if(name == "lhu") InstructionExecutor::executeLhu(rdVal, addressi, program);
+      else if(name == "lbu") InstructionExecutor::executeLbu(rdVal, addressi, program);
+      else
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Unsupported binary load instruction " << name << std::endl;
+         abort();
+      }
+   }
    else
    {
-      std::cerr << __PRETTY_FUNC__ << ": Unsupported load instruction " << name << std::endl;
-      abort();
+      if     (name == "lw.t")  InstructionExecutor::executeLw_t(rdVal, addressi, program);
+      else if(name == "lh.t")  InstructionExecutor::executeLh_t(rdVal, addressi, program);
+      else if(name == "lb.t")  InstructionExecutor::executeLb_t(rdVal, addressi, program);
+      else
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Unsupported ternary load instruction " << name << std::endl;
+         abort();
+      }
    }
 
    m_registers.store(rd, rdVal);
@@ -300,17 +353,31 @@ void CPU::executeStore(const std::string& name, bool isBinary, const std::string
 
    resolveBinary12ImmOffset(address, addressi);
 
-   if     (name == "sw") executeSw(rsi, addressi, program);
-   else if(name == "sh") executeSh(rsi, addressi, program);
-   else if(name == "sb") executeSb(rsi, addressi, program);
+   if(isBinary)
+   {
+      if     (name == "sw") InstructionExecutor::executeSw(rsi, addressi, program);
+      else if(name == "sh") InstructionExecutor::executeSh(rsi, addressi, program);
+      else if(name == "sb") InstructionExecutor::executeSb(rsi, addressi, program);
+      else
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Unsupported binary store instruction " << name << std::endl;
+         abort();
+      }
+   }
    else
    {
-      std::cerr << __PRETTY_FUNC__ << ": Unsupported store instruction " << name << std::endl;
-      abort();
+      if     (name == "sw.t") InstructionExecutor::executeSw_t(rsi, addressi, program);
+      else if(name == "sh.t") InstructionExecutor::executeSh_t(rsi, addressi, program);
+      else if(name == "sb.t") InstructionExecutor::executeSb_t(rsi, addressi, program);
+      else
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Unsupported ternary store instruction " << name << std::endl;
+         abort();
+      }
    }
 }
 
-void CPU::executeSystem(const std::string& name, bool isBinary)
+void CPU::executeSystem(const std::string& name)
 {
    if(name == "ecall")
    {
@@ -341,7 +408,7 @@ void CPU::executeSystem(const std::string& name, bool isBinary)
 
 void CPU::resolveBinary12ImmOffset(const std::string& offset, std::int32_t& value)
 {
-   std::string off12;
+   /*std::string off12;
    std::string rs;
    ParseUtils::parseRegisterOffset(offset, off12, rs);
 
@@ -363,7 +430,7 @@ void CPU::resolveBinary12ImmOffset(const std::string& offset, std::int32_t& valu
       abort();
    }
 
-   value = regVal + offi12;
+   value = regVal + offi12;*/
 }
 
 }

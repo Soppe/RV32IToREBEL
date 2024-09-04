@@ -36,12 +36,12 @@ void convertToABI(const std::string& in, std::string& out)
 
    if(out[0] == 'x')
    {
-      try
+      std::int32_t index = stoi(out.substr(1, out.length()));
+      if((index >= 0) && (index < RegisterABINames.size()) )
       {
-         std::int32_t index = stoi(out.substr(1, out.length()));
          out = RegisterABINames[index];
       }
-      catch(std::exception&)
+      else
       {
          std::cout << __PRETTY_FUNC__ << ": Trying to convert unconvertable x-named register " << in << std::endl;
       }

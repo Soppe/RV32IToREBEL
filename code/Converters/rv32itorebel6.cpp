@@ -196,7 +196,6 @@ void RV32IToREBEL6::fillExpressionMap()
                            };
 
 
-   // TODO: What to replace these with? Using lw.t for all of them means an excessive waste of memory
    // l{b|h|w} rd, offset(rs) --> l{b|h|w} rd, offset(rs)
    // l{b|h|w} rd, symbol -->
    //    aipc rd, %pcrel(symbol)
@@ -213,7 +212,6 @@ void RV32IToREBEL6::fillExpressionMap()
    // lhu rd, offset(rs) --> lhu rd, offset(rs)
    m_instructionMap["lhu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lh", op, el); };
 
-   // TODO: What to replace these with? Using sw.t for all of them means an excessive waste of memory
    // s{b|h|w} rd, offset(rs) --> s{b|h|w} rd, offset(rs)
    // s{b|h|w} rd, symbol, rt -->
    //    aipc rt, %pcrel(symbol)
@@ -386,6 +384,7 @@ void RV32IToREBEL6::fillExpressionMap()
    // ret --> jalr x0, 0(x1)
    //m_instructionMap["ret"] = [this] (const StringList&, Expressions::ExpressionList& el) { at("jalr")({"x0", zeroOffset("x1")}, el); };
 
+   // TODO: Can this be replaced with something ala jal.t x1, offset?
    // call offset -->
    //    aipc.t x1, %pcrel(offset)
    //    jalr x1, 0(x1)

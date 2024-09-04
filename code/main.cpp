@@ -22,6 +22,7 @@
 
 #include "Simulators/REBEL6/assemblerandlinker.h"
 #include "Simulators/REBEL6/executableprogram.h"
+#include "Simulators/REBEL6/simulator.h"
 
 #include <iostream>
 #include <fstream>
@@ -170,8 +171,8 @@ int main(int argc, char* argv[])
 
    // Simulation
    std::cout << "REBEL-6 SIMULATION" << std::endl;
-   //Simulators::REBEL6::Simulator rebel6Sim;
-   //rebel6Sim.run(rebel6Sim);
+   Simulators::REBEL6::Simulator rebel6Sim;
+   rebel6Sim.run(rebel6Executable);
 
 
    // Generating MRSC ternary file
