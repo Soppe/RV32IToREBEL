@@ -24,6 +24,7 @@ class CPU
 
    void executeRegister(const std::string& name, bool isBinary, const std::string& rd, const std::string& rs1, const std::string& rs2);
    void executeImmediate(const std::string& name, bool isBinary, const std::string& rd, const std::string& rs1, const std::string& imm);
+   void executeLoadImmediate(const std::string& name, const std::string& rd, const std::string& imm);
    void executeBranch(const std::string& name, const std::string& rs1, const std::string& rs2, const std::string& offset);
    void executeJump(const std::string& name, const std::string& rd, const std::string& offset);
    void executeJumpRegister(const std::string& name, const std::string& rd, const std::string& target);
@@ -34,7 +35,7 @@ class CPU
    void resolveBinary12ImmOffset(const std::string& offset, std::int32_t& value);
 
    Registry m_registers;
-   std::uint32_t m_PC;
+   Tint m_PC;
    std::uint32_t m_numberOfRanInstructions;
 };
 

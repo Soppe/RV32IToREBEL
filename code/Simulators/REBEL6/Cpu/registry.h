@@ -23,7 +23,7 @@ class Registry
 
    void printRegistry();
 
-   static std::uint8_t getIntegerValue(const std::string& regName);
+   static std::int16_t getIntegerValue(const std::string& regName);
 
  private:
    std::unordered_map<std::string, Tint> m_registry;

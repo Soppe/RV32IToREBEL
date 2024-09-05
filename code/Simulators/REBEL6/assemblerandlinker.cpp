@@ -404,7 +404,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
 
 void AssemblerAndLinker::resolveOperands()
 {
-   std::uint32_t pc = 0;
+   std::int32_t pc = 0;
    std::uint8_t instrSize;
    Expressions::Instruction* instr = m_executable.loadInstruction(pc, instrSize);
    while(instr != nullptr)
@@ -451,7 +451,7 @@ void AssemblerAndLinker::resolveOperands()
          {
             try
             {
-               std::uint32_t imm = m_executable.loadSymbolAddress(operand);
+               std::int32_t imm = m_executable.loadSymbolAddress(operand);
                operand = std::to_string(imm);
             }
             catch(std::exception&)
@@ -485,7 +485,7 @@ void AssemblerAndLinker::resolveOperands()
    }
 }
 
-std::int32_t AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MODIFIER& modifier, const std::string& imm, std::uint32_t pc)
+std::int32_t AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MODIFIER& modifier, const std::string& imm, std::int32_t pc)
 {
    std::int32_t immi = 0;
    try

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <deque>
 
 namespace Simulators
 {
@@ -9,7 +10,7 @@ namespace REBEL6
 {
 
 using Trit = std::int8_t; // Can be -1, 0, 1
-using Trits = std::vector<Trit>;
+using Trits = std::deque<Trit>;
 using Tint = std::int64_t; // (-3^21, 3^21)
 
 #define TRITS_PER_TRYTE 6
@@ -24,6 +25,8 @@ class TernaryLogic
 
    static void TintToTrits(Tint in, Trits& out);
    static void TritsToTint(const Trits& in, Tint& out);
+
+   static void ParseImmediate(std::uint8_t immediateSize, const Tint& in, Tint& out);
 };
 
 }

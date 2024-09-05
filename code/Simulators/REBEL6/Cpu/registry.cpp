@@ -161,13 +161,13 @@ Tint Registry::load(const std::string& regName)
    return retVal;
 }
 
-std::uint8_t Registry::getIntegerValue(const std::string& regName)
+std::int16_t Registry::getIntegerValue(const std::string& regName)
 {
    std::string name;
    name.resize(regName.length());
    std::transform(regName.begin(), regName.end(), name.begin(), [](std::uint8_t c){ return std::tolower(c); });
 
-   std::uint8_t value = 0;
+   std::int16_t value = 0;
    if(name[0] == 'x')
    {
       try

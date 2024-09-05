@@ -23,13 +23,13 @@ public:
 
    void addInstruction(Expressions::Instruction* instruction, std::uint8_t instructionSizeTrits);
    void addToHeap(const Tint& value, std::uint8_t numTrits);
-   void addSymbol(const std::string& symbolName, std::uint32_t address);
+   void addSymbol(const std::string& symbolName, std::int32_t address);
 
-   Expressions::Instruction* loadInstruction(std::uint32_t programCounter, std::uint8_t& instructionSizeTrits) const;
-   Tint loadFromHeap(std::uint32_t address, std::uint8_t numTrits) const;
-   std::uint32_t loadSymbolAddress(const std::string& symbolName) const; // Can throw exception
+   Expressions::Instruction* loadInstruction(std::int32_t programCounter, std::uint8_t& instructionSizeTrits) const;
+   Tint loadFromHeap(std::int32_t address, std::uint8_t numTrits) const;
+   std::int32_t loadSymbolAddress(const std::string& symbolName) const; // Can throw exception
 
-   void storeToHeap(std::uint32_t address, const Tint& value, std::uint8_t numTrits);
+   void storeToHeap(std::int32_t address, const Tint& value, std::uint8_t numTrits);
 
    // Must be called after all instructions and initial heap values have been added, to recalculate heap size.
    void calculateHeapSize();

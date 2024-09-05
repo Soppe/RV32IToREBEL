@@ -37,18 +37,18 @@ private:
   bool resolveIfObject(const Expressions::Directive* directive, std::uint8_t& tritSizePerElement, std::vector<Tint>& values);
 
   void resolveOperands();
-  std::int32_t resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MODIFIER& modifier, const std::string& imm, std::uint32_t pc);
+  std::int32_t resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MODIFIER& modifier, const std::string& imm, std::int32_t pc);
 
   ExpressionParser m_parser;
   DirectiveHelper::SectionType m_sectionType;
   ExecutableProgram& m_executable;
 
-  using HeapLabelMap = std::map<std::string, std::uint32_t>; // Label | address
+  using HeapLabelMap = std::map<std::string, std::int32_t>; // Label | address
   HeapLabelMap m_tempHeapLabels;
-  std::uint32_t m_pc; // Program counter
-  std::uint32_t m_hc; // Heap counter - used to generate the correct value for labels related to data/bss/rodata objects
+  std::int32_t m_pc; // Program counter
+  std::int32_t m_hc; // Heap counter - used to generate the correct value for labels related to data/bss/rodata objects
 
-  using RelocationTableMap = std::map<std::uint32_t, std::string>; // Address | Label
+  using RelocationTableMap = std::map<std::int32_t, std::string>; // Address | Label
   RelocationTableMap m_relocationTable;
 };
 

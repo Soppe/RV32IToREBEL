@@ -41,8 +41,8 @@ void createInstruction(Expressions::ExpressionList& el, const std::string& name,
 //    l{b|h|w} rd, 0(rd)
 void handleLoad(const Converters::RV32IPseudoToRV32IBase* conv, const std::string& name, const Converters::StringList& op, Expressions::ExpressionList& el)
 {
-   std::string offsetDummy;
-   std::string rs1Dummy;
+   std::string offsetDummy; // Placeholder, not used here
+   std::string rs1Dummy; // Placeholder, not used here
    // TODO: How to handle if the offset is of type -123(rs)? The offset is in bytes, and would change with ternary addressing.
    // Possible answer: -123 means 123 bytes. However, it could also be 123 trytes, where 1 byte = 8 bit, and 1 tryte = 6 trits.
    // This means the jumps in memory can be the same, but the underlying transistors used to represent the value for each byte goes from
@@ -120,8 +120,9 @@ void RV32IToREBEL6::fillExpressionMap()
       }
    };
 
-   // lui rd, imm --> li.t rd, (imm << 12)
+   // lui rd, imm --> li.t rd, imm
    // lui is defined as putting the 20 lsb of the immediate into the 20 msb of the target registry.
+   // However, since li.t can take the full 32 bits, we do the whole operation here and ignore any calls to corresponding %lo calls in addi.
    m_instructionMap["lui"] = [this] (const StringList& op, Expressions::ExpressionList& el)
    {
       if(op[1][0] == '%') // %hi
@@ -147,10 +148,10 @@ void RV32IToREBEL6::fillExpressionMap()
    };
 
 
+   // auipc rd, imm --> aipc.t rd, imm
    // auipc works the same as lui in that it operates on the 20 lsb of an immediate and places them in the 20 msb in the target register. It normally operates on %pcrel_hi.
    // Converting auipc is difficult since the logic between RV32I and REBEL-6 is not similar. As such, we do the whole conversion here,
    // and ignore the %pcrel_lo calls in load, store, and addi instructions.
-   // auipc rd, imm --> aipc.t rd, imm
    m_instructionMap["auipc"] = [this] (const StringList& op, Expressions::ExpressionList& el)
    {
       if(op[1][0] == '%') // %pcrel_hi

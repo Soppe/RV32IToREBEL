@@ -87,6 +87,7 @@ void CPU::executeProgram(ExecutableProgram& program)
          break;
       default:
          std::cerr << __PRETTY_FUNC__ << ": Undefined instruction " << name << std::endl;
+         break;
       }
 
       ++m_numberOfRanInstructions;
@@ -251,7 +252,7 @@ void CPU::executeBranch(const std::string& name, const std::string& rs1, const s
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported branch instruction " << name << std::endl;
-      return;
+      abort();
    }
 
    m_PC = pcVal;
@@ -361,12 +362,12 @@ void CPU::executeSystem(const std::string& name)
       std::int32_t statusVal = m_registers.load("a0");
       if(statusVal == 0)
       {
-         std::cout << "TEST PASSED" << std::endl;
+         std::cout << "RV32I TEST PASSED" << std::endl;
       }
       else
       {
          std::int32_t failedTestNum = m_registers.load("gp");
-         std::cout << "TEST FAILED" << std::endl;
+         std::cout << "RV32I TEST FAILED" << std::endl;
          std::cout << "Test number " << failedTestNum << " failed" << std::endl;
          abort(); // A bit excessive, but practicing what seems to be the similar behavior for the RISC-V "official" instruction tests
       }
@@ -387,7 +388,7 @@ void CPU::resolve12ImmOffset(const std::string& offset, std::int32_t& value)
    ParseUtils::parseRegisterOffset(offset, off12, rs);
 
    std::int32_t regVal = m_registers.load(rs);
-   std::int32_t offi12 = 0;
+   std::int16_t offi12 = 0;
    try
    {
       offi12 = stoi(off12);

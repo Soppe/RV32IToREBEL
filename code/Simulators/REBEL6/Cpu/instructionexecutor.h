@@ -58,28 +58,35 @@ void  executeXori_t(Tint& rd, const Tint& rs1, const Tint& imm);
 void  executeAndi_t(Tint& rd, const Tint& rs1, const Tint& imm);
 
 //======================================
+// Load Immediate instructions
+//======================================
+
+// Ternary
+void  executeLi_t(Tint& rd, const Tint& imm);
+
+//======================================
 // Branch instructions
 //======================================
 
 // Ternary
-void  executeBeq_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::uint32_t& pc);
-void  executeBne_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::uint32_t& pc);
-void  executeBlt_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::uint32_t& pc);
-void  executeBge_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::uint32_t& pc);
+void  executeBeq_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
+void  executeBne_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
+void  executeBlt_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
+void  executeBge_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
 
 //======================================
 // Jump instructions
 //======================================
 
 // Ternary
-void  executeJal_t(Tint& rd, std::int32_t offset, std::uint32_t& pc);
+void  executeJal_t(Tint& rd, std::int32_t offset, std::int32_t& pc);
 
 //======================================
 // Jump register instructions
 //======================================
 
 // Ternary
-void  executeJalr_t(Tint& rd, std::int32_t target, std::uint32_t& pc);
+void  executeJalr_t(Tint& rd, std::int32_t target, std::int32_t& pc);
 
 //======================================
 // Load instructions

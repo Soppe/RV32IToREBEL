@@ -16,6 +16,7 @@ namespace InstructionExecutor
 // Binary
 void executeAdd(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
+   // Converting from Tint to int32 means we implicitly handle any possible overflow
    std::int32_t rdi = 0;
    std::int32_t rs1i = rs1;
    std::int32_t rs2i = rs2;
@@ -176,26 +177,41 @@ void executeAndi_t(Tint& rd, const Tint& rs1, const Tint& imm)
 }
 
 //======================================
+// Load Immediate instructions
+//======================================
+
+// Ternary
+void executeLi_t(Tint& rd, const Tint& imm)
+{
+   Tint immi = 0;
+   TernaryLogic::ParseImmediate(24, imm, immi);
+   rd = immi;
+}
+
+//======================================
 // Branch instructions
 //======================================
 
 // Ternary
-void executeBeq_t(const Tint& rs1, const Tint& rs2, int32_t offset, uint32_t& pc)
+void executeBeq_t(const Tint& rs1, const Tint& rs2, int32_t offset, int32_t& pc)
 {
 
 }
 
-void executeBne_t(const Tint& rs1, const Tint& rs2, int32_t offset, uint32_t& pc)
+void executeBne_t(const Tint& rs1, const Tint& rs2, int32_t offset, int32_t& pc)
+{
+   if(rs1 != rs2)
+   {
+      pc = pc + offset - 32; // Subtract 32 since simulator automatically adds 32 to PC after each instruction call
+   }
+}
+
+void executeBlt_t(const Tint& rs1, const Tint& rs2, int32_t offset, int32_t& pc)
 {
 
 }
 
-void executeBlt_t(const Tint& rs1, const Tint& rs2, int32_t offset, uint32_t& pc)
-{
-
-}
-
-void executeBge_t(const Tint& rs1, const Tint& rs2, int32_t offset, uint32_t& pc)
+void executeBge_t(const Tint& rs1, const Tint& rs2, int32_t offset, int32_t& pc)
 {
 
 }
@@ -205,7 +221,7 @@ void executeBge_t(const Tint& rs1, const Tint& rs2, int32_t offset, uint32_t& pc
 //======================================
 
 // Ternary
-void executeJal_t(Tint& rd, int32_t offset, uint32_t& pc)
+void executeJal_t(Tint& rd, int32_t offset, int32_t& pc)
 {
 
 }
@@ -215,7 +231,7 @@ void executeJal_t(Tint& rd, int32_t offset, uint32_t& pc)
 //======================================
 
 // Ternary
-void executeJalr_t(Tint& rd, int32_t target, uint32_t& pc)
+void executeJalr_t(Tint& rd, int32_t target, int32_t& pc)
 {
 
 }

@@ -57,12 +57,12 @@ void ExecutableProgram::addToHeap(const Tint& value, uint8_t numTrits)
    doStoreToHeap(heapSizeTrits, value, numTrits);
 }
 
-void ExecutableProgram::addSymbol(const std::string& symbolName, std::uint32_t address)
+void ExecutableProgram::addSymbol(const std::string& symbolName, std::int32_t address)
 {
    m_symbolTable.insert({symbolName, address});
 }
 
-Expressions::Instruction* ExecutableProgram::loadInstruction(std::uint32_t programCounter, std::uint8_t& instructionSizeTrits) const
+Expressions::Instruction* ExecutableProgram::loadInstruction(std::int32_t programCounter, std::uint8_t& instructionSizeTrits) const
 {
    Expressions::Instruction* instr = nullptr;
    InstructionMemoryMap::const_iterator it = m_instructions.find(programCounter);
@@ -82,7 +82,7 @@ Expressions::Instruction* ExecutableProgram::loadInstruction(std::uint32_t progr
    return instr;
 }
 
-Tint ExecutableProgram::loadFromHeap(std::uint32_t address, std::uint8_t numTrits) const
+Tint ExecutableProgram::loadFromHeap(std::int32_t address, std::uint8_t numTrits) const
 {
    Tint retVal = 0;
    if((numTrits > TRITS_PER_TWORD) || (numTrits < 0))
@@ -91,7 +91,7 @@ Tint ExecutableProgram::loadFromHeap(std::uint32_t address, std::uint8_t numTrit
       abort();
    }
 
-   std::uint32_t index = address - m_instructionsSizeTrits;
+   std::uint32_t index = address - m_instructionsSizeTrits /* +/- program start address if it's other than 0 */;
    for(std::uint8_t i = 0; i < numTrits; ++i, ++index)
    {
       if(m_heap[index] != 0) // Only care when the trit is either 1 or -1
@@ -104,9 +104,9 @@ Tint ExecutableProgram::loadFromHeap(std::uint32_t address, std::uint8_t numTrit
    return retVal;
 }
 
-std::uint32_t ExecutableProgram::loadSymbolAddress(const std::string& symbolName) const
+std::int32_t ExecutableProgram::loadSymbolAddress(const std::string& symbolName) const
 {
-   std::uint32_t retVal = 0;
+   std::int32_t retVal = 0;
    try
    {
       retVal = m_symbolTable.at(symbolName);
@@ -119,7 +119,7 @@ std::uint32_t ExecutableProgram::loadSymbolAddress(const std::string& symbolName
    return retVal;
 }
 
-void ExecutableProgram::storeToHeap(std::uint32_t address, const Tint& value, std::uint8_t numTrits)
+void ExecutableProgram::storeToHeap(std::int32_t address, const Tint& value, std::uint8_t numTrits)
 {
    if((numTrits > TRITS_PER_TWORD) || (numTrits < 0))
    {
@@ -127,7 +127,7 @@ void ExecutableProgram::storeToHeap(std::uint32_t address, const Tint& value, st
       abort();
    }
 
-   std::uint32_t index = address - getInstructionsSizeTrits();
+   std::uint32_t index = address - getInstructionsSizeTrits() /* +/- some value if program starts at address other than 0 */;
 
    doStoreToHeap(index, value, numTrits);
 }
@@ -158,7 +158,7 @@ uint32_t ExecutableProgram::getInstructionsSizeTrits() const
 
 void ExecutableProgram::printInstructions() const
 {
-   std::uint32_t pc = 0;
+   std::int32_t pc = 0;
    InstructionMemoryMap::const_iterator it = m_instructions.begin();
    while(it != m_instructions.end())
    {

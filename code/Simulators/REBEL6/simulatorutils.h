@@ -10,7 +10,7 @@ namespace REBEL6
 class SimulatorUtils
 {
  public:
-   enum class InstructionType {BRANCH, IMMEDIATE, JUMP, JUMP_REGISTER, LOAD, REGISTER, STORE, SYSTEM, UNDEFINED};
+   enum class InstructionType {BRANCH, IMMEDIATE, JUMP, JUMP_REGISTER, LOAD, LOAD_IMMEDIATE, REGISTER, STORE, SYSTEM, UNDEFINED};
 
    SimulatorUtils() = delete;
 

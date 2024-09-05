@@ -94,7 +94,6 @@ void executeAnd(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 //======================================
 void executeAddi(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
-
    if((imm > 0x7ff) || (imm < (int)0xfffff800))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;

@@ -2,7 +2,7 @@
 
 #include <math.h>
 
-//Code taken from https://tfetimes.com/c-balanced-ternary/
+// Code taken from https://tfetimes.com/c-balanced-ternary/
 void Simulators::REBEL6::TernaryLogic::TintToTrits(Tint in, Trits& out)
 {
    if (in == 0)
@@ -52,4 +52,13 @@ void Simulators::REBEL6::TernaryLogic::TritsToTint(const Trits& in, Tint& out)
    {
       out += in[i] * std::pow(3, i);
    }
+}
+
+void Simulators::REBEL6::TernaryLogic::ParseImmediate(uint8_t immediateSize, const Tint& in, Tint& out)
+{
+   // This can be solved by calculating std::pow(3, immediateSize) to get min/max and then add some overflow/underflow logic, but this way is more fun and "correct".
+   Trits trits;
+   TintToTrits(in, trits);
+   trits.resize(immediateSize, 0);
+   TritsToTint(trits, out);
 }
