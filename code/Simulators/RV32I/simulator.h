@@ -19,6 +19,9 @@ public:
 
    void run(ExecutableProgram& executable);
 
+   std::uint32_t getNumberOfRanInstructions();
+   std::uint32_t getNumberOfBitFlips();
+
 private:
    CPU m_cpu;
 };

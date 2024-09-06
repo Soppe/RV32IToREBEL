@@ -18,7 +18,7 @@ public:
 
    void executeProgram(ExecutableProgram& program);
    std::uint32_t getNumberOfRanInstructions() const;
-   std::uint32_t getBitshiftCost() const;
+   std::uint32_t getBitFlipCost() const;
 
 private:
    void initRegisters(std::int32_t programSizeBytes);

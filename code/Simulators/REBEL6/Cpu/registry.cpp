@@ -30,6 +30,7 @@ std::uint32_t countTritFlips(Simulators::REBEL6::Tint oldVal, Simulators::REBEL6
    {
       for(int i = 0; i < -sizeDiff; ++i)
       {
+         // TODO: oldTrits.resize(newTrits.size(), 0); ?
          oldTrits.insert(oldTrits.end(), 0);
       }
    }

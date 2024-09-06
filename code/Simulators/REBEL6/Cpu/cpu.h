@@ -17,7 +17,7 @@ class CPU
 
    void executeProgram(ExecutableProgram& program);
    std::uint32_t getNumberOfRanInstructions() const;
-   std::uint32_t getTritshiftCost() const;
+   std::uint32_t getTritFlipCost() const;
 
  private:
    void initRegisters(std::int32_t programSizeTrits);

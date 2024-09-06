@@ -18,6 +18,9 @@ class Simulator
 
    void run(ExecutableProgram& executable);
 
+   std::uint32_t getNumberOfRanInstructions();
+   std::uint32_t getNumberOfTritFlips();
+
  private:
    CPU m_cpu;
 };

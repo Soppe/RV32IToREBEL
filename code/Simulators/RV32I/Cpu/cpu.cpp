@@ -54,7 +54,7 @@ void CPU::executeProgram(ExecutableProgram& program)
       const std::string& name = instr->getInstructionName();
       const std::vector<std::string>& operands = instr->getInstructionOperands();
       type = SimulatorUtils::getInstructionType(name);
-      //std::cout << "pc = " << m_PC << "\t" << *instr << std::endl;
+      std::cout << "pc = " << m_PC << "\t" << *instr << std::endl;
 
       switch(type)
       {
@@ -109,7 +109,7 @@ uint32_t CPU::getNumberOfRanInstructions() const
    return m_numberOfRanInstructions;
 }
 
-uint32_t CPU::getBitshiftCost() const
+uint32_t CPU::getBitFlipCost() const
 {
    return m_registers.getAccumulatedBitFlips();
 }
@@ -213,7 +213,6 @@ void CPU::executeUpper(const std::string& name, const std::string& rd, const std
    }
 
    m_registers.store(rd, rdVal);
-
 }
 
 void CPU::executeBranch(const std::string& name, const std::string& rs1, const std::string& rs2, const std::string& offset)

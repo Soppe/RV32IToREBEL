@@ -359,8 +359,16 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       //.string   "B\0\0\0Y\0\0\0E\0\0\0"  /* On little endian targets.  */
       //.string   "\0\0\0B\0\0\0Y\0\0\0E"  /* On big endian targets.  */
 
-      std::cout << __PRETTY_FUNC__ << ": Unsupported directive object type: " << name << std::endl;
-      abort();
+      tritSizePerElement = TRITS_PER_TRYTE;
+      for(const std::string& param: parameters)
+      {
+         for(int i = 0; i <= param.size(); ++i) // Include terminating zero
+         {
+            ParseUtils::parseImmediate(8, param.c_str()[i], value);
+            values.push_back(value);
+            std::cout << "Letter = " << param.c_str()[i] << "; value = " << value << std::endl;
+         }
+      }
    }
    else if(name == ".word") // 32 bits according to ISA
    {
@@ -560,8 +568,8 @@ void AssemblerAndLinker::resolveDataDirective(const Expressions::Directive* dire
       for(Tint value: values)
       {
          m_executable.addToHeap(value, tritSizePerElement);
+         m_hc += tritSizePerElement;
       }
-      m_hc += tritSizePerElement;
    }
 }
 

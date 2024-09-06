@@ -179,14 +179,11 @@ void ExecutableProgram::printSymbols() const
 
 void ExecutableProgram::doStoreToHeap(std::uint32_t index, std::int32_t value, std::uint8_t numBytes)
 {
-   std::cout << "Initial  value = " << std::hex << value << std::dec << std::endl;
    for(std::uint8_t i = 0; i < numBytes; ++i, ++index)
    {
       m_heap[index] = (value & 0xff);
-      std::cout << "Storing binary value to heap = " << std::hex << (value & 0xff) << std::dec << " at index " << index << std::endl;
       value = value >> 8;
    }
-   std::cout << std::endl;
 }
 
 }

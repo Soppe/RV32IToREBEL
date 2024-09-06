@@ -1,6 +1,7 @@
 #include "ternarylogic.h"
 
 #include <math.h>
+#include <iostream>
 
 // Code taken from https://tfetimes.com/c-balanced-ternary/
 void Simulators::REBEL6::TernaryLogic::TintToTrits(Tint in, Trits& out)
@@ -19,7 +20,7 @@ void Simulators::REBEL6::TernaryLogic::TintToTrits(Tint in, Trits& out)
    Trit val = 0;
    while (in != 0)
    {
-      int r = in % 3;
+      Tint r = in % 3;
       if(r == 0)
       {
          val = 0;

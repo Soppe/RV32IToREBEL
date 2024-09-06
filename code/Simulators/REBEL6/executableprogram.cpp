@@ -184,16 +184,18 @@ void ExecutableProgram::doStoreToHeap(std::uint32_t index, const Tint& value, st
 
    TernaryLogic::TintToTrits(value, trits); // Could send m_heap directly, but lets keep it safe
 
-   if(trits.size() != numTrits)
+   if(trits.size() > numTrits)
    {
-      std::cout << "Storing an uninteded numbe of trits to heap - Intended = " << numTrits << "; actual = " << trits.size() << std::endl;
+      std::cout << "Storing an unintended number of trits to heap - Intended = " << (int)numTrits << "; actual = " << trits.size() << std::endl;
    }
 
-   std::cout << "Initial value = " << std::hex << value << std::dec << std::endl;
+   trits.resize(numTrits, 0); // Fill the rest with zeroes so we ensure the memory allocated for this value has all trits properly reset
+
+   std::cout << "Initial value = " << value << std::endl;
    for(std::uint8_t i = 0; i < numTrits; ++i, ++index)
    {
       m_heap[index] = trits[i];
-      std::cout << "Storing ternary value to heap = " << trits[i] << " at index " << index << std::endl;
+      std::cout << "Storing ternary value to heap = " << (int)trits[i] << " at index " << index << std::endl;
    }
    std::cout << std::endl;
 }

@@ -53,7 +53,7 @@ void CPU::executeProgram(ExecutableProgram& program)
       const std::vector<std::string>& operands = instr->getInstructionOperands();
       type = SimulatorUtils::getInstructionType(name);
       bool isBinary = !name.ends_with(".t");
-      std::cout << "pc = " << m_PC << "\t" << *instr << std::endl;
+      //std::cout << "pc = " << m_PC << "\t" << *instr << std::endl;
 
       switch(type)
       {
@@ -108,7 +108,7 @@ uint32_t CPU::getNumberOfRanInstructions() const
    return m_numberOfRanInstructions;
 }
 
-uint32_t CPU::getTritshiftCost() const
+uint32_t CPU::getTritFlipCost() const
 {
    return m_registers.getAccumulatedTritFlips();
 }
@@ -139,7 +139,7 @@ void CPU::executeRegister(const std::string& name, bool isBinary, const std::str
       // //else if(name == "sltu") executeSltu(rdVal, rs1i, rs2i);
       // else if(name == "or")   InstructionExecutor::executeOr(rdVal, rs1i, rs2i);
       // else if(name == "xor")  InstructionExecutor::executeXor(rdVal, rs1i, rs2i);
-      // else if(name == "and")  InstructionExecutor::executeAnd(rdVal, rs1i, rs2i);
+      else if(name == "and")  InstructionExecutor::executeAnd(rdVal, rs1i, rs2i);
       else
       {
          std::cerr << __PRETTY_FUNC__ << ": Unsupported binary register instruction " << name << std::endl;
@@ -193,7 +193,7 @@ void CPU::executeImmediate(const std::string& name, bool isBinary, const std::st
       // //else if(name == "sltiu") executeSltiu(rdVal,rs1i, immi);
       // else if(name == "ori")   InstructionExecutor::executeOri(rdVal, rs1i, immi);
       // else if(name == "xori")  InstructionExecutor::executeXori(rdVal, rs1i, immi);
-      // else if(name == "andi")  InstructionExecutor::executeAndi(rdVal, rs1i, immi);
+      else if(name == "andi")  InstructionExecutor::executeAndi(rdVal, rs1i, immi);
       else
       {
          std::cerr << __PRETTY_FUNC__ << ": Unsupported binary immediate instruction " << name << std::endl;
@@ -202,8 +202,7 @@ void CPU::executeImmediate(const std::string& name, bool isBinary, const std::st
    }
    else
    {
-      if(false){}
-      // if     (name == "addi.t")  InstructionExecutor::executeAddi_t(rdVal, rs1i, immi);
+      if     (name == "addi.t")  InstructionExecutor::executeAddi_t(rdVal, rs1i, immi);
       // else if(name == "sli.t")  InstructionExecutor::executeSli_t(rdVal, rs1i, immi);
       // else if(name == "sri.t")  InstructionExecutor::executeSri_t(rdVal, rs1i, immi);
       // else if(name == "slti.t")  InstructionExecutor::executeSlti_t(rdVal, rs1i, immi);
