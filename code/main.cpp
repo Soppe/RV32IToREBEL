@@ -174,6 +174,8 @@ int main(int argc, char* argv[])
    Simulators::REBEL6::Simulator rebel6Sim;
    rebel6Sim.run(rebel6Executable);
 
+   std::cout << "Binary: Instructions ran count = " << rv32iSim.getNumberOfRanInstructions() << "; bitflip count = " << rv32iSim.getNumberOfBitFlips() << std::endl;
+   std::cout << "Ternary: Instructions ran count = " << rebel6Sim.getNumberOfRanInstructions() << "; tritflip count = " << rebel6Sim.getNumberOfTritFlips() << std::endl;
 
    // Generating MRSC ternary file
    //Simulators::REBEL6::AssemblerUtils::generateAssemblyFileForMRCS(rebel6Executable, fileName);
