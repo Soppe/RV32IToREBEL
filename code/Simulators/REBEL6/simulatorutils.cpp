@@ -67,6 +67,7 @@ const std::unordered_map<std::string, const Simulators::REBEL6::SimulatorUtils::
 
       // LI - Load Immediate
       {"li.t", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD_IMMEDIATE},
+      {"aipc.t", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD_IMMEDIATE},
 
       // B - Branch
       {"beq.t", Simulators::REBEL6::SimulatorUtils::InstructionType::BRANCH},

@@ -428,15 +428,8 @@ void AssemblerAndLinker::resolveOperands()
             {
                try
                {
-                  if(type == ParseUtils::ASSEMBLER_MODIFIER::PCREL)
-                  {
-                     operand = value;
-                  }
-                  else
-                  {
-                     std::int32_t imm = resolveAssemblerModifier(type, value, pc);
-                     operand = std::to_string(imm);
-                  }
+                  std::int32_t imm = resolveAssemblerModifier(type, value, pc);
+                  operand = std::to_string(imm);
                }
                catch(std::exception&)
                {

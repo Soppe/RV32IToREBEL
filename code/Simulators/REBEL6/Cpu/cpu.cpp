@@ -86,7 +86,7 @@ void CPU::executeProgram(ExecutableProgram& program)
          break;
       default:
          std::cerr << __PRETTY_FUNC__ << ": Undefined instruction " << name << std::endl;
-         break;
+         abort();
       }
 
       ++m_numberOfRanInstructions;
@@ -131,7 +131,7 @@ void CPU::executeRegister(const std::string& name, bool isBinary, const std::str
    if(isBinary)
    {
       if     (name == "add")  InstructionExecutor::executeAdd(rdVal, rs1i, rs2i);
-      // else if(name == "sub")  InstructionExecutor::executeSub(rdVal, rs1i, rs2i);
+      else if(name == "sub")  InstructionExecutor::executeSub(rdVal, rs1i, rs2i);
       // else if(name == "sll")  InstructionExecutor::executeSll(rdVal, rs1i, rs2i);
       // else if(name == "srl")  InstructionExecutor::executeSrl(rdVal, rs1i, rs2i);
       // else if(name == "sra")  InstructionExecutor::executeSra(rdVal, rs1i, rs2i);
@@ -234,7 +234,8 @@ void CPU::executeLoadImmediate(const std::string& name, const std::string& rd, c
       abort();
    }
 
-   if(name == "li.t")  InstructionExecutor::executeLi_t(rdVal, immi);
+   if     (name == "li.t")   InstructionExecutor::executeLi_t(rdVal, immi);
+   else if(name == "aipc.t") InstructionExecutor::executeAipc_t(rdVal, immi, m_PC);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported ternary immediate instruction " << name << std::endl;
@@ -246,25 +247,18 @@ void CPU::executeLoadImmediate(const std::string& name, const std::string& rd, c
 
 void CPU::executeBranch(const std::string& name, const std::string& rs1, const std::string& rs2, const std::string& offset)
 {
-   static Tint maxJumpOffset = std::pow(3, 16); // TODO: Find max jump range
    Tint rs1i = m_registers.load(rs1);
    Tint rs2i = m_registers.load(rs2);
-   Tint offi16 = 0;
+   std::int32_t offi16 = 0;
    std::int32_t pcVal = m_PC;
 
    try
    {
-      offi16 = stoll(offset);
+      offi16 = stoi(offset);
    }
    catch(std::exception&)
    {
       std::cerr << __PRETTY_FUNC__ << ": Unable to convert immediate with value " << offset << std::endl;
-      abort();
-   }
-
-   if((offi16 > maxJumpOffset) || (offi16 < -maxJumpOffset))
-   {
-      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offi16 << std::endl;
       abort();
    }
 
@@ -284,6 +278,7 @@ void CPU::executeBranch(const std::string& name, const std::string& rs1, const s
 
 void CPU::executeJump(const std::string& name, const std::string& rd, const std::string& offset)
 {
+
    std::int32_t offseti = 0;
    std::int32_t pcVal = m_PC;
    Tint rdVal = 0;
@@ -298,18 +293,7 @@ void CPU::executeJump(const std::string& name, const std::string& rd, const std:
       abort();
    }
 
-   if((offseti > (0x0007ffff)) || (offseti < (int)(0xfff80000)))
-   {
-      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offseti << std::endl;
-      abort();
-   }
-
-   // Bitshift the immediate left 1 bit to add the "hidden" 0-bit in the LSB that isn't part of the instruction, but is "added" by the CPU because any instruction is to be at least 2-byte aligned.
-   // Not needing to add the last 0 in the immediate means there's instead space for an extra bit in the MSB, doubling the range of the offset.
-   offseti <<= 1;
-
-   if(false){}
-   // if(name == "jal.t") InstructionExecutor::executeJal_t(rdVal, offseti, pcVal);
+   if(name == "jal.t") InstructionExecutor::executeJal_t(rdVal, offseti, pcVal);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported jump instruction " << name << std::endl;

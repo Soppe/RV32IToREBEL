@@ -8,7 +8,7 @@
 // Define taken from https://github.com/riscv-software-src/riscv-tests/tree/master/isa/macros/scalar/test_macros.h
 //#define PARSEUTILS_SEXT_IMM(imm, bits) ((imm) | (-(((imm) >> (bits - 1)) & 1) << (bits - 1)))
 
-// Adapted based on how sign extension is included when bitshifting in c++
+// Adapted based on how sign extension is included when bitshifting in c++ (since c++20 - undefined prior to it, but most compilers seem to do arithmetic right shift on a negative number)
 #define PARSEUTILS_SEXT_IMM(imm, bits) ((imm << bits) >> bits)
 
 std::string ParseUtils::TEMP_LABEL_PREFIX = ".temp_label_";
@@ -76,7 +76,7 @@ bool ParseUtils::parseRegisterOffset(const std::string& in, std::string& offset,
    return retVal;
 }
 
-bool ParseUtils::parseImmediate(std::uint8_t immediateSize, const std::string& in, std::int32_t& out)
+bool ParseUtils::parseImmediate(std::uint8_t immediateSizeBits, const std::string& in, std::int32_t& out)
 {
    std::int32_t number = 0;
    bool retVal = false;
@@ -113,21 +113,21 @@ bool ParseUtils::parseImmediate(std::uint8_t immediateSize, const std::string& i
          //std::cout << "Before: " << in << "; After = " << number << std::endl;
          retVal = true;
       }
-      out = PARSEUTILS_SEXT_IMM(number, (32 - immediateSize));
+      out = PARSEUTILS_SEXT_IMM(number, (32 - immediateSizeBits));
       //std::cout << "number = " << number << "; out = " << out << std::endl;
    }
    catch(std::exception& e)
    {
-      std::cerr << __PRETTY_FUNC__ << ": Failed to parse immediate " << in << " of indended size " << immediateSize << " because of " << e.what() << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Failed to parse immediate " << in << " of indended size " << immediateSizeBits << " because of " << e.what() << std::endl;
       abort();
    }
 
    return retVal;
 }
 
-bool ParseUtils::parseImmediate(std::uint8_t immediateSize, std::int32_t in, std::int32_t& out)
+bool ParseUtils::parseImmediate(std::uint8_t immediateSizeBits, std::int32_t in, std::int32_t& out)
 {
-   return parseImmediate(immediateSize, std::to_string(in), out);
+   return parseImmediate(immediateSizeBits, std::to_string(in), out);
 }
 
 void ParseUtils::generateTempLabel(std::string& out)

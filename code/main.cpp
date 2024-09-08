@@ -105,6 +105,11 @@ int main(int argc, char* argv[])
    std::string inputPath = argv[1];
 
    std::ifstream inFile(inputPath);
+   if(!inFile)
+   {
+      std::cout << "Failed to open file " << inputPath << std::endl;
+      abort();
+   }
    std::string source((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
    source += '\n';
 

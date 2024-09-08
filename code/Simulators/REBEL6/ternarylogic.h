@@ -26,7 +26,7 @@ class TernaryLogic
    static void TintToTrits(Tint in, Trits& out);
    static void TritsToTint(const Trits& in, Tint& out);
 
-   static void ParseImmediate(std::uint8_t immediateSize, const Tint& in, Tint& out);
+   static void ParseImmediate(std::uint8_t immediateSizeTrits, const Tint& in, Tint& out);
 };
 
 }

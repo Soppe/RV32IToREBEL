@@ -4,6 +4,7 @@
 #include <logger.h>
 #include <Parsers/parseutils.h>
 
+#include <math.h>
 #include <iostream>
 
 namespace Simulators
@@ -28,12 +29,21 @@ void executeSub(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 
 void executeSll(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 {
-   rd = rs1 << rs2;
+   rs2 = rs2 & 0x1f; // Use only the 5 lowest bits as defined by the standard
+
+   if(rs2 == 0)
+   {
+      rd = rs1;
+   }
+   else
+   {
+      rd = rs1 << rs2;
+   }
 }
 
 void executeSrl(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 {
-   rs2 = rs2 & 0x1f; // Use only the 5 lowest bits
+   rs2 = rs2 & 0x1f; // Use only the 5 lowest bits as defined by the standard
 
    if(rs2 == 0)
    {
@@ -43,7 +53,8 @@ void executeSrl(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
    {
       rd = rs1 >> rs2;
 
-             // Since the >> operand in c++ functions as sra -sign extending the number - we have to simulate shifting 0's into the upper bits
+      // Since c++ 20 the right shift is defined to be arithmetic. Before c++20 it seems to have been implementation defined, but normally arithmetic for negative numbers
+      // Since the >> operand therefore sign extends the number, we have to simulate shifting 0's into the upper bits
       std::int32_t mask = 0x7fffffff;
       mask = mask >> (rs2 - 1);
       rd = rd & mask;
@@ -52,7 +63,16 @@ void executeSrl(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 
 void executeSra(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 {
-   rd = rs1 >> rs2;
+   rs2 = rs2 & 0x1f; // Use only the 5 lowest bits as defined by the standard
+
+   if(rs2 == 0)
+   {
+      rd = rs1;
+   }
+   else
+   {
+      rd = rs1 >> rs2;
+   }
 }
 
 void executeSlt(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
@@ -92,9 +112,10 @@ void executeAnd(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 //======================================
 // Immediate instructions
 //======================================
+const int immediateMaxValue = std::pow(2, 11);
 void executeAddi(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
-   if((imm > 0x7ff) || (imm < (int)0xfffff800))
+   if((imm > immediateMaxValue) || (imm < -immediateMaxValue))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
@@ -109,7 +130,7 @@ void executeAddi(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 void executeSlli(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
    // This is based on tests with the GCC assembler using values represented with more than 5 bits, and negative numbers, where errors related to negative numbers inferred they had been converted
-   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit std::uint32_teger
+   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit integer
    std::uint32_t immu = imm;
    if(immu > 0x1f)
    {
@@ -123,7 +144,7 @@ void executeSlli(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 void executeSrli(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
    // This is based on tests with the GCC assembler using values represented with more than 5 bits, and negative numbers, where errors related to negative numbers inferred they had been converted
-   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit std::uint32_teger
+   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit integer
    std::uint32_t immu = imm;
    if(immu > 0x1f)
    {
@@ -149,7 +170,7 @@ void executeSrli(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 void executeSrai(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
    // This is based on tests with the GCC assembler using values represented with more than 5 bits, and negative numbers, where errors related to negative numbers inferred they had been converted
-   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit std::uint32_teger
+   // to signed values first - a low negative number resulted in an error referring to close to the max value of a 64 bit integer
    std::uint32_t immu = imm;
    if(immu > 0x1f)
    {
@@ -162,7 +183,7 @@ void executeSrai(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 
 void executeSlti(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
-   if((imm > 0x7ff) || (imm < (int)0xfffff800))
+   if((imm > immediateMaxValue) || (imm < -immediateMaxValue))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
@@ -181,7 +202,7 @@ void executeSlti(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 // The standard says the imm value is to first be sign-extended, then converted to an unsigned value. Ergo, the limits for sltiu are the same as for slti.
 void executeSltiu(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
-   if((imm > 0x7ff) || (imm < (int)0xfffff800))
+   if((imm > immediateMaxValue) || (imm < -immediateMaxValue))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
@@ -201,7 +222,7 @@ void executeSltiu(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 
 void executeOri(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
-   if((imm > 0x7ff) || (imm < (int)0xfffff800))
+   if((imm > immediateMaxValue) || (imm < -immediateMaxValue))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
@@ -215,7 +236,7 @@ void executeOri(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 
 void executeXori(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
-   if((imm > 0x7ff) || (imm < (int)0xfffff800))
+   if((imm > immediateMaxValue) || (imm < -immediateMaxValue))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
@@ -229,7 +250,7 @@ void executeXori(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 
 void executeAndi(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
-   if((imm > 0x7ff) || (imm < (int)0xfffff800))
+   if((imm > immediateMaxValue) || (imm < -immediateMaxValue))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
@@ -246,12 +267,26 @@ void executeAndi(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 //======================================
 void executeLui(std::int32_t& rd, std::int32_t imm20)
 {
+   // GCC compiler will throw an error if any of the 12 MSB is set. We'll do the same.
+   if((imm20 & 0xfff00000) != 0)
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << imm20 << std::endl;
+      abort();
+   }
+
    ParseUtils::parseImmediate(20, imm20, imm20);
    rd = imm20 << 12;
 }
 
 void executeAuipc(std::int32_t& rd, std::int32_t imm20, std::int32_t pc)
 {
+   // GCC compiler will throw an error if any of the 12 MSB is set. We'll do the same.
+   if((imm20 & 0xfff00000) != 0)
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << imm20 << std::endl;
+      abort();
+   }
+
    ParseUtils::parseImmediate(20, imm20, imm20);
    rd = (imm20 << 12) + pc;
 }
@@ -259,8 +294,15 @@ void executeAuipc(std::int32_t& rd, std::int32_t imm20, std::int32_t pc)
 //======================================
 // Branch instructions
 //======================================
+const int branchMaxValue = std::pow(2, 12);
 void executeBeq(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
 {
+   if((offset > branchMaxValue) || (offset < -branchMaxValue))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
    if(rs1 == rs2)
    {
       pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
@@ -269,6 +311,12 @@ void executeBeq(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::ui
 
 void executeBne(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
 {
+   if((offset > branchMaxValue) || (offset < -branchMaxValue))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
    if(rs1 != rs2)
    {
       pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
@@ -277,6 +325,12 @@ void executeBne(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::ui
 
 void executeBlt(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
 {
+   if((offset > branchMaxValue) || (offset < -branchMaxValue))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
    if(rs1 < rs2)
    {
       pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
@@ -285,6 +339,12 @@ void executeBlt(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::ui
 
 void executeBltu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
 {
+   if((offset > branchMaxValue) || (offset < -branchMaxValue))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
    std::uint32_t rs1u = rs1;
    std::uint32_t rs2u = rs2;
 
@@ -296,6 +356,12 @@ void executeBltu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::u
 
 void executeBge(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
 {
+   if((offset > branchMaxValue) || (offset < -branchMaxValue))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
    if(rs1 >= rs2)
    {
       pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
@@ -304,6 +370,12 @@ void executeBge(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::ui
 
 void executeBgeu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
 {
+   if((offset > branchMaxValue) || (offset < -branchMaxValue))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
    std::uint32_t rs1u = rs1;
    std::uint32_t rs2u = rs2;
    if(rs1u >= rs2u)
@@ -315,9 +387,16 @@ void executeBgeu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::u
 //======================================
 // Jump instructions
 //======================================
+const int maxJumpOffset = std::pow(2, 20);
 void executeJal(std::int32_t& rd, std::int32_t offset, std::uint32_t& pc)
 {
-   ParseUtils::parseImmediate(12, offset, offset);
+   if((offset > maxJumpOffset) || (offset < -maxJumpOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
+   ParseUtils::parseImmediate(21, offset, offset);
    rd = pc + 4;
    pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
 }

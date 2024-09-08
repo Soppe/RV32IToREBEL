@@ -197,13 +197,6 @@ void CPU::executeUpper(const std::string& name, const std::string& rd, const std
       abort();
    }
 
-   // GCC compiler will throw an error if any of the 12 MSB is set. We'll do the same.
-   if((immi20 & 0xfff00000) != 0)
-   {
-      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << immi20 << std::endl;
-      abort();
-   }
-
    if     (name == "lui")   InstructionExecutor::executeLui(rdVal, immi20);
    else if(name == "auipc") InstructionExecutor::executeAuipc(rdVal, immi20, m_PC);
    else
@@ -229,12 +222,6 @@ void CPU::executeBranch(const std::string& name, const std::string& rs1, const s
    catch(std::exception&)
    {
       std::cerr << __PRETTY_FUNC__ << ": Unable to convert immediate with value " << offset << std::endl;
-      abort();
-   }
-
-   if((offi12 > (0x7ff)) || (offi12 < (int)(0xfffff800)))
-   {
-      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offi12 << std::endl;
       abort();
    }
 
@@ -270,12 +257,6 @@ void CPU::executeJump(const std::string& name, const std::string& rd, const std:
    catch(std::exception&)
    {
       std::cerr << __PRETTY_FUNC__ << ": Unable to convert offset with value " << offset << std::endl;
-      abort();
-   }
-
-   if((offseti > (0x0007ffff)) || (offseti < (int)(0xfff80000)))
-   {
-      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offseti << std::endl;
       abort();
    }
 

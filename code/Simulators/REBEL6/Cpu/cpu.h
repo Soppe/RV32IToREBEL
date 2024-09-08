@@ -35,7 +35,7 @@ class CPU
    void resolveBinary12ImmOffset(const std::string& offset, std::int32_t& value);
 
    Registry m_registers;
-   Tint m_PC;
+   std::int32_t m_PC;
    std::uint32_t m_numberOfRanInstructions;
 };
 

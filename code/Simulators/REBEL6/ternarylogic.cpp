@@ -55,11 +55,11 @@ void Simulators::REBEL6::TernaryLogic::TritsToTint(const Trits& in, Tint& out)
    }
 }
 
-void Simulators::REBEL6::TernaryLogic::ParseImmediate(uint8_t immediateSize, const Tint& in, Tint& out)
+void Simulators::REBEL6::TernaryLogic::ParseImmediate(uint8_t immediateSizeTrits, const Tint& in, Tint& out)
 {
    // This can be solved by calculating std::pow(3, immediateSize) to get min/max and then add some overflow/underflow logic, but this way is more fun and "correct".
    Trits trits;
    TintToTrits(in, trits);
-   trits.resize(immediateSize, 0);
+   trits.resize(immediateSizeTrits, 0);
    TritsToTint(trits, out);
 }

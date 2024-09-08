@@ -31,7 +31,13 @@ void executeAdd(Tint& rd, const Tint& rs1, const Tint& rs2)
 
 void executeSub(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
+   // Converting from Tint to int32 means we implicitly handle any possible overflow
+   std::int32_t rdi = 0;
+   std::int32_t rs1i = rs1;
+   std::int32_t rs2i = rs2;
+   Simulators::RV32I::InstructionExecutor::executeSub(rdi, rs1i, rs2i);
 
+   rd = rdi;
 }
 
 void executeSll(Tint& rd, const Tint& rs1, const Tint& rs2)
@@ -164,7 +170,7 @@ void executeAndi(Tint& rd, const Tint& rs1, const Tint& imm)
 }
 
 // Ternary
-const Tint immediateImmMaxValue = std::pow(3, 12); //TODO: Find out the size of the immediate
+const Tint immediateImmMaxValue = std::pow(3, 11); //TODO: Find out the size of the immediate
 void executeAddi_t(Tint& rd, const Tint& rs1, const Tint& imm)
 {
    if((imm > immediateImmMaxValue) || (imm < -immediateImmMaxValue))
@@ -217,8 +223,15 @@ void executeAndi_t(Tint& rd, const Tint& rs1, const Tint& imm)
 void executeLi_t(Tint& rd, const Tint& imm)
 {
    Tint immi = 0;
-   TernaryLogic::ParseImmediate(24, imm, immi);
+   TernaryLogic::ParseImmediate(21, imm, immi);
    rd = immi;
+}
+
+void executeAipc_t(Tint& rd, const Tint& imm, const std::int32_t& pc)
+{
+   Tint immi = 0;
+   TernaryLogic::ParseImmediate(21, imm, immi);
+   rd = immi + pc;
 }
 
 //======================================
@@ -226,6 +239,7 @@ void executeLi_t(Tint& rd, const Tint& imm)
 //======================================
 
 // Ternary
+const Tint maxBranchOffset = std::pow(3, 15); // TODO: Find max branch range (remember that the exponent is the support number of trits -1, since pow don't consider 3^0)
 void executeBeq_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc)
 {
 
@@ -233,6 +247,13 @@ void executeBeq_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::in
 
 void executeBne_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc)
 {
+   if((offset > maxBranchOffset) || (offset < -maxBranchOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
+
    if(rs1 != rs2)
    {
       pc = pc + offset - 32; // Subtract 32 since simulator automatically adds 32 to PC after each instruction call
@@ -254,9 +275,19 @@ void executeBge_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::in
 //======================================
 
 // Ternary
+const Tint maxJumpOffset = std::pow(3, 15); // TODO: Find max branch range (remember that the exponent is the support number of trits -1, since pow don't consider 3^0)
 void executeJal_t(Tint& rd, std::int32_t offset, std::int32_t& pc)
 {
+   if((offset > maxJumpOffset) || (offset < -maxJumpOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
 
+   Tint offseti = 0;
+   TernaryLogic::ParseImmediate(16, offset, offseti);// TODO: Check offset number of trits
+   rd = pc + 32;
+   pc = pc + offseti - 32; // Subtract 32 since simulator automatically adds 32 to PC after each instruction call
 }
 
 //======================================

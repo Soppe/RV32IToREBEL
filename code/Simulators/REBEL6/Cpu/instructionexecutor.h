@@ -40,83 +40,84 @@ void executeAnd_t(Tint& rd, const Tint& rs1, const Tint& rs2);
 //======================================
 
 // Binary
-void  executeAddi(Tint& rd, const Tint& rs1, const Tint& imm);
-void  executeSlli(Tint& rd, const Tint& rs1, const Tint& imm);
-void  executeSrli(Tint& rd, const Tint& rs1, const Tint& imm);
-void  executeSrai(Tint& rd, const Tint& rs1, const Tint& imm);
-void  executeOri(Tint& rd, const Tint& rs1, const Tint& imm);
-void  executeXori(Tint& rd, const Tint& rs1, const Tint& imm);
-void  executeAndi(Tint& rd, const Tint& rs1, const Tint& imm);
+void executeAddi(Tint& rd, const Tint& rs1, const Tint& imm);
+void executeSlli(Tint& rd, const Tint& rs1, const Tint& imm);
+void executeSrli(Tint& rd, const Tint& rs1, const Tint& imm);
+void executeSrai(Tint& rd, const Tint& rs1, const Tint& imm);
+void executeOri(Tint& rd, const Tint& rs1, const Tint& imm);
+void executeXori(Tint& rd, const Tint& rs1, const Tint& imm);
+void executeAndi(Tint& rd, const Tint& rs1, const Tint& imm);
 
 // Ternary
-void  executeAddi_t(Tint& rd, const Tint& rs1, const Tint& imm);
-void  executeSli_t(Tint& rd, const Tint& rs1, const Tint& imm);
-void  executeSri_t(Tint& rd, const Tint& rs1, const Tint& imm);
-void  executeSlti_t(Tint& rd, const Tint& rs1, const Tint& imm);
-void  executeOri_t(Tint& rd, const Tint& rs1, const Tint& imm);
-void  executeXori_t(Tint& rd, const Tint& rs1, const Tint& imm);
-void  executeAndi_t(Tint& rd, const Tint& rs1, const Tint& imm);
+void executeAddi_t(Tint& rd, const Tint& rs1, const Tint& imm);
+void executeSli_t(Tint& rd, const Tint& rs1, const Tint& imm);
+void executeSri_t(Tint& rd, const Tint& rs1, const Tint& imm);
+void executeSlti_t(Tint& rd, const Tint& rs1, const Tint& imm);
+void executeOri_t(Tint& rd, const Tint& rs1, const Tint& imm);
+void executeXori_t(Tint& rd, const Tint& rs1, const Tint& imm);
+void executeAndi_t(Tint& rd, const Tint& rs1, const Tint& imm);
 
 //======================================
 // Load Immediate instructions
 //======================================
 
 // Ternary
-void  executeLi_t(Tint& rd, const Tint& imm);
+void executeLi_t(Tint& rd, const Tint& imm);
+void executeAipc_t(Tint& rd, const Tint& imm, const std::int32_t& pc);
 
 //======================================
 // Branch instructions
 //======================================
 
 // Ternary
-void  executeBeq_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
-void  executeBne_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
-void  executeBlt_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
-void  executeBge_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
+void executeBeq_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
+void executeBne_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
+void executeBlt_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
+void executeBge_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
 
 //======================================
 // Jump instructions
 //======================================
 
 // Ternary
-void  executeJal_t(Tint& rd, std::int32_t offset, std::int32_t& pc);
+void executeJal_t(Tint& rd, std::int32_t offset, std::int32_t& pc);
 
 //======================================
 // Jump register instructions
 //======================================
 
 // Ternary
-void  executeJalr_t(Tint& rd, std::int32_t target, std::int32_t& pc);
+void executeJalr_t(Tint& rd, std::int32_t target, std::int32_t& pc);
 
 //======================================
 // Load instructions
 //======================================
 
 // Binary
-void  executeLw(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
-void  executeLh(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
-void  executeLb(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
-void  executeLhu(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
-void  executeLbu(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeLw(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeLh(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeLb(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeLhu(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeLbu(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
 
 // Ternary
-void  executeLw_t(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
-void  executeLh_t(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
-void  executeLb_t(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeLw_t(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeLh_t(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeLb_t(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
 
 //======================================
 // Store instructions
 //======================================
 
 // Binary
-void  executeSw(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
-void  executeSh(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
-void  executeSb(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeSw(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeSh(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeSb(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
 
 // Ternary
-void  executeSw_t(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
-void  executeSh_t(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
-void  executeSb_t(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeSw_t(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeSh_t(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeSb_t(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
 
 
 }
