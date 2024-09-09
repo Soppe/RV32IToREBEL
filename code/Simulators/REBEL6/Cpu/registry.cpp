@@ -22,7 +22,7 @@ std::uint32_t countTritFlips(Simulators::REBEL6::Tint oldVal, Simulators::REBEL6
    Simulators::REBEL6::TernaryLogic::TintToTrits(oldVal, oldTrits);
    Simulators::REBEL6::TernaryLogic::TintToTrits(newVal, newTrits);
 
-   int sizeDiff = oldTrits.size() - newTrits.size();
+   std::int32_t sizeDiff = oldTrits.size() - newTrits.size();
 
    // Fill in 0's to make them identically large - there is no need to fill in either one further as whatever remaining trits that may be needed to construct
    // a full tryte/th/tw for either value will be 0 for both and therefor cause no flips.
@@ -46,6 +46,8 @@ std::uint32_t countTritFlips(Simulators::REBEL6::Tint oldVal, Simulators::REBEL6
    {
       tritFlips += TritFlipCostLookup[oldTrits[i] + 1][newTrits[i] + 1];
    }
+
+   // std::cout << "Storing newVal = " << newVal << " over oldVal = " << oldVal << " resulting in " << tritFlips << " trit flips" << std::endl;
 
    return tritFlips;
 }
@@ -93,7 +95,7 @@ void Registry::reset(int size)
    m_numTritFlips = 0;
    m_registry.clear();
 
-   int negativeStart = size / -2;
+   std::int32_t negativeStart = size / -2;
    if(size % 2 == 0)
    {
       ++negativeStart;
@@ -107,10 +109,6 @@ void Registry::reset(int size)
       convertToABI(reg, regABI);
       m_registry[regABI] = 0;
    }
-
-   // Set ra to some irrational and easily detectable value. GCC adds a "jr ra" at the end of the main routine to return to some caller. This value is
-   // used to detect when it happens.
-   m_registry["ra"] = -1000;
 }
 
 void Registry::store(const std::string& regName, Tint regValue)
@@ -205,7 +203,7 @@ void Registry::printRegistry()
    std::string abiName;
    std::cout << "x\t" << "abi\t" << "hex\t\t" << "dec" << std::endl;
    std::cout << "------------------------------------" << std::endl;
-   for(std::int32_t i = 0; i < 32; ++i)
+   for(std::int32_t i = 0; i < 32; ++i) // Just print the registers equivalent to the RV32I registers
    {
       const std::string xName = "x" + std::to_string(i);
       convertToABI(xName, abiName);

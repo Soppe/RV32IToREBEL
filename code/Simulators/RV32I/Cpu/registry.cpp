@@ -10,16 +10,18 @@ namespace
 std::uint32_t countBitFlips(std::int32_t oldVal, std::int32_t newVal)
 {
    std::int32_t num = (oldVal ^ newVal);
-   std::uint32_t flips = 0;
+   std::uint32_t bitFlips = 0;
 
    // Brian Kernighan’s algorithm
    while(num)
    {
       num = num & (num - 1); // Clear the rightmost set bit
-      flips += 1;
+      bitFlips += 1;
    }
 
-   return flips;
+   // std::cout << "Storing newVal = " << newVal << " over oldVal = " << oldVal << " resulting in " << bitFlips << " bit flips" << std::endl;
+
+   return bitFlips;
 }
 
 const std::vector<std::string> RegisterABINames = {"zero", "ra", "sp", "gp", "tp",

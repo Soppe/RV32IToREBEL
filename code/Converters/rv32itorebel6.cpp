@@ -5,11 +5,42 @@
 #include <Expressions/instruction.h>
 #include <Parsers/parseutils.h>
 
+#include <Simulators/REBEL6/ternarylogic.h>
+
 namespace
 {
 const std::string pcrel(const std::string& in) { return "%pcrel(" + in +")"; }
 std::string zeroOffset(const std::string& in) { return "0(" + in + ")"; }
 std::string createOffset(const std::string& offset, const std::string& base) { return offset + "(" + base + ")"; }
+
+std::string convertBinaryOffsetToTernary(const std::string& offsetRs, std::uint8_t multiplierPerStep)
+{
+   std::string offset;
+   std::string rs1;
+
+   ParseUtils::parseRegisterOffset(offsetRs, offset, rs1);
+   if(offset[0] == '%') // Assembly modifiers operates on addresses of a label. No offset to convert
+   {
+      return offsetRs;
+   }
+   else
+   {
+      // TODO: TernaryLogic needs to be somewhere else. Possibly better to sort all classes and namespaces into binary and ternary
+      Simulators::REBEL6::Tint offseti = stoll(offset);
+      offseti = (offseti / 4) * multiplierPerStep;
+      return createOffset(std::to_string(offseti), rs1);
+   }
+}
+
+std::string convertBinaryMemoryOffsetToTernary(const std::string& offsetRs)
+{
+   return convertBinaryOffsetToTernary(offsetRs, TRITS_PER_TRYTE);
+}
+
+std::string convertBinaryInstructionOffsetToTernary(const std::string& offsetRs)
+{
+   return convertBinaryOffsetToTernary(offsetRs, TRITS_PER_INSTRUCTION);
+}
 
 void createInstruction(Expressions::ExpressionList& el, const std::string& name)
 {
@@ -233,11 +264,15 @@ void RV32IToREBEL6::fillExpressionMap()
    // bge rs1, rs2, offset --> bge.t rs1, rs2, offset
    m_instructionMap["bge"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("bge.t")({op[0], op[1], op[2]}, el); };
 
-   // bltu rs1, rs2, offset --> blt.t rs1, rs2, offset
-   m_instructionMap["bltu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("blt.t")({op[0], op[1], op[2]}, el); };
+   // Need to support unsigned binary register type instructions since the value stored in the register through e.g. a li.t
+   // operation using a hex value can be either positive or negative, depending on who reads it.
+   // bltu rs1, rs2, offset --> bltu rs1, rs2, offset
+   // m_instructionMap["bltu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("bltu")({op[0], op[1], op[2]}, el); };
 
-   // bgeu rs1, rs2, offset --> bge.t rs1, rs2, offset
-   m_instructionMap["bgeu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("bge.t")({op[0], op[1], op[2]}, el); };
+   // Need to support unsigned binary register type instructions since the value stored in the register through e.g. a li.t
+   // operation using a hex value can be either positive or negative, depending on who reads it.
+   // bgeu rs1, rs2, offset --> bgeu rs1, rs2, offset
+   //m_instructionMap["bgeu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("bgeu")({op[0], op[1], op[2]}, el); };
 
    // slti rd, rs1, imm --> slti.t rd, rs1, imm
    m_instructionMap["slti"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("slti.t")({op[0], op[1], op[2]}, el); };
@@ -426,7 +461,10 @@ void RV32IToREBEL6::fillExpressionMap()
    m_instructionMap["jal.t"] = [] (const StringList& op, Expressions::ExpressionList& el) { createInstruction(el, "jal.t", op[0], op[1]); };
 
    //jalr.t rd, offset(rs) --> jalr.t rd, offset(rs)
-   m_instructionMap["jalr.t"] = [] (const StringList& op, Expressions::ExpressionList& el) { createInstruction(el, "jalr.t", op[0], op[1]); };
+   m_instructionMap["jalr.t"] = [] (const StringList& op, Expressions::ExpressionList& el)
+   {
+      createInstruction(el, "jalr.t", op[0], convertBinaryInstructionOffsetToTernary(op[1]));
+   };
 
    // Need their own because of memory sizes and overholding binary overflows when storing to memory. Both load and store
    // should have their own both in binary and ternary to ensure overflows are kept consistent in binary and ternary

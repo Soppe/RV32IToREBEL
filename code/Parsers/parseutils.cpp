@@ -84,37 +84,15 @@ bool ParseUtils::parseImmediate(std::uint8_t immediateSizeBits, const std::strin
    try {
       if(in.starts_with("0x") || in.starts_with("0X"))
       {
-         // All hex values are considered positive by the std::sto-functions, so we first have to convert hex values to unsigned values before translating them to signed values.
-         //std::uint32_t unumber = 0;
-         //std::cout << "Before: " << in;
-         //unumber = std::stoul(in, nullptr, 16);
-         //std::cout << "; Between: " << unumber;
          number = static_cast<std::int32_t>(std::stoul(in, nullptr, 16));
-         //std::cout << "; After: " << number << std::endl;
-         /*if(unumber <= INT_MAX)
-         {
-            number = static_cast<std::int32_t>(unumber);
-            retVal = true;
-         }
-         else if(unumber >= INT_MIN)
-         {
-            number = static_cast<std::int32_t>(unumber - INT_MIN) + INT_MIN;
-            retVal = true;
-         }
-         else
-         {
-            std::cerr << __PRETTY_FUNC__ << ": Conversion failed with input = " << in << std::endl;
-         }*/
          retVal = true;
       }
       else
       {
          number = static_cast<std::int32_t>(std::stoul(in));
-         //std::cout << "Before: " << in << "; After = " << number << std::endl;
          retVal = true;
       }
       out = PARSEUTILS_SEXT_IMM(number, (32 - immediateSizeBits));
-      //std::cout << "number = " << number << "; out = " << out << std::endl;
    }
    catch(std::exception& e)
    {

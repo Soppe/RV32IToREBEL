@@ -5,6 +5,7 @@
 #include <logger.h>
 
 #include <Expressions/instruction.h>
+#include <Parsers/parseutils.h>
 #include <Simulators/REBEL6/executableprogram.h>
 #include <Simulators/REBEL6/simulatorutils.h>
 
@@ -15,8 +16,8 @@ namespace
 {
 // Set ra to some irrational and easily detectable value. GCC, and possibly other compilers, adds a "jr ra" at the end of the main routine to return to some caller.
 // This value is used to detect when that happens.
-const short ProgramEndRAValue = -1000;
-const short RegisterCount = 729; // 3^6
+const std::int32_t ProgramEndRAValue = -std::pow(3, 16); // Just some random number negative where only a single trit is set, minimizing the impact it has on tritflips
+const std::int16_t RegisterCount = std::pow(3, 6); // 729
 }
 
 namespace Simulators
@@ -67,13 +68,13 @@ void CPU::executeProgram(ExecutableProgram& program)
          executeLoadImmediate(name, operands[0], operands[1]);
          break;
       case SimulatorUtils::InstructionType::BRANCH:
-         executeBranch(name, operands[0], operands[1], operands[2]);
+         executeBranch(name, isBinary, instructionSize, operands[0], operands[1], operands[2]);
          break;
       case SimulatorUtils::InstructionType::JUMP:
-         executeJump(name, operands[0], operands[1]);
+         executeJump(name, instructionSize, operands[0], operands[1]);
          break;
       case SimulatorUtils::InstructionType::JUMP_REGISTER:
-         executeJumpRegister(name, operands[0], operands[1]);
+         executeJumpRegister(name, instructionSize, operands[0], operands[1]);
          break;
       case SimulatorUtils::InstructionType::LOAD:
          executeLoad(name, isBinary, operands[0], operands[1], program);
@@ -169,13 +170,13 @@ void CPU::executeRegister(const std::string& name, bool isBinary, const std::str
 
 void CPU::executeImmediate(const std::string& name, bool isBinary, const std::string& rd, const std::string& rs1, const std::string& imm)
 {
-   std::int32_t rs1i = m_registers.load(rs1);
+   Tint rs1i = m_registers.load(rs1);
    Tint rdVal = 0;
-   std::int32_t immi = 0;
+   Tint immi = 0;
 
    try
    {
-      immi = stoi(imm);
+      immi = stoll(imm);
    }
    catch(std::exception&)
    {
@@ -245,7 +246,7 @@ void CPU::executeLoadImmediate(const std::string& name, const std::string& rd, c
    m_registers.store(rd, rdVal);
 }
 
-void CPU::executeBranch(const std::string& name, const std::string& rs1, const std::string& rs2, const std::string& offset)
+void CPU::executeBranch(const std::string& name, bool isBinary, std::uint8_t instructionSize, const std::string& rs1, const std::string& rs2, const std::string& offset)
 {
    Tint rs1i = m_registers.load(rs1);
    Tint rs2i = m_registers.load(rs2);
@@ -262,21 +263,33 @@ void CPU::executeBranch(const std::string& name, const std::string& rs1, const s
       abort();
    }
 
-   if(false){}
-   // if     (name == "beq.t")  InstructionExecutor::executeBeq_t(rs1i, rs2i, offi16, pcVal);
-   else if(name == "bne.t")  InstructionExecutor::executeBne_t(rs1i, rs2i, offi16, pcVal);
-   // else if(name == "blt.t")  InstructionExecutor::executeBlt_t(rs1i, rs2i, offi16, pcVal);
-   // else if(name == "bge.t")  InstructionExecutor::executeBge_t(rs1i, rs2i, offi16, pcVal);
+   if(isBinary)
+   {
+      if     (name == "bgeu")  InstructionExecutor::executeBgeu(rs1i, rs2i, offi16, pcVal, instructionSize);
+      else if(name == "bltu")  InstructionExecutor::executeBltu(rs1i, rs2i, offi16, pcVal, instructionSize);
+      else
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Unsupported binary immediate instruction " << name << std::endl;
+         abort();
+      }
+   }
    else
    {
-      std::cerr << __PRETTY_FUNC__ << ": Unsupported branch instruction " << name << std::endl;
-      abort();
+      if     (name == "beq.t")  InstructionExecutor::executeBeq_t(rs1i, rs2i, offi16, pcVal, instructionSize);
+      else if(name == "bne.t")  InstructionExecutor::executeBne_t(rs1i, rs2i, offi16, pcVal, instructionSize);
+      else if(name == "blt.t")  InstructionExecutor::executeBlt_t(rs1i, rs2i, offi16, pcVal, instructionSize);
+      else if(name == "bge.t")  InstructionExecutor::executeBge_t(rs1i, rs2i, offi16, pcVal, instructionSize);
+      else
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Unsupported branch instruction " << name << std::endl;
+         abort();
+      }
    }
 
    m_PC = pcVal;
 }
 
-void CPU::executeJump(const std::string& name, const std::string& rd, const std::string& offset)
+void CPU::executeJump(const std::string& name, std::uint8_t instructionSize, const std::string& rd, const std::string& offset)
 {
 
    std::int32_t offseti = 0;
@@ -293,7 +306,7 @@ void CPU::executeJump(const std::string& name, const std::string& rd, const std:
       abort();
    }
 
-   if(name == "jal.t") InstructionExecutor::executeJal_t(rdVal, offseti, pcVal);
+   if(name == "jal.t") InstructionExecutor::executeJal_t(rdVal, offseti, pcVal, instructionSize);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported jump instruction " << name << std::endl;
@@ -304,16 +317,16 @@ void CPU::executeJump(const std::string& name, const std::string& rd, const std:
    m_registers.store(rd, rdVal);
 }
 
-void CPU::executeJumpRegister(const std::string& name, const std::string& rd, const std::string& target)
+void CPU::executeJumpRegister(const std::string& name, std::uint8_t instructionSize, const std::string& rd, const std::string& target)
 {
-   std::int32_t targeti = 0;
+   Tint rs1 = 0;
+   Tint offset = 0;
    std::int32_t pcVal = m_PC;
    Tint rdVal = 0;
 
-   resolveBinary12ImmOffset(target, targeti);
+   resolveRsOffset(target, offset, rs1);
 
-   if(false){}
-   // if(name == "jalr.t") InstructionExecutor::executeJalr_t(rdVal, targeti, pcVal);
+   if(name == "jalr.t") InstructionExecutor::executeJalr_t(rdVal, offset, rs1, pcVal, instructionSize);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported jump register instruction " << name << std::endl;
@@ -326,10 +339,11 @@ void CPU::executeJumpRegister(const std::string& name, const std::string& rd, co
 
 void CPU::executeLoad(const std::string& name, bool isBinary, const std::string& rd, const std::string& address, ExecutableProgram& program)
 {
-   std::int32_t addressi = 0;
+   Tint rs1 = 0;
+   Tint offset = 0;
    Tint rdVal = 0;
 
-   resolveBinary12ImmOffset(address, addressi);
+   resolveRsOffset(address, offset, rs1);
 
    if(isBinary)
    {
@@ -363,10 +377,11 @@ void CPU::executeLoad(const std::string& name, bool isBinary, const std::string&
 
 void CPU::executeStore(const std::string& name, bool isBinary, const std::string& rs, const std::string& address, ExecutableProgram& program)
 {
-   std::int32_t addressi = 0;
-   std::int32_t rsi = m_registers.load(rs);
+   Tint offset = 0;
+   Tint rs1 = 0;
+   Tint rs2 = m_registers.load(rs);
 
-   resolveBinary12ImmOffset(address, addressi);
+   resolveRsOffset(address, offset, rs1);
 
    if(isBinary)
    {
@@ -423,31 +438,23 @@ void CPU::executeSystem(const std::string& name)
    }
 }
 
-void CPU::resolveBinary12ImmOffset(const std::string& offset, std::int32_t& value)
+void CPU::resolveRsOffset(const std::string& offset, Tint& offseti, Tint& rs1)
 {
-   /*std::string off12;
+   std::string offsetTemp;
    std::string rs;
-   ParseUtils::parseRegisterOffset(offset, off12, rs);
+   ParseUtils::parseRegisterOffset(offset, offsetTemp, rs);
 
-   std::int32_t regVal = m_registers.load(rs);
-   std::int32_t offi12 = 0;
+   rs1 = m_registers.load(rs);
+
    try
    {
-      offi12 = stoi(off12);
+      offseti = stoll(offsetTemp);
    }
    catch(std::exception&)
    {
-      std::cerr << __PRETTY_FUNC__ << ": Failed to parse offset = " + off12 << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Failed to parse offset = " + offset << std::endl;
       abort();
    }
-
-   if((offi12 > 0x7ff) || (offi12 < (int)0xfffff800))
-   {
-      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offi12 << std::endl;
-      abort();
-   }
-
-   value = regVal + offi12;*/
 }
 
 }

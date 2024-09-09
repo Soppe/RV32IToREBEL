@@ -9,14 +9,15 @@
 #include <logger.h>
 
 #include <iostream>
+#include <limits.h>
 
 namespace
 {
 
 // Set ra to some irrational and easily detectable value. GCC, and possibly other compilers, adds a "jr ra" at the end of the main routine to return to some caller.
 // This value is used to detect when that happens.
-const short ProgramEndRAValue = -1000;
-const char RegisterCount = 32;
+const std::int32_t ProgramEndRAValue = INT_MIN; // Set it to a value that triggers minimum amount of bit flips compared to if the value was 0
+const std::int16_t RegisterCount = 32;
 
 }
 
@@ -68,13 +69,13 @@ void CPU::executeProgram(ExecutableProgram& program)
          executeUpper(name, operands[0], operands[1]);
          break;
       case SimulatorUtils::InstructionType::BRANCH:
-         executeBranch(name, operands[0], operands[1], operands[2]);
+         executeBranch(name, instructionSize, operands[0], operands[1], operands[2]);
          break;
       case SimulatorUtils::InstructionType::JUMP:
-         executeJump(name, operands[0], operands[1]);
+         executeJump(name, instructionSize, operands[0], operands[1]);
          break;
       case SimulatorUtils::InstructionType::JUMP_REGISTER:
-         executeJumpRegister(name, operands[0], operands[1]);
+         executeJumpRegister(name, instructionSize, operands[0], operands[1]);
          break;
       case SimulatorUtils::InstructionType::LOAD:
          executeLoad(name, operands[0], operands[1], program);
@@ -208,7 +209,7 @@ void CPU::executeUpper(const std::string& name, const std::string& rd, const std
    m_registers.store(rd, rdVal);
 }
 
-void CPU::executeBranch(const std::string& name, const std::string& rs1, const std::string& rs2, const std::string& offset)
+void CPU::executeBranch(const std::string& name, std::uint8_t instructionSize, const std::string& rs1, const std::string& rs2, const std::string& offset)
 {
    std::int32_t rs1i = m_registers.load(rs1);
    std::int32_t rs2i = m_registers.load(rs2);
@@ -229,12 +230,12 @@ void CPU::executeBranch(const std::string& name, const std::string& rs1, const s
    // Not needing to add the last 0 in the immediate means there's instead space for an extra bit in the MSB, doubling the range of the offset.
    offi12 <<= 1;
 
-   if     (name == "beq")  InstructionExecutor::executeBeq(rs1i, rs2i, offi12, pcVal);
-   else if(name == "bne")  InstructionExecutor::executeBne(rs1i, rs2i, offi12, pcVal);
-   else if(name == "blt")  InstructionExecutor::executeBlt(rs1i, rs2i, offi12, pcVal);
-   else if(name == "bltu") InstructionExecutor::executeBltu(rs1i, rs2i, offi12, pcVal);
-   else if(name == "bge")  InstructionExecutor::executeBge(rs1i, rs2i, offi12, pcVal);
-   else if(name == "bgeu") InstructionExecutor::executeBgeu(rs1i, rs2i, offi12, pcVal);
+   if     (name == "beq")  InstructionExecutor::executeBeq(rs1i, rs2i, offi12, pcVal, instructionSize);
+   else if(name == "bne")  InstructionExecutor::executeBne(rs1i, rs2i, offi12, pcVal, instructionSize);
+   else if(name == "blt")  InstructionExecutor::executeBlt(rs1i, rs2i, offi12, pcVal, instructionSize);
+   else if(name == "bltu") InstructionExecutor::executeBltu(rs1i, rs2i, offi12, pcVal, instructionSize);
+   else if(name == "bge")  InstructionExecutor::executeBge(rs1i, rs2i, offi12, pcVal, instructionSize);
+   else if(name == "bgeu") InstructionExecutor::executeBgeu(rs1i, rs2i, offi12, pcVal, instructionSize);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported branch instruction " << name << std::endl;
@@ -244,7 +245,7 @@ void CPU::executeBranch(const std::string& name, const std::string& rs1, const s
    m_PC = pcVal;
 }
 
-void CPU::executeJump(const std::string& name, const std::string& rd, const std::string& offset)
+void CPU::executeJump(const std::string& name, std::uint8_t instructionSize, const std::string& rd, const std::string& offset)
 {
    std::int32_t offseti = 0;
    std::uint32_t pcVal = m_PC;
@@ -264,7 +265,7 @@ void CPU::executeJump(const std::string& name, const std::string& rd, const std:
    // Not needing to add the last 0 in the immediate means there's instead space for an extra bit in the MSB, doubling the range of the offset.
    offseti <<= 1;
 
-   if(name == "jal") InstructionExecutor::executeJal(rdVal, offseti, pcVal);
+   if(name == "jal") InstructionExecutor::executeJal(rdVal, offseti, pcVal, instructionSize);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported jump instruction " << name << std::endl;
@@ -275,15 +276,16 @@ void CPU::executeJump(const std::string& name, const std::string& rd, const std:
    m_registers.store(rd, rdVal);
 }
 
-void CPU::executeJumpRegister(const std::string& name, const std::string& rd, const std::string& target)
+void CPU::executeJumpRegister(const std::string& name, std::uint8_t instructionSize, const std::string& rd, const std::string& target)
 {
-   std::int32_t targeti = 0;
+   std::int32_t rs1 = 0;
+   std::int32_t offset = 0;
    std::uint32_t pcVal = m_PC;
    std::int32_t rdVal = 0;
 
-   resolve12ImmOffset(target, targeti);
+   resolveRsOffset(target, offset, rs1);
 
-   if(name == "jalr") InstructionExecutor::executeJalr(rdVal, targeti, pcVal);
+   if(name == "jalr") InstructionExecutor::executeJalr(rdVal, offset, rs1, pcVal, instructionSize);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported jump register instruction " << name << std::endl;
@@ -296,16 +298,17 @@ void CPU::executeJumpRegister(const std::string& name, const std::string& rd, co
 
 void CPU::executeLoad(const std::string& name, const std::string& rd, const std::string& address, ExecutableProgram& program)
 {
-   std::int32_t addressi = 0;
+   std::int32_t rs1 = 0;
+   std::int32_t offset = 0;
    std::int32_t rdVal = 0;
 
-   resolve12ImmOffset(address, addressi);
+   resolveRsOffset(address, offset, rs1);
 
-   if     (name == "lw")  InstructionExecutor::executeLw(rdVal, addressi, program);
-   else if(name == "lh")  InstructionExecutor::executeLh(rdVal, addressi, program);
-   else if(name == "lb")  InstructionExecutor::executeLb(rdVal, addressi, program);
-   else if(name == "lhu") InstructionExecutor::executeLhu(rdVal, addressi, program);
-   else if(name == "lbu") InstructionExecutor::executeLbu(rdVal, addressi, program);
+   if     (name == "lw")  InstructionExecutor::executeLw(rdVal, offset, rs1, program);
+   else if(name == "lh")  InstructionExecutor::executeLh(rdVal, offset, rs1, program);
+   else if(name == "lb")  InstructionExecutor::executeLb(rdVal, offset, rs1, program);
+   else if(name == "lhu") InstructionExecutor::executeLhu(rdVal, offset, rs1, program);
+   else if(name == "lbu") InstructionExecutor::executeLbu(rdVal, offset, rs1, program);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported load instruction " << name << std::endl;
@@ -317,14 +320,15 @@ void CPU::executeLoad(const std::string& name, const std::string& rd, const std:
 
 void CPU::executeStore(const std::string& name, const std::string& rs, const std::string& address, ExecutableProgram& program)
 {
-   std::int32_t addressi = 0;
-   std::int32_t rsi = m_registers.load(rs);
+   std::int32_t offset = 0;
+   std::int32_t rs1 = 0;
+   std::int32_t rs2 = m_registers.load(rs);
 
-   resolve12ImmOffset(address, addressi);
+   resolveRsOffset(address, offset, rs1);
 
-   if     (name == "sw") InstructionExecutor::executeSw(rsi, addressi, program);
-   else if(name == "sh") InstructionExecutor::executeSh(rsi, addressi, program);
-   else if(name == "sb") InstructionExecutor::executeSb(rsi, addressi, program);
+   if     (name == "sw") InstructionExecutor::executeSw(rs2, offset, rs1, program);
+   else if(name == "sh") InstructionExecutor::executeSh(rs2, offset, rs1, program);
+   else if(name == "sb") InstructionExecutor::executeSb(rs2, offset, rs1, program);
    else
    {
       std::cerr << __PRETTY_FUNC__ << ": Unsupported store instruction " << name << std::endl;
@@ -361,31 +365,22 @@ void CPU::executeSystem(const std::string& name)
    }
 }
 
-void CPU::resolve12ImmOffset(const std::string& offset, std::int32_t& value)
+void CPU::resolveRsOffset(const std::string& offset, std::int32_t& offseti, std::int32_t& rs1)
 {
-   std::string off12;
+   std::string offsetTemp;
    std::string rs;
-   ParseUtils::parseRegisterOffset(offset, off12, rs);
+   ParseUtils::parseRegisterOffset(offset, offsetTemp, rs);
 
-   std::int32_t regVal = m_registers.load(rs);
-   std::int16_t offi12 = 0;
+   rs1 = m_registers.load(rs);
    try
    {
-      offi12 = stoi(off12);
+      offseti = stoi(offsetTemp);
    }
    catch(std::exception&)
    {
-      std::cerr << __PRETTY_FUNC__ << ": Failed to parse offset = " + off12 << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Failed to parse offset = " + offset << std::endl;
       abort();
    }
-
-   if((offi12 > 0x7ff) || (offi12 < (int)0xfffff800))
-   {
-      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offi12 << std::endl;
-      abort();
-   }
-
-   value = regVal + offi12;
 }
 
 }

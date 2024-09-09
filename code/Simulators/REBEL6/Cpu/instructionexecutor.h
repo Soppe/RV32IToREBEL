@@ -69,25 +69,29 @@ void executeAipc_t(Tint& rd, const Tint& imm, const std::int32_t& pc);
 // Branch instructions
 //======================================
 
+// Binary
+void executeBgeu(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize);
+void executeBltu(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize);
+
 // Ternary
-void executeBeq_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
-void executeBne_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
-void executeBlt_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
-void executeBge_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc);
+void executeBeq_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize);
+void executeBne_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize);
+void executeBlt_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize);
+void executeBge_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize);
 
 //======================================
 // Jump instructions
 //======================================
 
 // Ternary
-void executeJal_t(Tint& rd, std::int32_t offset, std::int32_t& pc);
+void executeJal_t(Tint& rd, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize);
 
 //======================================
 // Jump register instructions
 //======================================
 
 // Ternary
-void executeJalr_t(Tint& rd, std::int32_t target, std::int32_t& pc);
+void executeJalr_t(Tint& rd, const Tint& offset, const Tint& rs1, std::int32_t& pc, std::uint8_t instructionSize);
 
 //======================================
 // Load instructions

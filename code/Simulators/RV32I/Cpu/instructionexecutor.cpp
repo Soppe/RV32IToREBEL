@@ -112,7 +112,7 @@ void executeAnd(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 //======================================
 // Immediate instructions
 //======================================
-const int immediateMaxValue = std::pow(2, 11);
+const std::int32_t immediateMaxValue = std::pow(2, 11);
 void executeAddi(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
    if((imm > immediateMaxValue) || (imm < -immediateMaxValue))
@@ -294,8 +294,8 @@ void executeAuipc(std::int32_t& rd, std::int32_t imm20, std::int32_t pc)
 //======================================
 // Branch instructions
 //======================================
-const int branchMaxValue = std::pow(2, 12);
-void executeBeq(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
+const std::int32_t branchMaxValue = std::pow(2, 12);
+void executeBeq(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize)
 {
    if((offset > branchMaxValue) || (offset < -branchMaxValue))
    {
@@ -305,11 +305,11 @@ void executeBeq(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::ui
 
    if(rs1 == rs2)
    {
-      pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
+      pc = pc + offset - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
    }
 }
 
-void executeBne(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
+void executeBne(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize)
 {
    if((offset > branchMaxValue) || (offset < -branchMaxValue))
    {
@@ -319,11 +319,11 @@ void executeBne(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::ui
 
    if(rs1 != rs2)
    {
-      pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
+      pc = pc + offset - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
    }
 }
 
-void executeBlt(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
+void executeBlt(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize)
 {
    if((offset > branchMaxValue) || (offset < -branchMaxValue))
    {
@@ -333,11 +333,11 @@ void executeBlt(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::ui
 
    if(rs1 < rs2)
    {
-      pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
+      pc = pc + offset - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
    }
 }
 
-void executeBltu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
+void executeBltu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize)
 {
    if((offset > branchMaxValue) || (offset < -branchMaxValue))
    {
@@ -350,11 +350,11 @@ void executeBltu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::u
 
    if(rs1u < rs2u)
    {
-      pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
+      pc = pc + offset - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
    }
 }
 
-void executeBge(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
+void executeBge(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize)
 {
    if((offset > branchMaxValue) || (offset < -branchMaxValue))
    {
@@ -364,11 +364,11 @@ void executeBge(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::ui
 
    if(rs1 >= rs2)
    {
-      pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
+      pc = pc + offset - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
    }
 }
 
-void executeBgeu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc)
+void executeBgeu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize)
 {
    if((offset > branchMaxValue) || (offset < -branchMaxValue))
    {
@@ -380,15 +380,15 @@ void executeBgeu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::u
    std::uint32_t rs2u = rs2;
    if(rs1u >= rs2u)
    {
-      pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
+      pc = pc + offset - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
    }
 }
 
 //======================================
 // Jump instructions
 //======================================
-const int maxJumpOffset = std::pow(2, 20);
-void executeJal(std::int32_t& rd, std::int32_t offset, std::uint32_t& pc)
+const std::int32_t maxJumpOffset = std::pow(2, 20);
+void executeJal(std::int32_t& rd, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize)
 {
    if((offset > maxJumpOffset) || (offset < -maxJumpOffset))
    {
@@ -397,68 +397,123 @@ void executeJal(std::int32_t& rd, std::int32_t offset, std::uint32_t& pc)
    }
 
    ParseUtils::parseImmediate(21, offset, offset);
-   rd = pc + 4;
-   pc = pc + offset - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
+   rd = pc + instructionSize;
+   pc = pc + offset - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
 }
 
 //======================================
 // Jump register instructions
 //======================================
-void executeJalr(std::int32_t& rd, std::int32_t target, std::uint32_t& pc)
+const std::int32_t maxJalrOffset = std::pow(2, 11);
+void executeJalr(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, std::uint32_t& pc, std::uint8_t instructionSize)
 {
-   rd = pc + 4;
-   pc = target - 4; // Subtract 4 since simulator automatically adds 4 to PC after each instruction call
+   if((offset > maxJalrOffset) || (offset < -maxJalrOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
+   rd = pc + instructionSize;
+   pc = offset + rs1 - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
 }
 
 //======================================
 // Load instructions
 //======================================
-void executeLw(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
+const std::int32_t maxLoadOffset = std::pow(2, 11);
+void executeLw(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
 {
-   std::cout << "Wanting to load something from source = " << srcAddress << std::endl;
-   rd = program.loadFromHeap(srcAddress, 4);
+   if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
+   rd = program.loadFromHeap(offset + rs1, 4);
    ParseUtils::parseImmediate(32, rd, rd);
-   std::cout << "Value read from memory is " << rd << std::endl;
 }
 
-void executeLh(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
+void executeLh(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
 {
-   rd = program.loadFromHeap(srcAddress, 2);
+   if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
+   rd = program.loadFromHeap(offset + rs1, 2);
    ParseUtils::parseImmediate(16, rd, rd);
 }
 
-void executeLb(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
+void executeLb(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
 {
-   rd = program.loadFromHeap(srcAddress, 1);
+   if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
+   rd = program.loadFromHeap(offset + rs1, 1);
    ParseUtils::parseImmediate(8, rd, rd);
 }
 
-void executeLhu(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
+void executeLhu(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
 {
-   rd = program.loadFromHeap(srcAddress, 2);
+   if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
+   rd = program.loadFromHeap(offset + rs1, 2);
 }
 
-void executeLbu(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program)
+void executeLbu(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
 {
-   rd = program.loadFromHeap(srcAddress, 1);
+   if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
+   rd = program.loadFromHeap(offset + rs1, 1);
 }
 
 //======================================
 // Store instructions
 //======================================
-void executeSw(std::int32_t rs, std::int32_t targetAddress, Simulators::RV32I::ExecutableProgram& program)
+const std::int32_t maxStoreOffset = std::pow(2, 11);
+void executeSw(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
 {
-   program.storeToHeap(targetAddress, rs, 4);
+   if((offset > maxStoreOffset) || (offset < -maxStoreOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
+   program.storeToHeap(offset + rs1, rs2, 4);
 }
 
-void executeSh(std::int32_t rs, std::int32_t targetAddress, Simulators::RV32I::ExecutableProgram& program)
+void executeSh(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
 {
-   program.storeToHeap(targetAddress, rs, 2);
+   if((offset > maxStoreOffset) || (offset < -maxStoreOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
+   program.storeToHeap(offset + rs1, rs2, 2);
 }
 
-void executeSb(std::int32_t rs, std::int32_t targetAddress, Simulators::RV32I::ExecutableProgram& program)
+void executeSb(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
 {
-   program.storeToHeap(targetAddress, rs, 1);
+   if((offset > maxStoreOffset) || (offset < -maxStoreOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
+   program.storeToHeap(offset + rs1, rs2, 1);
 }
 
 }

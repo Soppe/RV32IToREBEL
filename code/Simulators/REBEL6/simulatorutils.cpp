@@ -28,6 +28,12 @@ const std::unordered_map<std::string, const Simulators::REBEL6::SimulatorUtils::
       {"xori", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
       {"andi", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
 
+      // B - Branch
+      // These are for the cases where the values read from the registers are loaded into the registers using hexadecimal notation,
+      // since hexadecimal values are ambiguous and their signedness depends on the reader
+      {"bgeu", Simulators::REBEL6::SimulatorUtils::InstructionType::BRANCH},
+      {"bltu", Simulators::REBEL6::SimulatorUtils::InstructionType::BRANCH},
+
       // I - Load
       {"lw", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
       {"lh", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},

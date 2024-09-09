@@ -47,38 +47,38 @@ void  executeAuipc(std::int32_t& rd, std::int32_t imm20, std::int32_t pc);
 //======================================
 // Branch instructions
 //======================================
-void  executeBeq(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc);
-void  executeBne(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc);
-void  executeBlt(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc);
-void  executeBltu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc);
-void  executeBge(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc);
-void  executeBgeu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc);
+void  executeBeq(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize);
+void  executeBne(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize);
+void  executeBlt(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize);
+void  executeBltu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize);
+void  executeBge(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize);
+void  executeBgeu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize);
 
 //======================================
 // Jump instructions
 //======================================
-void  executeJal(std::int32_t& rd, std::int32_t offset, std::uint32_t& pc);
+void  executeJal(std::int32_t& rd, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize);
 
 //======================================
 // Jump register instructions
 //======================================
-void  executeJalr(std::int32_t& rd, std::int32_t target, std::uint32_t& pc);
+void  executeJalr(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, std::uint32_t& pc, std::uint8_t instructionSize);
 
 //======================================
 // Load instructions
 //======================================
-void  executeLw(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program);
-void  executeLh(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program);
-void  executeLb(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program);
-void  executeLhu(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program);
-void  executeLbu(std::int32_t& rd, std::int32_t srcAddress, Simulators::RV32I::ExecutableProgram& program);
+void  executeLw(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
+void  executeLh(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
+void  executeLb(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
+void  executeLhu(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
+void  executeLbu(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
 
 //======================================
 // Store instructions
 //======================================
-void  executeSw(std::int32_t rs, std::int32_t targetAddress, Simulators::RV32I::ExecutableProgram& program);
-void  executeSh(std::int32_t rs, std::int32_t targetAddress, Simulators::RV32I::ExecutableProgram& program);
-void  executeSb(std::int32_t rs, std::int32_t targetAddress, Simulators::RV32I::ExecutableProgram& program);
+void  executeSw(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
+void  executeSh(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
+void  executeSb(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
 }
 }
 }

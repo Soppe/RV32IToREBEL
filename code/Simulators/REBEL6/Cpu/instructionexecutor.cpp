@@ -20,22 +20,16 @@ namespace InstructionExecutor
 // Binary
 void executeAdd(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
-   // Converting from Tint to int32 means we implicitly handle any possible overflow
    std::int32_t rdi = 0;
-   std::int32_t rs1i = rs1;
-   std::int32_t rs2i = rs2;
-   Simulators::RV32I::InstructionExecutor::executeAdd(rdi, rs1i, rs2i);
+   Simulators::RV32I::InstructionExecutor::executeAdd(rdi, rs1, rs2);
 
    rd = rdi;
 }
 
 void executeSub(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
-   // Converting from Tint to int32 means we implicitly handle any possible overflow
    std::int32_t rdi = 0;
-   std::int32_t rs1i = rs1;
-   std::int32_t rs2i = rs2;
-   Simulators::RV32I::InstructionExecutor::executeSub(rdi, rs1i, rs2i);
+   Simulators::RV32I::InstructionExecutor::executeSub(rdi, rs1, rs2);
 
    rd = rdi;
 }
@@ -124,11 +118,8 @@ void executeAnd_t(Tint& rd, const Tint& rs1, const Tint& rs2)
 // Binary
 void executeAddi(Tint& rd, const Tint& rs1, const Tint& imm)
 {
-   // Converting from Tint to int32 means we implicitly handle any possible overflow
    std::int32_t rdi = 0;
-   std::int32_t rs1i = rs1;
-   std::int32_t immi = imm;
-   Simulators::RV32I::InstructionExecutor::executeAddi(rdi, rs1i, immi);
+   Simulators::RV32I::InstructionExecutor::executeAddi(rdi, rs1, imm);
 
    rd = rdi;
 }
@@ -160,11 +151,8 @@ void executeXori(Tint& rd, const Tint& rs1, const Tint& imm)
 
 void executeAndi(Tint& rd, const Tint& rs1, const Tint& imm)
 {
-   // Converting from Tint to int32 means we implicitly handle any possible overflow
    std::int32_t rdi = 0;
-   std::int32_t rs1i = rs1;
-   std::int32_t immi = imm;
-   Simulators::RV32I::InstructionExecutor::executeAndi(rdi, rs1i, immi);
+   Simulators::RV32I::InstructionExecutor::executeAndi(rdi, rs1, imm);
 
    rd = rdi;
 }
@@ -238,14 +226,41 @@ void executeAipc_t(Tint& rd, const Tint& imm, const std::int32_t& pc)
 // Branch instructions
 //======================================
 
-// Ternary
-const Tint maxBranchOffset = std::pow(3, 15); // TODO: Find max branch range (remember that the exponent is the support number of trits -1, since pow don't consider 3^0)
-void executeBeq_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc)
+// Binary
+void executeBgeu(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize)
 {
+   std::uint32_t pcui = pc;
 
+   Simulators::RV32I::InstructionExecutor::executeBgeu(rs1, rs2, offset, pcui, instructionSize);
+   pc = pcui;
 }
 
-void executeBne_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc)
+void executeBltu(const Tint& rs1, const Tint& rs2, int32_t offset, int32_t& pc, uint8_t instructionSize)
+{
+   std::uint32_t pcui = pc;
+
+   Simulators::RV32I::InstructionExecutor::executeBltu(rs1, rs2, offset, pcui, instructionSize);
+   pc = pcui;
+}
+
+// Ternary
+const Tint maxBranchOffset = std::pow(3, 15); // TODO: Find max branch range (remember that the exponent is the support number of trits -1, since pow don't consider 3^0)
+void executeBeq_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize)
+{
+   if((offset > maxBranchOffset) || (offset < -maxBranchOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
+
+   if(rs1 == rs2)
+   {
+      pc = pc + offset - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
+   }
+}
+
+void executeBne_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize)
 {
    if((offset > maxBranchOffset) || (offset < -maxBranchOffset))
    {
@@ -256,18 +271,38 @@ void executeBne_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::in
 
    if(rs1 != rs2)
    {
-      pc = pc + offset - 32; // Subtract 32 since simulator automatically adds 32 to PC after each instruction call
+      pc = pc + offset - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
    }
 }
 
-void executeBlt_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc)
+void executeBlt_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize)
 {
+   if((offset > maxBranchOffset) || (offset < -maxBranchOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
 
+
+   if(rs1 < rs2)
+   {
+      pc = pc + offset - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
+   }
 }
 
-void executeBge_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc)
+void executeBge_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize)
 {
+   if((offset > maxBranchOffset) || (offset < -maxBranchOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
 
+
+   if(rs1 >= rs2)
+   {
+      pc = pc + offset - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
+   }
 }
 
 //======================================
@@ -276,7 +311,7 @@ void executeBge_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::in
 
 // Ternary
 const Tint maxJumpOffset = std::pow(3, 15); // TODO: Find max branch range (remember that the exponent is the support number of trits -1, since pow don't consider 3^0)
-void executeJal_t(Tint& rd, std::int32_t offset, std::int32_t& pc)
+void executeJal_t(Tint& rd, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize)
 {
    if((offset > maxJumpOffset) || (offset < -maxJumpOffset))
    {
@@ -286,8 +321,8 @@ void executeJal_t(Tint& rd, std::int32_t offset, std::int32_t& pc)
 
    Tint offseti = 0;
    TernaryLogic::ParseImmediate(16, offset, offseti);// TODO: Check offset number of trits
-   rd = pc + 32;
-   pc = pc + offseti - 32; // Subtract 32 since simulator automatically adds 32 to PC after each instruction call
+   rd = pc + instructionSize;
+   pc = pc + offseti - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
 }
 
 //======================================
@@ -295,9 +330,17 @@ void executeJal_t(Tint& rd, std::int32_t offset, std::int32_t& pc)
 //======================================
 
 // Ternary
-void executeJalr_t(Tint& rd, std::int32_t target, std::int32_t& pc)
+const std::int32_t maxJalrOffset = std::pow(3, 15); // TODO: Find actual amount of trits
+void executeJalr_t(Tint& rd, const Tint& offset, const Tint& rs1, std::int32_t& pc, std::uint8_t instructionSize)
 {
+   if((offset > maxJalrOffset) || (offset < -maxJalrOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
 
+   rd = pc + instructionSize;
+   pc = offset + rs1 - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
 }
 
 //======================================
