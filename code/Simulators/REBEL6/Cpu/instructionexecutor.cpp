@@ -158,7 +158,7 @@ void executeAndi(Tint& rd, const Tint& rs1, const Tint& imm)
 }
 
 // Ternary
-const Tint immediateImmMaxValue = std::pow(3, 11); //TODO: Find out the size of the immediate
+const Tint immediateImmMaxValue = std::pow(3, 12) / 2; // TODO: Find out the size of the immediate
 void executeAddi_t(Tint& rd, const Tint& rs1, const Tint& imm)
 {
    if((imm > immediateImmMaxValue) || (imm < -immediateImmMaxValue))
@@ -244,7 +244,7 @@ void executeBltu(const Tint& rs1, const Tint& rs2, int32_t offset, int32_t& pc, 
 }
 
 // Ternary
-const Tint maxBranchOffset = std::pow(3, 15); // TODO: Find max branch range (remember that the exponent is the support number of trits -1, since pow don't consider 3^0)
+const Tint maxBranchOffset = std::pow(3, 16) / 2; // TODO: Find max branch range (remember that the exponent is the support number of trits -1, since pow don't consider 3^0)
 void executeBeq_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize)
 {
    if((offset > maxBranchOffset) || (offset < -maxBranchOffset))
@@ -310,7 +310,7 @@ void executeBge_t(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::in
 //======================================
 
 // Ternary
-const Tint maxJumpOffset = std::pow(3, 15); // TODO: Find max branch range (remember that the exponent is the support number of trits -1, since pow don't consider 3^0)
+const Tint maxJumpOffset = std::pow(3, 16) / 2; // TODO: Find max branch range (remember that the exponent is the support number of trits -1, since pow don't consider 3^0)
 void executeJal_t(Tint& rd, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize)
 {
    if((offset > maxJumpOffset) || (offset < -maxJumpOffset))
@@ -330,7 +330,7 @@ void executeJal_t(Tint& rd, std::int32_t offset, std::int32_t& pc, std::uint8_t 
 //======================================
 
 // Ternary
-const std::int32_t maxJalrOffset = std::pow(3, 15); // TODO: Find actual amount of trits
+const std::int32_t maxJalrOffset = std::pow(3, 16) / 2; // TODO: Find actual amount of trits
 void executeJalr_t(Tint& rd, const Tint& offset, const Tint& rs1, std::int32_t& pc, std::uint8_t instructionSize)
 {
    if((offset > maxJalrOffset) || (offset < -maxJalrOffset))

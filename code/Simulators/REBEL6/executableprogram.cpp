@@ -8,7 +8,7 @@
 
 namespace
 {
-const std::uint32_t PROGRAM_SIZE_TRITS = 1000000 * TRITS_PER_TRYTE;
+const std::uint32_t PROGRAM_SIZE_TRITS = std::pow(3, 14); // About 4.8m trits
 }
 
 namespace Simulators

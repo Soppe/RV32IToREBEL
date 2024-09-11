@@ -6,6 +6,8 @@
 #include <logger.h>
 
 #include <iostream>
+#include <math.h>
+#include <sstream>
 
 namespace
 {
@@ -73,6 +75,13 @@ void handleStore(const Converters::RV32IPseudoToRV32IBase* conv, const std::stri
       conv->at("auipc")({op[2], pcrel_hi(op[1])}, el);
       createInstruction(el, name, op[0], createOffset(pcrel_lo(tempLabel), op[2]));
    }
+}
+
+std::string intToHexString(std::int32_t in)
+{
+   std::stringstream str;
+   str << "0x" << std::hex << in;
+   return str.str();
 }
 }
 
@@ -264,34 +273,29 @@ void RV32IPseudoToRV32IBase::fillExpressionMap()
               std::int32_t val;
               if(ParseUtils::parseImmediate(32, op[1], val))
               {
-                 // Compensate for signedness for botVal, and mask away any of the 12 MSB from topVal as it makes lui grumpy
-                 std::int32_t topVal = ((val >> 12) + ((val & 0x800) ? 1 : 0)) & 0xfffff;
-                 std::int32_t botVal;
-                 ParseUtils::parseImmediate(12, val, botVal);
+                 static std::int16_t maxAddiVal = std::pow(2, 11);
 
-                 at("lui")({op[0], std::to_string(topVal)}, el);
-                 at("addi")({op[0], op[0], std::to_string(botVal)}, el);
+                 // Only use lui if the value can't be represented with a single addi call
+                 if((val >= maxAddiVal) || (val < -maxAddiVal))
+                 {
+                    std::int32_t botVal;
+                    ParseUtils::parseImmediate(12, val, botVal);
+                   // Compensate for signedness for botVal, and mask away any of the 12 MSB from topVal as it makes lui grumpy
+                    std::int32_t topVal = ((val >> 12) + ((val & 0x800) ? 1 : 0)) & 0xfffff;
+                    at("lui")({op[0], intToHexString(topVal)}, el);
+                    at("addi")({op[0], op[0], intToHexString(botVal)}, el);
+                 }
+                 else
+                 {
+                    at("addi")({op[0], "x0", op[1]}, el);
+                 }
+
               }
               else
               {
                  std::cerr << __PRETTY_FUNC__ << ": Unable to parse immediate " << op[1] << " for li instruction" << std::endl;
                  abort();
               }
-
-              /*try
-              {
-                 std::int32_t val = stoi(op[1]);
-                 std::int32_t topVal = (val & 0xfffff000);
-                 std::int32_t botVal = (val & 0xfff);
-
-                 at("lui")({op[0], std::to_string(topVal)}, el);
-                 at("addi")({op[0], op[0], std::to_string(botVal)}, el);
-              }
-              catch(std::exception&)
-              {
-                 at("lui")({op[0], hi(op[1])}, el);
-                 at("addi")({op[0], op[0], lo(op[1])}, el);
-              }*/
            };
 
    // mv rd, rs --> addi rd, rs, 0
