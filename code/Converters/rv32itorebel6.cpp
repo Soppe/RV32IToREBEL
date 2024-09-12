@@ -216,7 +216,6 @@ void RV32IToREBEL6::fillExpressionMap()
                               else               at("jal.t")({op[0], op[1]}, el);
                            };
 
-   // TODO: CONVERT TO TERNARY jalr.t?
    // jalr rs --> jalr x1, 0(rs)
    // jalr rd, rs, offset --> jalr rd, offset(rs) // This is an older format, e.g. from version v2.2
    // jalr rd, offset(rs) --> jalr.t rd, offset(rs)
@@ -228,22 +227,27 @@ void RV32IToREBEL6::fillExpressionMap()
                            };
 
 
+   // Need to keep their binary versions to overhold binary limits (e.g. the max value of binary byte is smaller than the max value of ternary trit) when loading from memory.
    // l{b|h|w} rd, offset(rs) --> l{b|h|w} rd, offset(rs)
    // l{b|h|w} rd, symbol -->
    //    aipc rd, %pcrel(symbol)
    //    l{b|h|w} rd, 0(rd)
+
+   // TODO: What if we simply do e.g. "l{t,h,w}.t rd, imm21"? Where imm21 is either an actual immediate or a label? Should work since we load a signed value in both l{b,h,w} and l{t,h,w}.t
+   // Only problem is what if the value loaded from memory is larger than what can be represented in a byte/halfword/word? Can it happen? Is it relevant? Do we care?
    m_instructionMap["lb"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lb", op, el); };
    m_instructionMap["lh"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lh", op, el); };
    m_instructionMap["lw"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lw", op, el); };
 
-   // Although values are stored in balanced ternary, we need to know if the loaded value is signed or not
-   // to be able know what the max and min values are that can be loaded. Not sure if actually needed though...
+   // Need to support unsigned binary memory type instructions since the value stored in the memory through e.g. li.t + sw
+   // operation using a hex value can be either positive or negative, depending on who reads it.
    // lbu rd, offset(rs) --> lbu rd, offset(rs)
-   m_instructionMap["lbu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lbu", op, el); };
+   //m_instructionMap["lbu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lbu", op, el); };
 
    // lhu rd, offset(rs) --> lhu rd, offset(rs)
-   m_instructionMap["lhu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lh", op, el); };
+   //m_instructionMap["lhu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lh", op, el); };
 
+   // Need to keep their binary versions to overhold binary limits (e.g. the max value of binary byte is smaller than the max value of ternary trit) when storing to memory.
    // s{b|h|w} rd, offset(rs) --> s{b|h|w} rd, offset(rs)
    // s{b|h|w} rd, symbol, rt -->
    //    aipc rt, %pcrel(symbol)
@@ -277,8 +281,10 @@ void RV32IToREBEL6::fillExpressionMap()
    // slti rd, rs1, imm --> slti.t rd, rs1, imm
    m_instructionMap["slti"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("slti.t")({op[0], op[1], op[2]}, el); };
 
-   // sltiu rd, rs1, imm --> slti.t rd, rs1, imm
-   m_instructionMap["sltiu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("slti.t")({op[0], op[1], op[2]}, el); };
+   // Need to support unsigned binary register type instructions since the value stored in the register through e.g. a li.t
+   // operation using a hex value can be either positive or negative, depending on who reads it.
+   // sltiu rd, rs1, imm --> sltiu rd, rs1, imm
+   // m_instructionMap["sltiu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("sltiu")({op[0], op[1], op[2]}, el); };
 
    // TODO: Pretty sure the commented expressions must be kept as they are in binary
    // xori rd, rs1, imm --> xori rd, rs1, imm
@@ -305,8 +311,10 @@ void RV32IToREBEL6::fillExpressionMap()
    // slt rd, rs1, rs2 --> slt.t rd, rs1, rs2
    m_instructionMap["slt"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("slt.t")({op[0], op[1], op[2]}, el); };
 
-   // sltu rd, rs1, rs2 --> slt.t rd, rs1, rs2
-   m_instructionMap["sltu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("slt.t")({op[0], op[1], op[2]}, el); };
+   // Need to support unsigned binary register type instructions since the value stored in the register through e.g. a li.t
+   // operation using a hex value can be either positive or negative, depending on who reads it.
+   // sltu rd, rs1, rs2 --> sltu rd, rs1, rs2
+   // m_instructionMap["sltu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("sltu")({op[0], op[1], op[2]}, el); };
 
    // TODO: Pretty sure the commented expressions must be kept as they are in binary
    // xor rd, rs1, rs2 --> xor rd, rs1, rs2
@@ -427,7 +435,7 @@ void RV32IToREBEL6::fillExpressionMap()
    m_instructionMap["call"] = [this] (const StringList& op, Expressions::ExpressionList& el)
                            {
                               at("aipc.t")({"x1", pcrel(op[0])}, el);
-                              at("jalr")({"x1", zeroOffset("x1")}, el); // TODO: Which jalr to use here?
+                              at("jalr.t")({"x1", zeroOffset("x1")}, el);
                            };
 
    // tail offset -->
@@ -436,7 +444,7 @@ void RV32IToREBEL6::fillExpressionMap()
    /*m_instructionMap["tail"] = [this] (const StringList& op, Expressions::ExpressionList& el)
                               {
                                  at("aipc.t")({"x6", pcrel(op[0])}, el);
-                                 at("jalr")({"x0", zeroOffset("x6")}, el); // TODO: Which jalr to use here?
+                                 at("jalr.t")({"x0", zeroOffset("x6")}, el);
                               };*/
 
    // REBEL-6 INSTRUCTIONS

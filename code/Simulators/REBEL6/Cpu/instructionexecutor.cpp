@@ -36,7 +36,10 @@ void executeSub(Tint& rd, const Tint& rs1, const Tint& rs2)
 
 void executeSll(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
+   std::int32_t rdi = 0;
+   Simulators::RV32I::InstructionExecutor::executeSll(rdi, rs1, rs2);
 
+   rd = rdi;
 }
 
 void executeSrl(Tint& rd, const Tint& rs1, const Tint& rs2)
@@ -49,9 +52,22 @@ void executeSra(Tint& rd, const Tint& rs1, const Tint& rs2)
 
 }
 
+void executeSltu(Tint& rd, const Tint& rs1, const Tint& rs2)
+{
+   std::int32_t rdi = 0;
+
+   Simulators::RV32I::InstructionExecutor::executeSltu(rdi, rs1, rs2);
+
+   rd = rdi;
+}
+
 void executeOr(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
+   std::int32_t rdi = 0;
 
+   Simulators::RV32I::InstructionExecutor::executeOr(rdi, rs1, rs2);
+
+   rd = rdi;
 }
 
 void executeXor(Tint& rd, const Tint& rs1, const Tint& rs2)
@@ -61,12 +77,9 @@ void executeXor(Tint& rd, const Tint& rs1, const Tint& rs2)
 
 void executeAnd(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
-   // Converting from Tint to int32 means we implicitly handle any possible overflow
    std::int32_t rdi = 0;
-   std::int32_t rs1i = rs1;
-   std::int32_t rs2i = rs2;
 
-   Simulators::RV32I::InstructionExecutor::executeAnd(rdi, rs1i, rs2i);
+   Simulators::RV32I::InstructionExecutor::executeAnd(rdi, rs1, rs2);
 
    rd = rdi;
 }
@@ -93,7 +106,10 @@ void executeSr_t(Tint& rd, const Tint& rs1, const Tint& rs2)
 
 void executeSlt_t(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
-
+   if(rs1 < rs2)
+   {
+      rd = 1;
+   }
 }
 
 void executeOr_t(Tint& rd, const Tint& rs1, const Tint& rs2)
@@ -126,7 +142,10 @@ void executeAddi(Tint& rd, const Tint& rs1, const Tint& imm)
 
 void executeSlli(Tint& rd, const Tint& rs1, const Tint& imm)
 {
+   std::int32_t rdi = 0;
+   Simulators::RV32I::InstructionExecutor::executeSlli(rdi, rs1, imm);
 
+   rd = rdi;
 }
 
 void executeSrli(Tint& rd, const Tint& rs1, const Tint& imm)
@@ -139,9 +158,20 @@ void executeSrai(Tint& rd, const Tint& rs1, const Tint& imm)
 
 }
 
+void executeSltiu(Tint& rd, const Tint& rs1, const Tint& imm)
+{
+   std::int32_t rdi = 0;
+   Simulators::RV32I::InstructionExecutor::executeSltiu(rdi, rs1, imm);
+
+   rd = rdi;
+}
+
 void executeOri(Tint& rd, const Tint& rs1, const Tint& imm)
 {
+   std::int32_t rdi = 0;
+   Simulators::RV32I::InstructionExecutor::executeOri(rdi, rs1, imm);
 
+   rd = rdi;
 }
 
 void executeXori(Tint& rd, const Tint& rs1, const Tint& imm)
@@ -158,10 +188,10 @@ void executeAndi(Tint& rd, const Tint& rs1, const Tint& imm)
 }
 
 // Ternary
-const Tint immediateImmMaxValue = std::pow(3, 12) / 2; // TODO: Find out the size of the immediate
+const Tint maxImmediateValue = std::pow(3, 12) / 2; // TODO: Find out the size of the immediate
 void executeAddi_t(Tint& rd, const Tint& rs1, const Tint& imm)
 {
-   if((imm > immediateImmMaxValue) || (imm < -immediateImmMaxValue))
+   if((imm > maxImmediateValue) || (imm < -maxImmediateValue))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
@@ -185,7 +215,20 @@ void executeSri_t(Tint& rd, const Tint& rs1, const Tint& imm)
 
 void executeSlti_t(Tint& rd, const Tint& rs1, const Tint& imm)
 {
+   if((imm >= maxImmediateValue) || (imm < -maxImmediateValue))
+   {
+      std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
+      abort();
+   }
 
+   Tint imm12;
+   TernaryLogic::ParseImmediate(12, imm, imm12);
+
+
+   if(rs1 < imm12)
+   {
+      rd = 1;
+   }
 }
 
 void executeOri_t(Tint& rd, const Tint& rs1, const Tint& imm)

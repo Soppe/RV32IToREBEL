@@ -14,8 +14,8 @@ using Trits = std::deque<Trit>;
 using Tint = std::int64_t; // (-3^21, 3^21)
 
 #define TRITS_PER_TRYTE 6
-#define TRITS_PER_THALFWORD 11
-#define TRITS_PER_TWORD 21
+#define TRITS_PER_THALFWORD 12
+#define TRITS_PER_TWORD 24
 #define TRITS_PER_INSTRUCTION 32
 
 class TernaryLogic

@@ -112,10 +112,10 @@ void executeAnd(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
 //======================================
 // Immediate instructions
 //======================================
-const std::int32_t immediateMaxValue = std::pow(2, 11);
+const std::int32_t maxImmediateValue = std::pow(2, 11);
 void executeAddi(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
-   if((imm >= immediateMaxValue) || (imm < -immediateMaxValue))
+   if((imm >= maxImmediateValue) || (imm < -maxImmediateValue))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
@@ -183,7 +183,7 @@ void executeSrai(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 
 void executeSlti(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
-   if((imm >= immediateMaxValue) || (imm < -immediateMaxValue))
+   if((imm >= maxImmediateValue) || (imm < -maxImmediateValue))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
@@ -202,7 +202,7 @@ void executeSlti(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 // The standard says the imm value is to first be sign-extended, then converted to an unsigned value. Ergo, the limits for sltiu are the same as for slti.
 void executeSltiu(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
-   if((imm >= immediateMaxValue) || (imm < -immediateMaxValue))
+   if((imm >= maxImmediateValue) || (imm < -maxImmediateValue))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
@@ -222,7 +222,7 @@ void executeSltiu(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 
 void executeOri(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
-   if((imm >= immediateMaxValue) || (imm < -immediateMaxValue))
+   if((imm >= maxImmediateValue) || (imm < -maxImmediateValue))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
@@ -236,7 +236,7 @@ void executeOri(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 
 void executeXori(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
-   if((imm >= immediateMaxValue) || (imm < -immediateMaxValue))
+   if((imm >= maxImmediateValue) || (imm < -maxImmediateValue))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
@@ -250,7 +250,7 @@ void executeXori(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 
 void executeAndi(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
 {
-   if((imm >= immediateMaxValue) || (imm < -immediateMaxValue))
+   if((imm >= maxImmediateValue) || (imm < -maxImmediateValue))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
@@ -294,10 +294,10 @@ void executeAuipc(std::int32_t& rd, std::int32_t imm20, std::int32_t pc)
 //======================================
 // Branch instructions
 //======================================
-const std::int32_t branchMaxValue = std::pow(2, 12);
+const std::int32_t maxBranchOffset = std::pow(2, 12);
 void executeBeq(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize)
 {
-   if((offset >= branchMaxValue) || (offset < -branchMaxValue))
+   if((offset >= maxBranchOffset) || (offset < -maxBranchOffset))
    {
       std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
       abort();
@@ -311,7 +311,7 @@ void executeBeq(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::ui
 
 void executeBne(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize)
 {
-   if((offset >= branchMaxValue) || (offset < -branchMaxValue))
+   if((offset >= maxBranchOffset) || (offset < -maxBranchOffset))
    {
       std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
       abort();
@@ -325,7 +325,7 @@ void executeBne(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::ui
 
 void executeBlt(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize)
 {
-   if((offset >= branchMaxValue) || (offset < -branchMaxValue))
+   if((offset >= maxBranchOffset) || (offset < -maxBranchOffset))
    {
       std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
       abort();
@@ -339,7 +339,7 @@ void executeBlt(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::ui
 
 void executeBltu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize)
 {
-   if((offset >= branchMaxValue) || (offset < -branchMaxValue))
+   if((offset >= maxBranchOffset) || (offset < -maxBranchOffset))
    {
       std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
       abort();
@@ -356,7 +356,7 @@ void executeBltu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::u
 
 void executeBge(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize)
 {
-   if((offset >= branchMaxValue) || (offset < -branchMaxValue))
+   if((offset >= maxBranchOffset) || (offset < -maxBranchOffset))
    {
       std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
       abort();
@@ -370,7 +370,7 @@ void executeBge(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::ui
 
 void executeBgeu(std::int32_t rs1, std::int32_t rs2, std::int32_t offset, std::uint32_t& pc, std::uint8_t instructionSize)
 {
-   if((offset >= branchMaxValue) || (offset < -branchMaxValue))
+   if((offset >= maxBranchOffset) || (offset < -maxBranchOffset))
    {
       std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
       abort();

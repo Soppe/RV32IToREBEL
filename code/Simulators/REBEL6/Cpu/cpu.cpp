@@ -133,12 +133,12 @@ void CPU::executeRegister(const std::string& name, bool isBinary, const std::str
    {
       if     (name == "add")  InstructionExecutor::executeAdd(rdVal, rs1i, rs2i);
       else if(name == "sub")  InstructionExecutor::executeSub(rdVal, rs1i, rs2i);
-      // else if(name == "sll")  InstructionExecutor::executeSll(rdVal, rs1i, rs2i);
+      else if(name == "sll")  InstructionExecutor::executeSll(rdVal, rs1i, rs2i);
       // else if(name == "srl")  InstructionExecutor::executeSrl(rdVal, rs1i, rs2i);
       // else if(name == "sra")  InstructionExecutor::executeSra(rdVal, rs1i, rs2i);
-      // //else if(name == "slt")  executeSlt(rdVal, rs1i, rs2i);
-      // //else if(name == "sltu") executeSltu(rdVal, rs1i, rs2i);
-      // else if(name == "or")   InstructionExecutor::executeOr(rdVal, rs1i, rs2i);
+      // //else if(name == "slt")  InstructionExecutor::executeSlt(rdVal, rs1i, rs2i);
+      else if(name == "sltu") InstructionExecutor::executeSltu(rdVal, rs1i, rs2i);
+      else if(name == "or")   InstructionExecutor::executeOr(rdVal, rs1i, rs2i);
       // else if(name == "xor")  InstructionExecutor::executeXor(rdVal, rs1i, rs2i);
       else if(name == "and")  InstructionExecutor::executeAnd(rdVal, rs1i, rs2i);
       else
@@ -154,7 +154,7 @@ void CPU::executeRegister(const std::string& name, bool isBinary, const std::str
       // else if(name == "sub.t")  InstructionExecutor::executeSub_t(rdVal, rs1i, rs2i);
       // else if(name == "sl.t")  InstructionExecutor::executeSl_t(rdVal, rs1i, rs2i);
       // else if(name == "sr.t")  InstructionExecutor::executeSr_t(rdVal, rs1i, rs2i);
-      // else if(name == "slt.t")  InstructionExecutor::executeSlt_t(rdVal, rs1i, rs2i);
+      else if(name == "slt.t")  InstructionExecutor::executeSlt_t(rdVal, rs1i, rs2i);
       // else if(name == "or.t")   InstructionExecutor::executeOr_t(rdVal, rs1i, rs2i);
       // else if(name == "xor.t")  InstructionExecutor::executeXor_t(rdVal, rs1i, rs2i);
       // else if(name == "and.t")  InstructionExecutor::executeAnd_t(rdVal, rs1i, rs2i);
@@ -187,12 +187,12 @@ void CPU::executeImmediate(const std::string& name, bool isBinary, const std::st
    if(isBinary)
    {
       if     (name == "addi")  InstructionExecutor::executeAddi(rdVal, rs1i, immi);
-      // else if(name == "slli")  InstructionExecutor::executeSlli(rdVal, rs1i, immi);
+      else if(name == "slli")  InstructionExecutor::executeSlli(rdVal, rs1i, immi);
       // else if(name == "srli")  InstructionExecutor::executeSrli(rdVal, rs1i, immi);
       // else if(name == "srai")  InstructionExecutor::executeSrai(rdVal, rs1i, immi);
-      // //else if(name == "slti")  executeSlti(rdVal, rs1i, immi);
-      // //else if(name == "sltiu") executeSltiu(rdVal,rs1i, immi);
-      // else if(name == "ori")   InstructionExecutor::executeOri(rdVal, rs1i, immi);
+      // //else if(name == "slti")  InstructionExecutor::executeSlti(rdVal, rs1i, immi);
+      else if(name == "sltiu") InstructionExecutor::executeSltiu(rdVal,rs1i, immi);
+      else if(name == "ori")   InstructionExecutor::executeOri(rdVal, rs1i, immi);
       // else if(name == "xori")  InstructionExecutor::executeXori(rdVal, rs1i, immi);
       else if(name == "andi")  InstructionExecutor::executeAndi(rdVal, rs1i, immi);
       else
@@ -206,7 +206,7 @@ void CPU::executeImmediate(const std::string& name, bool isBinary, const std::st
       if     (name == "addi.t")  InstructionExecutor::executeAddi_t(rdVal, rs1i, immi);
       // else if(name == "sli.t")  InstructionExecutor::executeSli_t(rdVal, rs1i, immi);
       // else if(name == "sri.t")  InstructionExecutor::executeSri_t(rdVal, rs1i, immi);
-      // else if(name == "slti.t")  InstructionExecutor::executeSlti_t(rdVal, rs1i, immi);
+      else if(name == "slti.t")  InstructionExecutor::executeSlti_t(rdVal, rs1i, immi);
       // else if(name == "ori.t")   InstructionExecutor::executeOri_t(rdVal, rs1i, immi);
       // else if(name == "xori.t")  InstructionExecutor::executeXori_t(rdVal, rs1i, immi);
       // else if(name == "andi.t")  InstructionExecutor::executeAndi_t(rdVal, rs1i, immi);

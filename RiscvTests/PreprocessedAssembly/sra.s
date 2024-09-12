@@ -155,6 +155,54 @@
 
 
 
+  # Verify that shifts only use bottom six(rv64) or five(rv32) bits
+
+  test_17:
+ li gp, 17
+ li x1, 0x81818181
+ li x2, 0xffffffc0
+ sra x14, x1, x2
+ li x7, 0x81818181
+ bne x14, x7, fail
+
+
+  test_18:
+ li gp, 18
+ li x1, 0x81818181
+ li x2, 0xffffffc1
+ sra x14, x1, x2
+ li x7, 0xc0c0c0c0
+ bne x14, x7, fail
+
+
+  test_19:
+ li gp, 19
+ li x1, 0x81818181
+ li x2, 0xffffffc7
+ sra x14, x1, x2
+ li x7, 0xff030303
+ bne x14, x7, fail
+
+
+  test_20:
+ li gp, 20
+ li x1, 0x81818181
+ li x2, 0xffffffce
+ sra x14, x1, x2
+ li x7, 0xfffe0606
+ bne x14, x7, fail
+
+
+  test_21:
+ li gp, 21
+ li x1, 0x81818181
+ li x2, 0xffffffff
+ sra x14, x1, x2
+ li x7, 0xffffffff
+ bne x14, x7, fail
+ 
+ 
+ 
   #-------------------------------------------------------------
   # Source/Destination tests
   #-------------------------------------------------------------
@@ -456,53 +504,6 @@
  li x7, 0
  bne x0, x7, fail
 
-
-
-  # Verify that shifts only use bottom six(rv64) or five(rv32) bits
-
-  test_17:
- li gp, 17
- li x1, 0x81818181
- li x2, 0xffffffc0
- sra x14, x1, x2
- li x7, 0x81818181
- bne x14, x7, fail
-
-
-  test_18:
- li gp, 18
- li x1, 0x81818181
- li x2, 0xffffffc1
- sra x14, x1, x2
- li x7, 0xc0c0c0c0
- bne x14, x7, fail
-
-
-  test_19:
- li gp, 19
- li x1, 0x81818181
- li x2, 0xffffffc7
- sra x14, x1, x2
- li x7, 0xff030303
- bne x14, x7, fail
-
-
-  test_20:
- li gp, 20
- li x1, 0x81818181
- li x2, 0xffffffce
- sra x14, x1, x2
- li x7, 0xfffe0606
- bne x14, x7, fail
-
-
-  test_21:
- li gp, 21
- li x1, 0x81818181
- li x2, 0xffffffff
- sra x14, x1, x2
- li x7, 0xffffffff
- bne x14, x7, fail
 
 
 
