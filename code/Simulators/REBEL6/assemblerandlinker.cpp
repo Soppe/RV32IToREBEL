@@ -282,11 +282,12 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // This expects zero or more expressions, and emits a 16 bit number for each.
 
       // This directive is a synonym for ‘.short’; depending on the target architecture, it may also be a synonym for ‘.word’.
-      tryteSizePerElement = 2;
+      tryteSizePerElement = 1;
       for(const std::string& str: parameters)
       {
          ParseUtils::parseImmediate(16, str, value);
-         values.push_back(value);
+         values.push_back(value        & 0xFF);
+         values.push_back((value >> 8) & 0xFF);
       }
    }
    else if(name == ".int") // 32 bits according to ABI
@@ -379,11 +380,14 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
 
       // The size of the number emitted, and its byte order, depend on what target computer the assembly is for.
 
-      tryteSizePerElement = 4;
+      tryteSizePerElement = 1;
       for(const std::string& str: parameters)
       {
          ParseUtils::parseImmediate(32, str, value);
-         values.push_back(value);
+         values.push_back(value         & 0xFF);
+         values.push_back((value >> 8)  & 0xFF);
+         values.push_back((value >> 16) & 0xFF);
+         values.push_back((value >> 24) & 0xFF);
       }
    }
    else if(name == ".zero") // 8 bits

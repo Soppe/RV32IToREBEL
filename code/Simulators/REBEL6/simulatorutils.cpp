@@ -31,15 +31,13 @@ const std::unordered_map<std::string, const Simulators::REBEL6::SimulatorUtils::
       {"andi", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
 
       // B - Branch
-      // These are for the cases where the values read from the registers are loaded into the registers using hexadecimal notation,
-      // since hexadecimal values are ambiguous and their signedness depends on the reader
       {"bgeu", Simulators::REBEL6::SimulatorUtils::InstructionType::BRANCH},
       {"bltu", Simulators::REBEL6::SimulatorUtils::InstructionType::BRANCH},
 
       // I - Load
-      {"lw", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
-      {"lh", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
       {"lb", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
+      {"lh", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
+      {"lw", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
       {"lhu", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
       {"lbu", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
 
@@ -92,12 +90,12 @@ const std::unordered_map<std::string, const Simulators::REBEL6::SimulatorUtils::
       // I - Load
       {"lw.t", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
       {"lh.t", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
-      {"lb.t", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
+      {"lt.t", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
 
       // S - Store
       {"sw.t", Simulators::REBEL6::SimulatorUtils::InstructionType::STORE},
       {"sh.t", Simulators::REBEL6::SimulatorUtils::InstructionType::STORE},
-      {"sb.t", Simulators::REBEL6::SimulatorUtils::InstructionType::STORE},
+      {"st.t", Simulators::REBEL6::SimulatorUtils::InstructionType::STORE},
 
       // SYSTEM
       {"ecall.t", Simulators::REBEL6::SimulatorUtils::InstructionType::SYSTEM},

@@ -1,10 +1,28 @@
 #include "instructionexecutor.h"
 
+#include <Simulators/REBEL6/executableprogram.h>
 #include <Simulators/RV32I/Cpu/instructionexecutor.h>
 #include <logger.h>
 
 #include <math.h>
 #include <iostream>
+
+namespace
+{
+std::int32_t TrytesToInt(const Trytes& trytes)
+{
+   std::int32_t retVal = 0;
+
+   for(std::uint8_t i = 0; i < trytes.size(); ++i)
+   {
+      retVal = retVal | ((trytes[i] & 0xFF) << (8 * i));
+   }
+
+   return retVal;
+}
+
+}
+
 
 namespace Simulators
 {
@@ -198,7 +216,7 @@ void executeAddi_t(Tint& rd, const Tint& rs1, const Tint& imm)
    }
 
    Tint imm12;
-   TernaryLogic::ParseImmediate(12, imm, imm12);
+   TernaryLogic::parseImmediate(12, imm, imm12);
 
    rd = rs1 + imm12;
 }
@@ -222,7 +240,7 @@ void executeSlti_t(Tint& rd, const Tint& rs1, const Tint& imm)
    }
 
    Tint imm12;
-   TernaryLogic::ParseImmediate(12, imm, imm12);
+   TernaryLogic::parseImmediate(12, imm, imm12);
 
 
    if(rs1 < imm12)
@@ -254,14 +272,14 @@ void executeAndi_t(Tint& rd, const Tint& rs1, const Tint& imm)
 void executeLi_t(Tint& rd, const Tint& imm)
 {
    Tint immi = 0;
-   TernaryLogic::ParseImmediate(21, imm, immi);
+   TernaryLogic::parseImmediate(21, imm, immi);
    rd = immi;
 }
 
 void executeAipc_t(Tint& rd, const Tint& imm, const std::int32_t& pc)
 {
    Tint immi = 0;
-   TernaryLogic::ParseImmediate(21, imm, immi);
+   TernaryLogic::parseImmediate(21, imm, immi);
    rd = immi + pc;
 }
 
@@ -363,7 +381,7 @@ void executeJal_t(Tint& rd, std::int32_t offset, std::int32_t& pc, std::uint8_t 
    }
 
    Tint offseti = 0;
-   TernaryLogic::ParseImmediate(16, offset, offseti);// TODO: Check offset number of trits
+   TernaryLogic::parseImmediate(16, offset, offseti);// TODO: Check offset number of trits
    rd = pc + instructionSize;
    pc = pc + offseti - instructionSize; // Subtract instruction size since simulator automatically adds instruction size to PC after each instruction call
 }
@@ -373,7 +391,7 @@ void executeJal_t(Tint& rd, std::int32_t offset, std::int32_t& pc, std::uint8_t 
 //======================================
 
 // Ternary
-const std::int32_t maxJalrOffset = std::pow(3, 16) / 2; // TODO: Find actual amount of trits
+const Tint maxJalrOffset = std::pow(3, 16) / 2; // TODO: Find actual amount of trits
 void executeJalr_t(Tint& rd, const Tint& offset, const Tint& rs1, std::int32_t& pc, std::uint8_t instructionSize)
 {
    if((offset > maxJalrOffset) || (offset < -maxJalrOffset))
@@ -391,43 +409,71 @@ void executeJalr_t(Tint& rd, const Tint& offset, const Tint& rs1, std::int32_t& 
 //======================================
 
 // Binary
-void executeLw(Tint& rd, std::int32_t srcAddress, ExecutableProgram& program)
+const Tint maxLoadOffset = std::pow(3, 11); // TODO: Find the correct offset
+void executeLw(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
 
 }
 
-void executeLh(Tint& rd, std::int32_t srcAddress, ExecutableProgram& program)
+void executeLh(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+{
+   if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
+   Trytes trytes;
+   program.loadFromHeap(offset + rs1, 2, trytes);
+   std::int16_t rdi= TrytesToInt(trytes);
+   rd = rdi;
+}
+
+void executeLb(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+{
+   if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
+
+   Trytes trytes;
+   program.loadFromHeap(offset + rs1, 1, trytes);
+   std::int8_t rdi = TrytesToInt(trytes);
+   rd = rdi;
+}
+
+void executeLhu(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
 
 }
 
-void executeLb(Tint& rd, std::int32_t srcAddress, ExecutableProgram& program)
+void executeLbu(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
+   if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
 
-}
-
-void executeLhu(Tint& rd, std::int32_t srcAddress, ExecutableProgram& program)
-{
-
-}
-
-void executeLbu(Tint& rd, std::int32_t srcAddress, ExecutableProgram& program)
-{
-
+   Trytes trytes;
+   program.loadFromHeap(offset + rs1, 1, trytes);
+   std::uint8_t rdi = TrytesToInt(trytes);
+   rd = rdi;
 }
 
 // Ternary
-void executeLw_t(Tint& rd, std::int32_t srcAddress, ExecutableProgram& program)
+void executeLw_t(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
 
 }
 
-void executeLh_t(Tint& rd, std::int32_t srcAddress, ExecutableProgram& program)
+void executeLh_t(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
 
 }
 
-void executeLb_t(Tint& rd, std::int32_t srcAddress, ExecutableProgram& program)
+void executeLt_t(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
 
 }

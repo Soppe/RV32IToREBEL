@@ -100,16 +100,16 @@ void executeJalr_t(Tint& rd, const Tint& offset, const Tint& rs1, std::int32_t& 
 //======================================
 
 // Binary
-void executeLw(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
-void executeLh(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
-void executeLb(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
-void executeLhu(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
-void executeLbu(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeLw(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
+void executeLh(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
+void executeLb(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
+void executeLhu(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
+void executeLbu(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
 
 // Ternary
-void executeLw_t(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
-void executeLh_t(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
-void executeLb_t(Tint& rd, std::int32_t srcAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeLw_t(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
+void executeLh_t(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
+void executeLt_t(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
 
 //======================================
 // Store instructions
@@ -123,7 +123,7 @@ void executeSb(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::E
 // Ternary
 void executeSw_t(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
 void executeSh_t(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
-void executeSb_t(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeSt_t(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
 
 
 }

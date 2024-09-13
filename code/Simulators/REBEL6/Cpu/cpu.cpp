@@ -348,12 +348,12 @@ void CPU::executeLoad(const std::string& name, bool isBinary, const std::string&
    if(isBinary)
    {
       if(false){}
-      // if     (name == "lw")  InstructionExecutor::executeLw(rdVal, addressi, program);
-      // else if(name == "lh")  InstructionExecutor::executeLh(rdVal, addressi, program);
-      // else if(name == "lb")  InstructionExecutor::executeLb(rdVal, addressi, program);
-      // else if(name == "lhu") InstructionExecutor::executeLhu(rdVal, addressi, program);
-      // else if(name == "lbu") InstructionExecutor::executeLbu(rdVal, addressi, program);
-      // else
+      // if(name == "lw") InstructionExecutor::executeLw(rdVal, offset, rs1, program);
+      else if(name == "lh") InstructionExecutor::executeLh(rdVal, offset, rs1, program);
+      else if(name == "lb") InstructionExecutor::executeLb(rdVal, offset, rs1, program);
+      // else if(name == "lhu") InstructionExecutor::executeLhu(rdVal, offset, rs1, program);
+      else if(name == "lbu") InstructionExecutor::executeLbu(rdVal, offset, rs1, program);
+      else
       {
          std::cerr << __PRETTY_FUNC__ << ": Unsupported binary load instruction " << name << std::endl;
          abort();
@@ -362,9 +362,9 @@ void CPU::executeLoad(const std::string& name, bool isBinary, const std::string&
    else
    {
       if(false){}
-      // if     (name == "lw.t")  InstructionExecutor::executeLw_t(rdVal, addressi, program);
-      // else if(name == "lh.t")  InstructionExecutor::executeLh_t(rdVal, addressi, program);
-      // else if(name == "lb.t")  InstructionExecutor::executeLb_t(rdVal, addressi, program);
+      // if     (name == "lw.t")  InstructionExecutor::executeLw_t(rdVal, offset, rs1, program);
+      // else if(name == "lh.t")  InstructionExecutor::executeLh_t(rdVal, offset, rs1, program);
+      // else if(name == "lt.t")  InstructionExecutor::executeLt_t(rdVal, offset, rs1, program);
       else
       {
          std::cerr << __PRETTY_FUNC__ << ": Unsupported ternary load instruction " << name << std::endl;
@@ -400,7 +400,7 @@ void CPU::executeStore(const std::string& name, bool isBinary, const std::string
       if(false){}
       // if     (name == "sw.t") InstructionExecutor::executeSw_t(rsi, addressi, program);
       // else if(name == "sh.t") InstructionExecutor::executeSh_t(rsi, addressi, program);
-      // else if(name == "sb.t") InstructionExecutor::executeSb_t(rsi, addressi, program);
+      // else if(name == "st.t") InstructionExecutor::executeSb_t(rsi, addressi, program);
       else
       {
          std::cerr << __PRETTY_FUNC__ << ": Unsupported ternary store instruction " << name << std::endl;

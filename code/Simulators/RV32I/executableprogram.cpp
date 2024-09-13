@@ -95,7 +95,7 @@ std::int32_t ExecutableProgram::loadFromHeap(std::uint32_t address, std::uint8_t
    for(std::uint8_t i = 0; i < numBytes; ++i, ++index)
    {
       retVal = retVal | (m_heap[index] << shiftCounter);
-      std::cout << "Loading from memory = " << m_heap[index] << " at index " << index << std::endl;
+      // std::cout << "Loading from memory = " << (int)m_heap[index] << " at index " << index << std::endl;
       shiftCounter += 8;
    }
 

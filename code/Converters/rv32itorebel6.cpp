@@ -59,27 +59,31 @@ void createInstruction(Expressions::ExpressionList& el, const std::string& name,
    el.push_back(new Expressions::Instruction(name, operands));
 }
 
-//TODO: Implement this properly once we know how to deal with storing trits and trytes instead of bits and bytes in memory
-// l{b|h|w}{u} rd, offset(rs) --> l{b|h|w}{u} rd, offset(rs)
+// l{b|h|w}{u}{.t} rd, offset(rs) --> l{b|h|w}{u}{.t} rd, offset(rs)
 // l{b|h|w} rd, symbol -->
 //    aipc.t rd, %pcrel(symbol)
-//    l{b|h|w} rd, 0(rd)
+//    l{b|h|w}{.t} rd, 0(rd)
 void handleLoad(const Converters::RV32IPseudoToRV32IBase* conv, const std::string& name, const Converters::StringList& op, Expressions::ExpressionList& el)
 {
-   std::string offsetDummy; // Placeholder, not used here
-   std::string rs1Dummy; // Placeholder, not used here
-   // TODO: How to handle if the offset is of type -123(rs)? The offset is in bytes, and would change with ternary addressing.
-   // Possible answer: -123 means 123 bytes. However, it could also be 123 trytes, where 1 byte = 8 bit, and 1 tryte = 6 trits.
-   // This means the jumps in memory can be the same, but the underlying transistors used to represent the value for each byte goes from
-   // 8 to 6. This follows the same logic as the assembler where directives related to size of a variable in memory simply multiplies the amount of bytes with
-   // TernaryLogic::TRITS_PER_TRYTE since our memory currently is on trit-level, and one tryte covers one byte.
-   // Now, since a tryte is 6 trits, but a ternary halfword is 11 trits and a ternary word is 21 trits, we have 1 dead trit in the case of using lh and 3 dead trits in the case of using lw
-   // Note that this will not work the same for instruction memory for jumping/branching. In these cases each byte is the equivalent of 8 trits, so that the addresses in binary and ternary
-   // are the same. This is probably one of the reasons why REBEL-6 has exactly 32 trit instructions.
-   if(ParseUtils::parseRegisterOffset(op[1], offsetDummy, rs1Dummy)) { createInstruction(el, name, op[0], op[1]); }
+   std::string offset;
+   std::string rs1;
+
+   if(ParseUtils::parseRegisterOffset(op[1], offset, rs1))
+   {
+      // This is a %pcrel_lo or %lo call that corresponds to some auipc or lui call that relates to %pcrel_hi or %hi.
+      // Auipc is converted to aipc.t and lui to li.t and they both handle the whole immediate.
+      if(offset[0] == '%')
+      {
+         createInstruction(el, name, op[0], zeroOffset(rs1));
+      }
+      else
+      {
+         createInstruction(el, name, op[0], op[1]);
+      }
+   }
    else // Pseudoinstruction
    {
-      conv->at("aipc.t")({op[0], pcrel(op[1])}, el); // TODO: Is there a risk that the target address offset is beyond what can be represented with 32 bits?
+      conv->at("aipc.t")({op[0], pcrel(op[1])}, el);
       createInstruction(el, name, op[0], zeroOffset(op[0]));
    }
 }
@@ -220,21 +224,18 @@ void RV32IToREBEL6::fillExpressionMap()
                               else                    at("jalr.t")({op[0], op[1]}, el);
                            };
 
-
-   // Need to keep their binary versions to overhold binary limits (e.g. the max value of binary byte is smaller than the max value of ternary trit) when loading from memory.
-   // l{b|h|w} rd, offset(rs) --> l{b|h|w} rd, offset(rs)
+   // Need binary versions so we don't mix binary and ternary reads and writes. E.g. the value 260 stored in binary requires 2 memory slots, but only 1 in ternary.
+   // If we store it as a ternary value we can't use "lb 1(rs)" to read the second byte from the second memory slot since it'll be 0.
+   // If we store it as binary using 2 trytes, reading it using a ternary lh.t means the value read from the second memory location would be minimum (3^(6 + 1)), which is way more than 260.
+   // l{b|h|w} rd, offset(rs) --> l{t|h|w} rd, offset(rs)
    // l{b|h|w} rd, symbol -->
    //    aipc rd, %pcrel(symbol)
-   //    l{b|h|w} rd, 0(rd)
-
-   // TODO: What if we simply do e.g. "l{t,h,w}.t rd, imm21"? Where imm21 is either an actual immediate or a label? Should work since we load a signed value in both l{b,h,w} and l{t,h,w}.t
-   // Only problem is what if the value loaded from memory is larger than what can be represented in a byte/halfword/word? Can it happen? Is it relevant? Do we care?
+   //    l{t|h|w} rd, 0(rd)
    m_instructionMap["lb"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lb", op, el); };
    m_instructionMap["lh"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lh", op, el); };
    m_instructionMap["lw"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lw", op, el); };
 
-   // Need to support unsigned binary memory type instructions since the value stored in the memory through e.g. li.t + sw
-   // operation using a hex value can be either positive or negative, depending on who reads it.
+   // Need to support unsigned binary memory type instructions since a value stored in the memory through e.g. li.t + sw can be either positive or negative, depending on who reads it.
    // lbu rd, offset(rs) --> lbu rd, offset(rs)
    //m_instructionMap["lbu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lbu", op, el); };
 
@@ -468,12 +469,14 @@ void RV32IToREBEL6::fillExpressionMap()
       createInstruction(el, "jalr.t", op[0], convertBinaryInstructionOffsetToTernary(op[1]));
    };
 
+   // Need their own because of memory sizes.
+   // l{b|h|w} rd, offset(rs) --> l{t|h|w}.t rd, offset(rs)
+   m_instructionMap["lt.t"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lt.t", op, el); };
+   m_instructionMap["lh.t"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lh.t", op, el); };;
+   m_instructionMap["lw.t"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lw.t", op, el); };
+
    // Need their own because of memory sizes and overholding binary overflows when storing to memory. Both load and store
    // should have their own both in binary and ternary to ensure overflows are kept consistent in binary and ternary
-   //m_instructionMap["lt.t"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lt.t", op, el); };
-   //m_instructionMap["lh.t"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lh.t", op, el); };;
-   //m_instructionMap["lw.t"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lw.t", op, el); };
-
    //m_instructionMap["st.t"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleStore(this, "st.t", op, el); };
    //m_instructionMap["sh.t"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleStore(this, "sh.t", op, el); };
    //m_instructionMap["sw.t"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleStore(this, "sw.t", op, el); };;

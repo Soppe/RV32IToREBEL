@@ -19,8 +19,8 @@ std::uint32_t countTritFlips(Tint oldVal, Tint newVal)
    Trits newTrits;
    std::uint32_t tritFlips = 0;
 
-   TernaryLogic::TintToTrits(oldVal, oldTrits);
-   TernaryLogic::TintToTrits(newVal, newTrits);
+   TernaryLogic::tintToTrits(oldVal, oldTrits);
+   TernaryLogic::tintToTrits(newVal, newTrits);
 
    std::int32_t sizeDiff = oldTrits.size() - newTrits.size();
 

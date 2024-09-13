@@ -4,7 +4,7 @@
 #include <iostream>
 
 // Code taken from https://tfetimes.com/c-balanced-ternary/
-void TernaryLogic::TintToTrits(Tint in, Trits& out)
+void TernaryLogic::tintToTrits(Tint in, Trits& out)
 {
    if (in == 0)
    {
@@ -46,7 +46,7 @@ void TernaryLogic::TintToTrits(Tint in, Trits& out)
    }
 }
 
-void TernaryLogic::TritsToTint(const Trits& in, Tint& out)
+void TernaryLogic::tritsToTint(const Trits& in, Tint& out)
 {
    out = 0;
    for(char i = 0; i < in.size(); ++i)
@@ -55,11 +55,11 @@ void TernaryLogic::TritsToTint(const Trits& in, Tint& out)
    }
 }
 
-void TernaryLogic::ParseImmediate(uint8_t immediateSizeTrits, const Tint& in, Tint& out)
+void TernaryLogic::parseImmediate(uint8_t immediateSizeTrits, const Tint& in, Tint& out)
 {
    // This can be solved by calculating std::pow(3, immediateSize) to get min/max and then add some overflow/underflow logic, but this way is more fun and "correct".
    Trits trits;
-   TintToTrits(in, trits);
+   tintToTrits(in, trits);
    trits.resize(immediateSizeTrits, 0);
-   TritsToTint(trits, out);
+   tritsToTint(trits, out);
 }

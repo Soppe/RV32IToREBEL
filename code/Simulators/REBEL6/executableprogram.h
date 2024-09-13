@@ -26,7 +26,7 @@ public:
    void addSymbol(const std::string& symbolName, std::int32_t address);
 
    Expressions::Instruction* loadInstruction(std::int32_t programCounter, std::uint8_t& instructionSize) const;
-   Tint loadFromHeap(std::int32_t address, std::uint8_t numTrytes) const;
+   void loadFromHeap(std::int32_t address, std::uint8_t numTrytes, Trytes& out) const;
    std::int32_t loadSymbolAddress(const std::string& symbolName) const; // Can throw exception
 
    void storeToHeap(std::int32_t address, const Tint& value, std::uint8_t numTrytes);
@@ -45,7 +45,7 @@ private:
 
    using InstructionMemoryMap = std::map<std::int32_t, Expressions::Instruction*>; // Address | Instruction
    using SymbolTableMap = std::map<std::string, std::int32_t>; // Label name | Start address of value
-   using HeapVector = std::vector<Tryte>; // Ineffective, but the simplest way to store any size ternary value
+   using HeapVector = Trytes;
 
    InstructionMemoryMap m_instructions; // Address, Instruction
    std::uint32_t m_instructionsSize;
