@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ternarylogic.h"
 
 #include <Parsers/expressionparser.h>
 #include <Parsers/parseutils.h>
+#include <Parsers/ternarylogic.h>
 #include <Simulators/directivehelper.h>
 
 #include <vector>
@@ -34,7 +34,7 @@ private:
   void resolveInstruction(const Expressions::Instruction* instr, Expressions::ExpressionList& out);
   void resolveDataDirective(const Expressions::Directive* directive);
 
-  bool resolveIfObject(const Expressions::Directive* directive, std::uint8_t& tritSizePerElement, std::vector<Tint>& values);
+  bool resolveIfObject(const Expressions::Directive* directive, std::uint8_t& tryteSizePerElement, std::vector<Tint>& values);
 
   void resolveOperands();
   std::int32_t resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MODIFIER& modifier, const std::string& imm, std::int32_t pc);

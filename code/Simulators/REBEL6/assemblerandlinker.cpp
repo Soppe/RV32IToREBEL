@@ -3,11 +3,13 @@
 #include "executableprogram.h"
 #include "simulatorutils.h"
 
+#include <Converters/rv32itorebel6.h>
 #include <Expressions/all_expressions.h>
 #include <logger.h>
 
 #include <iostream>
 #include <fstream>
+#include <math.h>
 
 namespace Simulators
 {
@@ -66,11 +68,11 @@ void AssemblerAndLinker::run()
 
    // Finished setting up the instruction memory, now we need to set up heap labels
    HeapLabelMap::const_iterator it = m_tempHeapLabels.begin();
-   std::uint32_t instructionsSize = m_executable.getInstructionsSizeTrits();
+   std::uint32_t instructionsSizeTrytes = m_executable.getInstructionsSizeTrytes(); // Align up to closest tryte
 
    while(it != m_tempHeapLabels.end())
    {
-      m_executable.addSymbol(it->first, it->second + instructionsSize);
+      m_executable.addSymbol(it->first, it->second + instructionsSizeTrytes);
       ++it;
    }
 
@@ -105,8 +107,8 @@ void AssemblerAndLinker::handleTextSection(const Expressions::Expression* expr)
       case Expressions::Expression::ExpressionType::INSTRUCTION:
       {
          const Expressions::Instruction* instr = static_cast<const Expressions::Instruction*>(expr);
-         m_executable.addInstruction(new Expressions::Instruction(*instr), TRITS_PER_INSTRUCTION);
-         m_pc += TRITS_PER_INSTRUCTION;
+         m_executable.addInstruction(new Expressions::Instruction(*instr), REBEL6_JUMPS_PER_INSTRUCTION);
+         m_pc += REBEL6_JUMPS_PER_INSTRUCTION;
          break;
       }
       default:
@@ -234,7 +236,7 @@ void AssemblerAndLinker::handleRoDataSection(const Expressions::Expression* expr
    }
 }
 
-bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive, std::uint8_t& tritSizePerElement, std::vector<Tint>& values)
+bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive, std::uint8_t& tryteSizePerElement, std::vector<Tint>& values)
 {
    bool retVal = true;
    const std::string& name = directive->getDirectiveName();
@@ -267,7 +269,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // Note - this directive is not intended for encoding instructions, and it will not trigger effects like DWARF line number generation.
       // Instead some targets support special directives for encoding arbitrary binary sequences as instructions such as .insn or .inst.
 
-      tritSizePerElement = TRITS_PER_TRYTE;
+      tryteSizePerElement = 1;
       for(const std::string& str: parameters)
       {
          ParseUtils::parseImmediate(8, str, value);
@@ -280,7 +282,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // This expects zero or more expressions, and emits a 16 bit number for each.
 
       // This directive is a synonym for ‘.short’; depending on the target architecture, it may also be a synonym for ‘.word’.
-      tritSizePerElement = TRITS_PER_THALFWORD;
+      tryteSizePerElement = 2;
       for(const std::string& str: parameters)
       {
          ParseUtils::parseImmediate(16, str, value);
@@ -359,7 +361,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       //.string   "B\0\0\0Y\0\0\0E\0\0\0"  /* On little endian targets.  */
       //.string   "\0\0\0B\0\0\0Y\0\0\0E"  /* On big endian targets.  */
 
-      tritSizePerElement = TRITS_PER_TRYTE;
+      tryteSizePerElement = 1;
       for(const std::string& param: parameters)
       {
          for(int i = 0; i <= param.size(); ++i) // Include terminating zero
@@ -377,7 +379,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
 
       // The size of the number emitted, and its byte order, depend on what target computer the assembly is for.
 
-      tritSizePerElement = TRITS_PER_TWORD;
+      tryteSizePerElement = 4;
       for(const std::string& str: parameters)
       {
          ParseUtils::parseImmediate(32, str, value);
@@ -554,14 +556,14 @@ std::int32_t AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSE
 
 void AssemblerAndLinker::resolveDataDirective(const Expressions::Directive* directive)
 {
-   std::uint8_t tritSizePerElement;
+   std::uint8_t tryteSizePerElement;
    std::vector<Tint> values;
-   if(resolveIfObject(directive, tritSizePerElement, values))
+   if(resolveIfObject(directive, tryteSizePerElement, values))
    {
       for(Tint value: values)
       {
-         m_executable.addToHeap(value, tritSizePerElement);
-         m_hc += tritSizePerElement;
+         m_executable.addToHeap(value, tryteSizePerElement);
+         m_hc += tryteSizePerElement;
       }
    }
 }

@@ -66,11 +66,11 @@ void AssemblerAndLinker::run()
 
    // Finished setting up the instruction memory, now we need to set up heap labels
    HeapLabelMap::const_iterator it = m_tempHeapLabels.begin();
-   std::uint32_t instructionsSize = m_executable.getInstructionsSizeBytes();
+   std::uint32_t instructionsSizeBytes = m_executable.getInstructionsSizeBytes();
 
    while(it != m_tempHeapLabels.end())
    {
-      m_executable.addSymbol(it->first, it->second + instructionsSize);
+      m_executable.addSymbol(it->first, it->second + instructionsSizeBytes);
       ++it;
    }
 

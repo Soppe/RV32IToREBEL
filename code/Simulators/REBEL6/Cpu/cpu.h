@@ -20,7 +20,7 @@ class CPU
    std::uint32_t getTritFlipCost() const;
 
  private:
-   void initRegisters(std::int32_t programSizeTrits);
+   void initRegisters(std::int32_t programSizeTrytes);
 
    void executeRegister(const std::string& name, bool isBinary, const std::string& rd, const std::string& rs1, const std::string& rs2);
    void executeImmediate(const std::string& name, bool isBinary, const std::string& rd, const std::string& rs1, const std::string& imm);

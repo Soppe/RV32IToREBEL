@@ -125,9 +125,9 @@ void ExecutableProgram::storeToHeap(std::uint32_t address, std::int32_t value, s
       abort();
    }
 
-   std::uint32_t index = address - getInstructionsSizeBytes();
+   std::uint32_t heapAddress = address - getInstructionsSizeBytes();
 
-   doStoreToHeap(index, value, numBytes);
+   doStoreToHeap(heapAddress, value, numBytes);
 
 }
 
@@ -177,12 +177,13 @@ void ExecutableProgram::printSymbols() const
    }
 }
 
-void ExecutableProgram::doStoreToHeap(std::uint32_t index, std::int32_t value, std::uint8_t numBytes)
+void ExecutableProgram::doStoreToHeap(std::uint32_t heapAddress, std::int32_t value, std::uint8_t numBytes)
 {
-   for(std::uint8_t i = 0; i < numBytes; ++i, ++index)
+   for(std::uint8_t i = 0; i < numBytes; ++i)
    {
-      m_heap[index] = (value & 0xff);
+      m_heap[heapAddress] = (value & 0xff);
       value = value >> 8;
+      ++heapAddress;
    }
 }
 

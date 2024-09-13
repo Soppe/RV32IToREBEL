@@ -5,7 +5,7 @@
 #include <Expressions/instruction.h>
 #include <Parsers/parseutils.h>
 
-#include <Simulators/REBEL6/ternarylogic.h>
+#include <Parsers/ternarylogic.h>
 
 namespace
 {
@@ -25,21 +25,15 @@ std::string convertBinaryOffsetToTernary(const std::string& offsetRs, std::uint8
    }
    else
    {
-      // TODO: TernaryLogic needs to be somewhere else. Possibly better to sort all classes and namespaces into binary and ternary
-      Simulators::REBEL6::Tint offseti = stoll(offset);
+      Tint offseti = stoll(offset);
       offseti = (offseti / 4) * multiplierPerStep;
       return createOffset(std::to_string(offseti), rs1);
    }
 }
 
-std::string convertBinaryMemoryOffsetToTernary(const std::string& offsetRs)
-{
-   return convertBinaryOffsetToTernary(offsetRs, TRITS_PER_TRYTE);
-}
-
 std::string convertBinaryInstructionOffsetToTernary(const std::string& offsetRs)
 {
-   return convertBinaryOffsetToTernary(offsetRs, TRITS_PER_INSTRUCTION);
+   return convertBinaryOffsetToTernary(offsetRs, REBEL6_JUMPS_PER_INSTRUCTION);
 }
 
 void createInstruction(Expressions::ExpressionList& el, const std::string& name)

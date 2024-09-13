@@ -1,5 +1,6 @@
 #include "executableprogram.h"
 
+#include <Converters/rv32itorebel6.h>
 #include <Expressions/instruction.h>
 #include <logger.h>
 
@@ -8,7 +9,7 @@
 
 namespace
 {
-const std::uint32_t PROGRAM_SIZE_TRITS = std::pow(3, 14); // About 4.8m trits
+const std::uint32_t PROGRAM_SIZE_TRYTES = std::pow(3, 13); // About 1.6m trytes
 }
 
 namespace Simulators
@@ -17,8 +18,8 @@ namespace REBEL6
 {
 
 ExecutableProgram::ExecutableProgram()
-    : m_instructionsSizeTrits(0)
-    , m_heapSizeTrits(0)
+    : m_instructionsSize(0)
+    , m_heapSizeTrytes(0)
 {
 
 }
@@ -37,24 +38,24 @@ ExecutableProgram::~ExecutableProgram()
    }
 }
 
-void ExecutableProgram::addInstruction(Expressions::Instruction* instruction, std::uint8_t instructionSizeTrits)
+void ExecutableProgram::addInstruction(Expressions::Instruction* instruction, std::uint8_t instructionSize)
 {
-   m_instructions.insert({m_instructionsSizeTrits, instruction});
-   m_instructionsSizeTrits += instructionSizeTrits;
+   m_instructions.insert({m_instructionsSize, instruction});
+   m_instructionsSize += instructionSize;
 }
 
-void ExecutableProgram::addToHeap(const Tint& value, uint8_t numTrits)
+void ExecutableProgram::addToHeap(const Tint& value, uint8_t numTrytes)
 {
-   if((numTrits > TRITS_PER_TWORD) || (numTrits < 0))
+   if((numTrytes > 4) || (numTrytes < 0))
    {
-      std::cerr << __PRETTY_FUNC__ << ": Trying to store data of unsupported size = " << numTrits << " trits" << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Trying to store data of unsupported size = " << numTrytes << " trits" << std::endl;
       abort();
    }
 
-   std::uint32_t heapSizeTrits = m_heap.size();
-   m_heap.resize(heapSizeTrits + numTrits, 0);
+   std::uint32_t heapSizeTrytes = m_heap.size();
+   m_heap.resize(heapSizeTrytes + numTrytes, 0);
 
-   doStoreToHeap(heapSizeTrits, value, numTrits);
+   doStoreToHeap(heapSizeTrytes, value, numTrytes);
 }
 
 void ExecutableProgram::addSymbol(const std::string& symbolName, std::int32_t address)
@@ -62,7 +63,7 @@ void ExecutableProgram::addSymbol(const std::string& symbolName, std::int32_t ad
    m_symbolTable.insert({symbolName, address});
 }
 
-Expressions::Instruction* ExecutableProgram::loadInstruction(std::int32_t programCounter, std::uint8_t& instructionSizeTrits) const
+Expressions::Instruction* ExecutableProgram::loadInstruction(std::int32_t programCounter, std::uint8_t& instructionSize) const
 {
    Expressions::Instruction* instr = nullptr;
    InstructionMemoryMap::const_iterator it = m_instructions.find(programCounter);
@@ -72,33 +73,36 @@ Expressions::Instruction* ExecutableProgram::loadInstruction(std::int32_t progra
       ++it;
       if(it == m_instructions.end())
       {
-         instructionSizeTrits = m_instructionsSizeTrits - programCounter;
+         instructionSize = m_instructionsSize - programCounter;
       }
       else
       {
-         instructionSizeTrits = it->first - programCounter;
+         instructionSize = it->first - programCounter;
       }
    }
    return instr;
 }
 
-Tint ExecutableProgram::loadFromHeap(std::int32_t address, std::uint8_t numTrits) const
+Tint ExecutableProgram::loadFromHeap(std::int32_t address, std::uint8_t numTrytes) const
 {
    Tint retVal = 0;
-   if((numTrits > TRITS_PER_TWORD) || (numTrits < 0))
+   if((numTrytes > 4) || (numTrytes < 0))
    {
-      std::cerr << __PRETTY_FUNC__ << ": Trying to load data of unsupported trit size " << numTrits << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Trying to load data of unsupported tryte size " << numTrytes << std::endl;
       abort();
    }
 
-   std::uint32_t index = address - m_instructionsSizeTrits /* +/- program start address if it's other than 0 */;
-   for(std::uint8_t i = 0; i < numTrits; ++i, ++index)
+   std::uint32_t heapAddress = address - getInstructionsSizeTrytes() /* +/- program start address if it's other than 0 */;
+   Trits trits;
+   for(std::uint8_t i = 0; i < numTrytes; ++i, ++heapAddress)
    {
-      if(m_heap[index] != 0) // Only care when the trit is either 1 or -1
+      trits.clear();
+      TernaryLogic::TintToTrits(m_heap[heapAddress], trits);
+      for(std::uint8_t j = 0; j < trits.size(); ++j)
       {
-         retVal += m_heap[index] * std::pow(3, i);
+         retVal += trits[j] * std::pow(3, j + (i * REBEL6_TRITS_PER_TRYTE));
       }
-      std::cout << "Loading from memory = " << m_heap[index] << " at index " << index << std::endl;
+      std::cout << "Loading from memory = " << m_heap[heapAddress] << " at index " << heapAddress << std::endl;
    }
 
    return retVal;
@@ -119,41 +123,41 @@ std::int32_t ExecutableProgram::loadSymbolAddress(const std::string& symbolName)
    return retVal;
 }
 
-void ExecutableProgram::storeToHeap(std::int32_t address, const Tint& value, std::uint8_t numTrits)
+void ExecutableProgram::storeToHeap(std::int32_t address, const Tint& value, std::uint8_t numTrytes)
 {
-   if((numTrits > TRITS_PER_TWORD) || (numTrits < 0))
+   if((numTrytes > 4) || (numTrytes < 0))
    {
-      std::cerr << __PRETTY_FUNC__ << ": Trying to store data of unsupported trit size " << numTrits << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Trying to store data of unsupported tryte size " << numTrytes << std::endl;
       abort();
    }
 
-   std::uint32_t index = address - getInstructionsSizeTrits() /* +/- some value if program starts at address other than 0 */;
+   std::uint32_t heapAddress = address - getInstructionsSizeTrytes() /* +/- some value if program starts at address other than 0 */;
 
-   doStoreToHeap(index, value, numTrits);
+   doStoreToHeap(heapAddress, value, numTrytes);
 }
 
 void ExecutableProgram::calculateHeapSize()
 {
-   m_heapSizeTrits = getProgramSizeTrits() - getInstructionsSizeTrits();
-   if((m_heapSizeTrits < 0 ) || (m_heap.size() > m_heapSizeTrits))
+   m_heapSizeTrytes = getProgramSizeTrytes() - getInstructionsSizeTrytes();
+   if((m_heapSizeTrytes < 0 ) || (m_heap.size() > m_heapSizeTrytes))
    {
       std::cerr << __PRETTY_FUNC__ << ": Tried recalcuating heap size, but heap already overflowing" << std::endl;
       abort();
    }
 
-   m_heap.resize(m_heapSizeTrits, 0);
+   m_heap.resize(m_heapSizeTrytes, 0);
 
-   std::cout << "Program size: " << getProgramSizeTrits() << " trits; Instruction size: " << getInstructionsSizeTrits() << " trits; Heap size: " << m_heap.size() << " trits" << std::endl;
+   std::cout << "Program size: " << getProgramSizeTrytes() << " trytes; Instruction size: " << getInstructionsSizeTrytes() << " trytes; Heap size: " << m_heap.size() << " trytes" << std::endl;
 }
 
-uint32_t ExecutableProgram::getProgramSizeTrits() const
+std::uint32_t ExecutableProgram::getProgramSizeTrytes() const
 {
-   return PROGRAM_SIZE_TRITS;
+   return PROGRAM_SIZE_TRYTES;
 }
 
-uint32_t ExecutableProgram::getInstructionsSizeTrits() const
+std::uint32_t ExecutableProgram::getInstructionsSizeTrytes() const
 {
-   return m_instructionsSizeTrits;
+   return std::ceil((m_instructionsSize * REBEL6_TRITS_PER_INSTRUCTION) / REBEL6_TRITS_PER_TRYTE);
 }
 
 void ExecutableProgram::printInstructions() const
@@ -178,11 +182,11 @@ void ExecutableProgram::printSymbols() const
    }
 }
 
-void ExecutableProgram::doStoreToHeap(std::uint32_t index, const Tint& value, std::uint8_t numTrits)
+void ExecutableProgram::doStoreToHeap(std::uint32_t heapAddress, const Tint& value, std::uint8_t numTrytes)
 {
    Trits trits;
-
    TernaryLogic::TintToTrits(value, trits); // Could send m_heap directly, but lets keep it safe
+   std::uint8_t numTrits = numTrytes * REBEL6_TRITS_PER_TRYTE;
 
    if(trits.size() > numTrits)
    {
@@ -192,10 +196,17 @@ void ExecutableProgram::doStoreToHeap(std::uint32_t index, const Tint& value, st
    trits.resize(numTrits, 0); // Fill the rest with zeroes so we ensure the memory allocated for this value has all trits properly reset
 
    std::cout << "Initial value = " << value << std::endl;
-   for(std::uint8_t i = 0; i < numTrits; ++i, ++index)
+   for(std::uint8_t i = 0; i < numTrytes; ++i)
    {
-      m_heap[index] = trits[i];
-      std::cout << "Storing ternary value to heap = " << (int)trits[i] << " at index " << index << std::endl;
+      Tryte val = 0;
+      for(std::uint8_t j = 0; j < REBEL6_TRITS_PER_TRYTE; ++j)
+      {
+         val += (trits[j + (i * REBEL6_TRITS_PER_TRYTE)] * std::pow(3, j));
+      }
+
+      m_heap[heapAddress] = val;
+      std::cout << "Storing ternary value to heap = " << val << " at index " << heapAddress << std::endl;
+      ++heapAddress;
    }
    std::cout << std::endl;
 }

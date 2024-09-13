@@ -1,6 +1,6 @@
 #include "registry.h"
 
-#include <Simulators/REBEL6/ternarylogic.h>
+#include <Parsers/ternarylogic.h>
 #include <logger.h>
 
 #include <iostream>
@@ -13,14 +13,14 @@ int TritFlipCostLookup [3][3] = {/*-1, 0, 1*/
                           /* 0 */  {1, 0, 1},
                           /* 1 */  {1, 1, 0}};
 
-std::uint32_t countTritFlips(Simulators::REBEL6::Tint oldVal, Simulators::REBEL6::Tint newVal)
+std::uint32_t countTritFlips(Tint oldVal, Tint newVal)
 {
-   Simulators::REBEL6::Trits oldTrits;
-   Simulators::REBEL6::Trits newTrits;
+   Trits oldTrits;
+   Trits newTrits;
    std::uint32_t tritFlips = 0;
 
-   Simulators::REBEL6::TernaryLogic::TintToTrits(oldVal, oldTrits);
-   Simulators::REBEL6::TernaryLogic::TintToTrits(newVal, newTrits);
+   TernaryLogic::TintToTrits(oldVal, oldTrits);
+   TernaryLogic::TintToTrits(newVal, newTrits);
 
    std::int32_t sizeDiff = oldTrits.size() - newTrits.size();
 

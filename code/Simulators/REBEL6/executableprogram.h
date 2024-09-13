@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ternarylogic.h"
+#include <Parsers/ternarylogic.h>
 
 #include <string>
 #include <map>
@@ -21,35 +21,35 @@ public:
    ExecutableProgram();
    ~ExecutableProgram();
 
-   void addInstruction(Expressions::Instruction* instruction, std::uint8_t instructionSizeTrits);
-   void addToHeap(const Tint& value, std::uint8_t numTrits);
+   void addInstruction(Expressions::Instruction* instruction, std::uint8_t instructionSize);
+   void addToHeap(const Tint& value, std::uint8_t numTrytes);
    void addSymbol(const std::string& symbolName, std::int32_t address);
 
-   Expressions::Instruction* loadInstruction(std::int32_t programCounter, std::uint8_t& instructionSizeTrits) const;
-   Tint loadFromHeap(std::int32_t address, std::uint8_t numTrits) const;
+   Expressions::Instruction* loadInstruction(std::int32_t programCounter, std::uint8_t& instructionSize) const;
+   Tint loadFromHeap(std::int32_t address, std::uint8_t numTrytes) const;
    std::int32_t loadSymbolAddress(const std::string& symbolName) const; // Can throw exception
 
-   void storeToHeap(std::int32_t address, const Tint& value, std::uint8_t numTrits);
+   void storeToHeap(std::int32_t address, const Tint& value, std::uint8_t numTrytes);
 
    // Must be called after all instructions and initial heap values have been added, to recalculate heap size.
    void calculateHeapSize();
 
-   std::uint32_t getProgramSizeTrits() const;
-   std::uint32_t getInstructionsSizeTrits() const;
+   std::uint32_t getProgramSizeTrytes() const;
+   std::uint32_t getInstructionsSizeTrytes() const;
 
    void printInstructions() const;
    void printSymbols() const;
 
 private:
-   void doStoreToHeap(std::uint32_t index, const Tint& value, std::uint8_t numTrits);
+   void doStoreToHeap(std::uint32_t heapAddress, const Tint& value, std::uint8_t numTrytes);
 
    using InstructionMemoryMap = std::map<std::int32_t, Expressions::Instruction*>; // Address | Instruction
    using SymbolTableMap = std::map<std::string, std::int32_t>; // Label name | Start address of value
-   using HeapVector = std::vector<Trit>; // Ineffective, but the simplest way to store any size ternary value
+   using HeapVector = std::vector<Tryte>; // Ineffective, but the simplest way to store any size ternary value
 
    InstructionMemoryMap m_instructions; // Address, Instruction
-   std::uint32_t m_instructionsSizeTrits;
-   std::uint32_t m_heapSizeTrits;
+   std::uint32_t m_instructionsSize;
+   std::uint32_t m_heapSizeTrytes;
 
    HeapVector m_heap; // Starts at m_instructionsSize;
    SymbolTableMap m_symbolTable;

@@ -29,6 +29,7 @@ set(HEADERS
    Parsers/lexer.h
    Parsers/parser.h
    Parsers/parseutils.h
+   Parsers/ternarylogic.h
    Parsers/token.h
    Simulators/REBEL6/Cpu/cpu.h
    Simulators/REBEL6/Cpu/instructionexecutor.h
@@ -37,7 +38,6 @@ set(HEADERS
    Simulators/REBEL6/executableprogram.h
    Simulators/REBEL6/simulator.h
    Simulators/REBEL6/simulatorutils.h
-   Simulators/REBEL6/ternarylogic.h
    Simulators/RV32I/Cpu/cpu.h
    Simulators/RV32I/Cpu/instructionexecutor.h
    Simulators/RV32I/Cpu/registry.h
@@ -66,6 +66,7 @@ set(SOURCES
    Parsers/lexer.cpp
    Parsers/parser.cpp
    Parsers/parseutils.cpp
+   Parsers/ternarylogic.cpp
    Simulators/REBEL6/Cpu/cpu.cpp
    Simulators/REBEL6/Cpu/instructionexecutor.cpp
    Simulators/REBEL6/Cpu/registry.cpp
@@ -73,7 +74,6 @@ set(SOURCES
    Simulators/REBEL6/executableprogram.cpp
    Simulators/REBEL6/simulator.cpp
    Simulators/REBEL6/simulatorutils.cpp
-   Simulators/REBEL6/ternarylogic.cpp
    Simulators/RV32I/Cpu/cpu.cpp
    Simulators/RV32I/Cpu/instructionexecutor.cpp
    Simulators/RV32I/Cpu/registry.cpp

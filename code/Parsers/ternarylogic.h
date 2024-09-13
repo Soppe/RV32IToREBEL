@@ -4,19 +4,10 @@
 #include <vector>
 #include <deque>
 
-namespace Simulators
-{
-namespace REBEL6
-{
-
 using Trit = std::int8_t; // Can be -1, 0, 1
-using Trits = std::deque<Trit>;
+using Tryte = std::int16_t; // Can be -3^6 - 3^6
 using Tint = std::int64_t; // (-3^21, 3^21)
-
-#define TRITS_PER_TRYTE 6
-#define TRITS_PER_THALFWORD 12
-#define TRITS_PER_TWORD 24
-#define TRITS_PER_INSTRUCTION 32
+using Trits = std::deque<Trit>;
 
 class TernaryLogic
 {
@@ -28,6 +19,3 @@ class TernaryLogic
 
    static void ParseImmediate(std::uint8_t immediateSizeTrits, const Tint& in, Tint& out);
 };
-
-}
-}

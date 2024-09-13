@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Simulators/REBEL6/ternarylogic.h>
+#include <Parsers/ternarylogic.h>
 
 #include <string>
 #include <unordered_map>

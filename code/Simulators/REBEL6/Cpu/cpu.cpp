@@ -41,7 +41,7 @@ void CPU::executeProgram(ExecutableProgram& program)
    m_PC = 0;
    m_numberOfRanInstructions = 0;
 
-   initRegisters(program.getProgramSizeTrits());
+   initRegisters(program.getProgramSizeTrytes());
 
    std::uint8_t instructionSize = 0;
    const Expressions::Instruction* instr = program.loadInstruction(m_PC, instructionSize);
@@ -54,7 +54,7 @@ void CPU::executeProgram(ExecutableProgram& program)
       const std::vector<std::string>& operands = instr->getInstructionOperands();
       type = SimulatorUtils::getInstructionType(name);
       bool isBinary = !name.ends_with(".t");
-      //std::cout << "pc = " << m_PC << "\t" << *instr << std::endl;
+      // std::cout << "pc = " << m_PC << "\t" << *instr << std::endl;
 
       switch(type)
       {
@@ -114,11 +114,11 @@ uint32_t CPU::getTritFlipCost() const
    return m_registers.getAccumulatedTritFlips();
 }
 
-void CPU::initRegisters(std::int32_t programSizeTrits)
+void CPU::initRegisters(std::int32_t programSizeTrytes)
 {
    m_registers.reset(RegisterCount);
    m_registers.store("zero", 0);
-   m_registers.store("sp", programSizeTrits);
+   m_registers.store("sp", programSizeTrytes);
 
    m_registers.store("ra", ProgramEndRAValue);
 }

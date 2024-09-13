@@ -39,7 +39,7 @@ public:
    void printSymbols() const;
 
 private:
-   void doStoreToHeap(std::uint32_t index, std::int32_t value, std::uint8_t numBytes);
+   void doStoreToHeap(std::uint32_t heapAddress, std::int32_t value, std::uint8_t numBytes);
 
    using InstructionMemoryMap = std::map<std::int32_t, Expressions::Instruction*>; // Address | Instruction
    using SymbolTableMap = std::map<std::string, std::uint32_t>; // Label name | Start address of value
