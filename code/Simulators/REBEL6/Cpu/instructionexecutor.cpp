@@ -62,18 +62,23 @@ void executeSll(Tint& rd, const Tint& rs1, const Tint& rs2)
 
 void executeSrl(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
+   std::int32_t rdi = 0;
+   Simulators::RV32I::InstructionExecutor::executeSrl(rdi, rs1, rs2);
 
+   rd = rdi;
 }
 
 void executeSra(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
+   std::int32_t rdi = 0;
+   Simulators::RV32I::InstructionExecutor::executeSra(rdi, rs1, rs2);
 
+   rd = rdi;
 }
 
 void executeSltu(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
    std::int32_t rdi = 0;
-
    Simulators::RV32I::InstructionExecutor::executeSltu(rdi, rs1, rs2);
 
    rd = rdi;
@@ -82,7 +87,6 @@ void executeSltu(Tint& rd, const Tint& rs1, const Tint& rs2)
 void executeOr(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
    std::int32_t rdi = 0;
-
    Simulators::RV32I::InstructionExecutor::executeOr(rdi, rs1, rs2);
 
    rd = rdi;
@@ -90,13 +94,15 @@ void executeOr(Tint& rd, const Tint& rs1, const Tint& rs2)
 
 void executeXor(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
+   std::int32_t rdi = 0;
+   Simulators::RV32I::InstructionExecutor::executeXor(rdi, rs1, rs2);
 
+   rd = rdi;
 }
 
 void executeAnd(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
    std::int32_t rdi = 0;
-
    Simulators::RV32I::InstructionExecutor::executeAnd(rdi, rs1, rs2);
 
    rd = rdi;
@@ -168,12 +174,18 @@ void executeSlli(Tint& rd, const Tint& rs1, const Tint& imm)
 
 void executeSrli(Tint& rd, const Tint& rs1, const Tint& imm)
 {
+   std::int32_t rdi = 0;
+   Simulators::RV32I::InstructionExecutor::executeSrli(rdi, rs1, imm);
 
+   rd = rdi;
 }
 
 void executeSrai(Tint& rd, const Tint& rs1, const Tint& imm)
 {
+   std::int32_t rdi = 0;
+   Simulators::RV32I::InstructionExecutor::executeSrai(rdi, rs1, imm);
 
+   rd = rdi;
 }
 
 void executeSltiu(Tint& rd, const Tint& rs1, const Tint& imm)
@@ -194,7 +206,10 @@ void executeOri(Tint& rd, const Tint& rs1, const Tint& imm)
 
 void executeXori(Tint& rd, const Tint& rs1, const Tint& imm)
 {
+   std::int32_t rdi = 0;
+   Simulators::RV32I::InstructionExecutor::executeXori(rdi, rs1, imm);
 
+   rd = rdi;
 }
 
 void executeAndi(Tint& rd, const Tint& rs1, const Tint& imm)
@@ -233,7 +248,7 @@ void executeSri_t(Tint& rd, const Tint& rs1, const Tint& imm)
 
 void executeSlti_t(Tint& rd, const Tint& rs1, const Tint& imm)
 {
-   if((imm >= maxImmediateValue) || (imm < -maxImmediateValue))
+   if((imm > maxImmediateValue) || (imm < -maxImmediateValue))
    {
       std::cerr << __PRETTY_FUNC__ << "Illegal value " << imm << std::endl;
       abort();
@@ -291,16 +306,16 @@ void executeAipc_t(Tint& rd, const Tint& imm, const std::int32_t& pc)
 void executeBgeu(const Tint& rs1, const Tint& rs2, std::int32_t offset, std::int32_t& pc, std::uint8_t instructionSize)
 {
    std::uint32_t pcui = pc;
-
    Simulators::RV32I::InstructionExecutor::executeBgeu(rs1, rs2, offset, pcui, instructionSize);
+
    pc = pcui;
 }
 
 void executeBltu(const Tint& rs1, const Tint& rs2, int32_t offset, int32_t& pc, uint8_t instructionSize)
 {
    std::uint32_t pcui = pc;
-
    Simulators::RV32I::InstructionExecutor::executeBltu(rs1, rs2, offset, pcui, instructionSize);
+
    pc = pcui;
 }
 
@@ -412,7 +427,16 @@ void executeJalr_t(Tint& rd, const Tint& offset, const Tint& rs1, std::int32_t& 
 const Tint maxLoadOffset = std::pow(3, 11); // TODO: Find the correct offset
 void executeLw(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
+   if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
 
+   Trytes trytes;
+   program.loadFromHeap(offset + rs1, 4, trytes);
+   std::int32_t rdi= TrytesToInt(trytes);
+   rd = rdi;
 }
 
 void executeLh(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
@@ -445,7 +469,16 @@ void executeLb(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram&
 
 void executeLhu(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
+   if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
 
+   Trytes trytes;
+   program.loadFromHeap(offset + rs1, 2, trytes);
+   std::uint16_t rdi = TrytesToInt(trytes);
+   rd = rdi;
 }
 
 void executeLbu(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
@@ -481,35 +514,65 @@ void executeLt_t(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgra
 //======================================
 // Store instructions
 //======================================
-
+const Tint maxStoreOffset = std::pow(3, 12); // TODO: Find the correct offset
 // Binary
-void executeSw(const Tint& rs, std::int32_t targetAddress, ExecutableProgram& program)
+void executeSw(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
+   if((offset > maxStoreOffset) || (offset < -maxStoreOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
 
+   // Who needs for-loops anyways...
+   Tryte rs2t = rs2 & 0xFF;
+   program.storeToHeap(offset + rs1, rs2t, 1);
+   rs2t = (rs2 >> 8) & 0xFF;
+   program.storeToHeap(offset + rs1 + 1, rs2t, 1);
+   rs2t = (rs2 >> 16) & 0xFF;
+   program.storeToHeap(offset + rs1 + 2, rs2t, 1);
+   rs2t = (rs2 >> 24) & 0xFF;
+   program.storeToHeap(offset + rs1 + 3, rs2t, 1);
 }
 
-void executeSh(const Tint& rs, std::int32_t targetAddress, ExecutableProgram& program)
+void executeSh(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
+   if((offset > maxStoreOffset) || (offset < -maxStoreOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
 
+   Tryte rs2t = rs2 & 0xFF;
+   program.storeToHeap(offset + rs1, rs2t, 1);
+   rs2t = (rs2 >> 8) & 0xFF;
+   program.storeToHeap(offset + rs1 + 1, rs2t, 1);
 }
 
-void executeSb(const Tint& rs, std::int32_t targetAddress, ExecutableProgram& program)
+void executeSb(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
+   if((offset > maxStoreOffset) || (offset < -maxStoreOffset))
+   {
+      std::cerr << __PRETTY_FUNC__ << ": Illegal value " << offset << std::endl;
+      abort();
+   }
 
+   Tryte rs2t = rs2 & 0xFF;
+   program.storeToHeap(offset + rs1, rs2t, 1);
 }
 
 // Ternary
-void executeSw_t(const Tint& rs, std::int32_t targetAddress, ExecutableProgram& program)
+void executeSw_t(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
 
 }
 
-void executeSh_t(const Tint& rs, std::int32_t targetAddress, ExecutableProgram& program)
+void executeSh_t(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
 
 }
 
-void executeSb_t(const Tint& rs, std::int32_t targetAddress, ExecutableProgram& program)
+void executeSb_t(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
 
 }

@@ -116,14 +116,14 @@ void executeLt_t(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBE
 //======================================
 
 // Binary
-void executeSw(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
-void executeSh(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
-void executeSb(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeSw(const Tint& rs2, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
+void executeSh(const Tint& rs2, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
+void executeSb(const Tint& rs2, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
 
 // Ternary
-void executeSw_t(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
-void executeSh_t(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
-void executeSt_t(const Tint& rs, std::int32_t targetAddress, Simulators::REBEL6::ExecutableProgram& program);
+void executeSw_t(const Tint& rs2, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
+void executeSh_t(const Tint& rs2, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
+void executeSt_t(const Tint& rs2, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
 
 
 }

@@ -134,12 +134,12 @@ void CPU::executeRegister(const std::string& name, bool isBinary, const std::str
       if     (name == "add")  InstructionExecutor::executeAdd(rdVal, rs1i, rs2i);
       else if(name == "sub")  InstructionExecutor::executeSub(rdVal, rs1i, rs2i);
       else if(name == "sll")  InstructionExecutor::executeSll(rdVal, rs1i, rs2i);
-      // else if(name == "srl")  InstructionExecutor::executeSrl(rdVal, rs1i, rs2i);
-      // else if(name == "sra")  InstructionExecutor::executeSra(rdVal, rs1i, rs2i);
+      else if(name == "srl")  InstructionExecutor::executeSrl(rdVal, rs1i, rs2i);
+      else if(name == "sra")  InstructionExecutor::executeSra(rdVal, rs1i, rs2i);
       // //else if(name == "slt")  InstructionExecutor::executeSlt(rdVal, rs1i, rs2i);
       else if(name == "sltu") InstructionExecutor::executeSltu(rdVal, rs1i, rs2i);
       else if(name == "or")   InstructionExecutor::executeOr(rdVal, rs1i, rs2i);
-      // else if(name == "xor")  InstructionExecutor::executeXor(rdVal, rs1i, rs2i);
+      else if(name == "xor")  InstructionExecutor::executeXor(rdVal, rs1i, rs2i);
       else if(name == "and")  InstructionExecutor::executeAnd(rdVal, rs1i, rs2i);
       else
       {
@@ -188,12 +188,12 @@ void CPU::executeImmediate(const std::string& name, bool isBinary, const std::st
    {
       if     (name == "addi")  InstructionExecutor::executeAddi(rdVal, rs1i, immi);
       else if(name == "slli")  InstructionExecutor::executeSlli(rdVal, rs1i, immi);
-      // else if(name == "srli")  InstructionExecutor::executeSrli(rdVal, rs1i, immi);
-      // else if(name == "srai")  InstructionExecutor::executeSrai(rdVal, rs1i, immi);
+      else if(name == "srli")  InstructionExecutor::executeSrli(rdVal, rs1i, immi);
+      else if(name == "srai")  InstructionExecutor::executeSrai(rdVal, rs1i, immi);
       // //else if(name == "slti")  InstructionExecutor::executeSlti(rdVal, rs1i, immi);
       else if(name == "sltiu") InstructionExecutor::executeSltiu(rdVal,rs1i, immi);
       else if(name == "ori")   InstructionExecutor::executeOri(rdVal, rs1i, immi);
-      // else if(name == "xori")  InstructionExecutor::executeXori(rdVal, rs1i, immi);
+      else if(name == "xori")  InstructionExecutor::executeXori(rdVal, rs1i, immi);
       else if(name == "andi")  InstructionExecutor::executeAndi(rdVal, rs1i, immi);
       else
       {
@@ -347,11 +347,10 @@ void CPU::executeLoad(const std::string& name, bool isBinary, const std::string&
 
    if(isBinary)
    {
-      if(false){}
-      // if(name == "lw") InstructionExecutor::executeLw(rdVal, offset, rs1, program);
+      if(name == "lw") InstructionExecutor::executeLw(rdVal, offset, rs1, program);
       else if(name == "lh") InstructionExecutor::executeLh(rdVal, offset, rs1, program);
       else if(name == "lb") InstructionExecutor::executeLb(rdVal, offset, rs1, program);
-      // else if(name == "lhu") InstructionExecutor::executeLhu(rdVal, offset, rs1, program);
+      else if(name == "lhu") InstructionExecutor::executeLhu(rdVal, offset, rs1, program);
       else if(name == "lbu") InstructionExecutor::executeLbu(rdVal, offset, rs1, program);
       else
       {
@@ -385,10 +384,9 @@ void CPU::executeStore(const std::string& name, bool isBinary, const std::string
 
    if(isBinary)
    {
-      if(false){}
-      // if     (name == "sw") InstructionExecutor::executeSw(rsi, addressi, program);
-      // else if(name == "sh") InstructionExecutor::executeSh(rsi, addressi, program);
-      // else if(name == "sb") InstructionExecutor::executeSb(rsi, addressi, program);
+      if     (name == "sw") InstructionExecutor::executeSw(rs2, offset, rs1, program);
+      else if(name == "sh") InstructionExecutor::executeSh(rs2, offset, rs1, program);
+      else if(name == "sb") InstructionExecutor::executeSb(rs2, offset, rs1, program);
       else
       {
          std::cerr << __PRETTY_FUNC__ << ": Unsupported binary store instruction " << name << std::endl;

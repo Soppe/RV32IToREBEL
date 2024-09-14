@@ -95,39 +95,11 @@ void ExecutableProgram::loadFromHeap(std::int32_t address, std::uint8_t numTryte
    for(std::uint8_t i = 0; i < numTrytes; ++i)
    {
       out.push_back(m_heap[heapAddress]);
+      // std::cout << "Loading from memory = " << std::hex << m_heap[heapAddress] << std::dec << " at index " << heapAddress << std::endl;
        ++heapAddress;
 
-      // std::cout << "Loading from memory = " << m_heap[heapAddress] << " at index " << heapAddress << std::endl;
    }
  }
-
-/*Tint ExecutableProgram::loadFromHeap(std::int32_t address, std::uint8_t numTrytes) const
-{
-   Tint retVal = 0;
-   if((numTrytes > 4) || (numTrytes < 0))
-   {
-      std::cerr << __PRETTY_FUNC__ << ": Trying to load data of unsupported tryte size " << numTrytes << std::endl;
-      abort();
-   }
-
-   std::uint32_t heapAddress = address - getInstructionsSizeTrytes()*/ /* +/- program start address if it's other than 0 */;
-   /*Trits trits;
-   for(std::uint8_t i = 0; i < numTrytes; ++i)
-   {
-      trits.clear();
-      TernaryLogic::tintToTrits(m_heap[heapAddress], trits);
-      for(std::uint8_t j = 0; j < trits.size(); ++j)
-      {
-         retVal += trits[j] * std::pow(3, j + (i * REBEL6_TRITS_PER_TRYTE));
-      }
-
-      ++heapAddress;
-
-      // std::cout << "Loading from memory = " << m_heap[heapAddress] << " at index " << heapAddress << std::endl;
-   }
-
-   return retVal;
-}*/
 
 std::int32_t ExecutableProgram::loadSymbolAddress(const std::string& symbolName) const
 {
@@ -225,7 +197,7 @@ void ExecutableProgram::doStoreToHeap(std::uint32_t heapAddress, const Tint& val
       }
 
       m_heap[heapAddress] = val;
-      // std::cout << "Storing ternary value to heap = " << val << " at index " << heapAddress << std::endl;
+      // std::cout << "Storing ternary value to heap = " << std::hex << val << std::dec << " at index " << heapAddress << std::endl;
       ++heapAddress;
    }
    // std::cout << std::endl;

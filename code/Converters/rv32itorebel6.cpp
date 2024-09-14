@@ -95,9 +95,22 @@ void handleLoad(const Converters::RV32IPseudoToRV32IBase* conv, const std::strin
 //    s{b|h|w} rd, 0(rt)
 void handleStore(const Converters::RV32IPseudoToRV32IBase* conv, const std::string& name, const Converters::StringList& op, Expressions::ExpressionList& el)
 {
-   std::string offsetDummy; // Placeholder, not used here
-   std::string rs1Dummy; // Placeholder, not used here
-   if(ParseUtils::parseRegisterOffset(op[1], offsetDummy, rs1Dummy)) { createInstruction(el, name, op[0], op[1]); }
+   std::string offset;
+   std::string rs1;
+
+   if(ParseUtils::parseRegisterOffset(op[1], offset, rs1))
+   {
+      // This is a %pcrel_lo or %lo call that corresponds to some auipc or lui call that relates to %pcrel_hi or %hi.
+      // Auipc is converted to aipc.t and lui to li.t and they both handle the whole immediate.
+      if(offset[0] == '%')
+      {
+         createInstruction(el, name, op[0], zeroOffset(rs1));
+      }
+      else
+      {
+         createInstruction(el, name, op[0], op[1]);
+      }
+   }
    else // Pseudoinstruction
    {
       conv->at("aipc.t")({op[2], pcrel(op[1])}, el);
@@ -237,10 +250,10 @@ void RV32IToREBEL6::fillExpressionMap()
 
    // Need to support unsigned binary memory type instructions since a value stored in the memory through e.g. li.t + sw can be either positive or negative, depending on who reads it.
    // lbu rd, offset(rs) --> lbu rd, offset(rs)
-   //m_instructionMap["lbu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lbu", op, el); };
+   m_instructionMap["lbu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lbu", op, el); };
 
    // lhu rd, offset(rs) --> lhu rd, offset(rs)
-   //m_instructionMap["lhu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lh", op, el); };
+   m_instructionMap["lhu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lhu", op, el); };
 
    // Need to keep their binary versions to overhold binary limits (e.g. the max value of binary byte is smaller than the max value of ternary trit) when storing to memory.
    // s{b|h|w} rd, offset(rs) --> s{b|h|w} rd, offset(rs)
@@ -352,8 +365,8 @@ void RV32IToREBEL6::fillExpressionMap()
    // li rd, imm --> li.t rd, imm
    m_instructionMap["li"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("li.t")({op[0], op[1]}, el); };
 
-   // mv rd, rs --> addi rd, rs, 0
-   //m_instructionMap["mv"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("addi")({op[0], op[1], "0"}, el); };
+   // mv rd, rs --> addi.t rd, rs, 0
+   m_instructionMap["mv"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("addi.t")({op[0], op[1], "0"}, el); };
 
    // not rd, rs --> xori rd, rs, -1
    //m_instructionMap["not"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("xori")({op[0], op[1], "-1"}, el); };

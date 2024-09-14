@@ -35,9 +35,9 @@ const std::unordered_map<std::string, const Simulators::REBEL6::SimulatorUtils::
       {"bltu", Simulators::REBEL6::SimulatorUtils::InstructionType::BRANCH},
 
       // I - Load
-      {"lb", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
-      {"lh", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
       {"lw", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
+      {"lh", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
+      {"lb", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
       {"lhu", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
       {"lbu", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
 
@@ -48,28 +48,28 @@ const std::unordered_map<std::string, const Simulators::REBEL6::SimulatorUtils::
 
       // SYSTEM
       {"ecall", Simulators::REBEL6::SimulatorUtils::InstructionType::SYSTEM},
-      {"ebreak", Simulators::REBEL6::SimulatorUtils::InstructionType::SYSTEM},
+      // {"ebreak", Simulators::REBEL6::SimulatorUtils::InstructionType::SYSTEM},
 
 
       //------------ TERNARY ----------
       // R - Register
-      {"add.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
-      {"sub.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
-      {"sl.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
-      {"sr.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
+      // {"add.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
+      // {"sub.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
+      // {"sl.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
+      // {"sr.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
       {"slt.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
-      {"or.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
-      {"xor.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
-      {"and.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
+      // {"or.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
+      // {"xor.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
+      // {"and.t", Simulators::REBEL6::SimulatorUtils::InstructionType::REGISTER},
 
       // I - Immediate
       {"addi.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
-      {"sli.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
-      {"sri.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
+      // {"sli.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
+      // {"sri.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
       {"slti.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
-      {"ori.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
-      {"xori.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
-      {"andi.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
+      // {"ori.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
+      // {"xori.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
+      // {"andi.t", Simulators::REBEL6::SimulatorUtils::InstructionType::IMMEDIATE},
 
       // LI - Load Immediate
       {"li.t", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD_IMMEDIATE},
@@ -88,18 +88,18 @@ const std::unordered_map<std::string, const Simulators::REBEL6::SimulatorUtils::
       {"jalr.t", Simulators::REBEL6::SimulatorUtils::InstructionType::JUMP_REGISTER},
 
       // I - Load
-      {"lw.t", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
-      {"lh.t", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
-      {"lt.t", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
+      // {"lw.t", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
+      // {"lh.t", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
+      // {"lt.t", Simulators::REBEL6::SimulatorUtils::InstructionType::LOAD},
 
       // S - Store
-      {"sw.t", Simulators::REBEL6::SimulatorUtils::InstructionType::STORE},
-      {"sh.t", Simulators::REBEL6::SimulatorUtils::InstructionType::STORE},
-      {"st.t", Simulators::REBEL6::SimulatorUtils::InstructionType::STORE},
+      // {"sw.t", Simulators::REBEL6::SimulatorUtils::InstructionType::STORE},
+      // {"sh.t", Simulators::REBEL6::SimulatorUtils::InstructionType::STORE},
+      // {"st.t", Simulators::REBEL6::SimulatorUtils::InstructionType::STORE},
 
       // SYSTEM
-      {"ecall.t", Simulators::REBEL6::SimulatorUtils::InstructionType::SYSTEM},
-      {"ebreak.t", Simulators::REBEL6::SimulatorUtils::InstructionType::SYSTEM}
+      // {"ecall.t", Simulators::REBEL6::SimulatorUtils::InstructionType::SYSTEM},
+      // {"ebreak.t", Simulators::REBEL6::SimulatorUtils::InstructionType::SYSTEM}
    };
 }
 
