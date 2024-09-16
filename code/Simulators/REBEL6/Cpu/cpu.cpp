@@ -136,7 +136,6 @@ void CPU::executeRegister(const std::string& name, bool isBinary, const std::str
       else if(name == "sll")  InstructionExecutor::executeSll(rdVal, rs1i, rs2i);
       else if(name == "srl")  InstructionExecutor::executeSrl(rdVal, rs1i, rs2i);
       else if(name == "sra")  InstructionExecutor::executeSra(rdVal, rs1i, rs2i);
-      // //else if(name == "slt")  InstructionExecutor::executeSlt(rdVal, rs1i, rs2i);
       else if(name == "sltu") InstructionExecutor::executeSltu(rdVal, rs1i, rs2i);
       else if(name == "or")   InstructionExecutor::executeOr(rdVal, rs1i, rs2i);
       else if(name == "xor")  InstructionExecutor::executeXor(rdVal, rs1i, rs2i);
@@ -190,7 +189,6 @@ void CPU::executeImmediate(const std::string& name, bool isBinary, const std::st
       else if(name == "slli")  InstructionExecutor::executeSlli(rdVal, rs1i, immi);
       else if(name == "srli")  InstructionExecutor::executeSrli(rdVal, rs1i, immi);
       else if(name == "srai")  InstructionExecutor::executeSrai(rdVal, rs1i, immi);
-      // //else if(name == "slti")  InstructionExecutor::executeSlti(rdVal, rs1i, immi);
       else if(name == "sltiu") InstructionExecutor::executeSltiu(rdVal,rs1i, immi);
       else if(name == "ori")   InstructionExecutor::executeOri(rdVal, rs1i, immi);
       else if(name == "xori")  InstructionExecutor::executeXori(rdVal, rs1i, immi);

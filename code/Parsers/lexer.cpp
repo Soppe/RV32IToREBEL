@@ -94,7 +94,6 @@ Token* Lexer::nextToken()
       if(m_ch == '"')
       {
          // String literal.
-         // TODO: Allow escape characters.
          nextChar();
          while(m_ch != '"')
          {

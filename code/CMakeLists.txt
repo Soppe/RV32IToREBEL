@@ -13,8 +13,6 @@ include_directories(${PROJECT_SOURCE_DIR})
 # Header files
 set(HEADERS
    logger.h
-   ternarymapper.h
-   ternaryoperandconverter.h
    Converters/converter.h
    Converters/instructionconverterbase.h
    Converters/rv32ipseudotorv32ibase.h
@@ -52,8 +50,6 @@ set(HEADERS
 # Source files
 set(SOURCES
    main.cpp
-   ternarymapper.cpp
-   ternaryoperandconverter.cpp
    Converters/converter.cpp
    Converters/instructionconverterbase.cpp
    Converters/rv32ipseudotorv32ibase.cpp

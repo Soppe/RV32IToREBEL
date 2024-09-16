@@ -54,7 +54,7 @@ void executeSrl(std::int32_t& rd, std::int32_t rs1, std::int32_t rs2)
       rd = rs1 >> rs2;
 
       // Since c++ 20 the right shift is defined to be arithmetic. Before c++20 it seems to have been implementation defined, but normally arithmetic for negative numbers
-      // Since the >> operand therefore sign extends the number, we have to simulate shifting 0's into the upper bits
+      // Since the >> operand therefore most likely sign extends the number, we have to simulate shifting 0's into the upper bits
       std::int32_t mask = 0x7fffffff;
       mask = mask >> (rs2 - 1);
       rd = rd & mask;
@@ -160,7 +160,7 @@ void executeSrli(std::int32_t& rd, std::int32_t rs1, std::int32_t imm)
    {
       rd = rs1 >> immu;
 
-             // Since the >> operand in c++ functions as sra we have to simulate shifting 0's into the upper bits
+      // Since the >> operand in c++ functions as sra we have to simulate shifting 0's into the upper bits
       std::int32_t mask = 0x7fffffff;
       mask = mask >> (immu - 1);
       rd = rd & mask;

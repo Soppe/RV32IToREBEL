@@ -28,18 +28,11 @@ std::uint32_t countTritFlips(Tint oldVal, Tint newVal)
    // a full tryte/th/tw for either value will be 0 for both and therefor cause no flips.
    if(sizeDiff < 0)
    {
-      for(int i = 0; i < -sizeDiff; ++i)
-      {
-         // TODO: oldTrits.resize(newTrits.size(), 0); ?
-         oldTrits.insert(oldTrits.end(), 0);
-      }
+      oldTrits.resize(newTrits.size(), 0);
    }
    else
    {
-      for(int i = 0; i < sizeDiff; ++i)
-      {
-         newTrits.insert(newTrits.end(), 0);
-      }
+      newTrits.resize(oldTrits.size(), 0);
    }
 
    for(int i = 0; i < oldTrits.size(); ++i)

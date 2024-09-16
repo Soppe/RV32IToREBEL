@@ -6,6 +6,11 @@
 
 #include <iostream>
 
+
+
+// THIS FILE IS OUTDATED AND SHOULD NOT BE USED. IT IS ONLY HERE FOR HISTORICAL PURPOSES
+
+
 namespace
 {
 const std::string pcrel_hi(const std::string& in) { return "%pcrel_hi(" + in +")"; }

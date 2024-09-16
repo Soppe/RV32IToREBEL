@@ -111,21 +111,26 @@ void executeAnd(Tint& rd, const Tint& rs1, const Tint& rs2)
 // Ternary
 void executeAdd_t(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 void executeSub_t(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 void executeSl_t(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 void executeSr_t(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 void executeSlt_t(Tint& rd, const Tint& rs1, const Tint& rs2)
@@ -138,17 +143,20 @@ void executeSlt_t(Tint& rd, const Tint& rs1, const Tint& rs2)
 
 void executeOr_t(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 void executeXor_t(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 void executeAnd_t(Tint& rd, const Tint& rs1, const Tint& rs2)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 //======================================
@@ -238,12 +246,14 @@ void executeAddi_t(Tint& rd, const Tint& rs1, const Tint& imm)
 
 void executeSli_t(Tint& rd, const Tint& rs1, const Tint& imm)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 void executeSri_t(Tint& rd, const Tint& rs1, const Tint& imm)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 void executeSlti_t(Tint& rd, const Tint& rs1, const Tint& imm)
@@ -266,17 +276,20 @@ void executeSlti_t(Tint& rd, const Tint& rs1, const Tint& imm)
 
 void executeOri_t(Tint& rd, const Tint& rs1, const Tint& imm)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 void executeXori_t(Tint& rd, const Tint& rs1, const Tint& imm)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 void executeAndi_t(Tint& rd, const Tint& rs1, const Tint& imm)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 //======================================
@@ -498,17 +511,20 @@ void executeLbu(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram
 // Ternary
 void executeLw_t(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 void executeLh_t(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 void executeLt_t(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 //======================================
@@ -564,17 +580,20 @@ void executeSb(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableP
 // Ternary
 void executeSw_t(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 void executeSh_t(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 void executeSb_t(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
 {
-
+   std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
+   abort();
 }
 
 }

@@ -88,10 +88,9 @@ void handleLoad(const Converters::RV32IPseudoToRV32IBase* conv, const std::strin
    }
 }
 
-//TODO: Implement this properly once we know how to deal with storing trits and trytes instead of bits and bytes in memory
 // s{b|h|w} rd, offset(rs) --> s{b|h|w} rd, offset(rs)
 // s{b|h|w} rd, symbol, rt -->
-//    aipc rt, %pcrel(symbol)
+//    aipc.t rt, %pcrel(symbol)
 //    s{b|h|w} rd, 0(rt)
 void handleStore(const Converters::RV32IPseudoToRV32IBase* conv, const std::string& name, const Converters::StringList& op, Expressions::ExpressionList& el)
 {
@@ -129,13 +128,13 @@ RV32IToREBEL6::RV32IToREBEL6()
 
 void RV32IToREBEL6::fillExpressionMap()
 {
-   // TODO: Every instruction that deals with memory and addresses need to take into account that these are now all ternary, not binary.
-   // You can't store a byte at address 0x123 since the memory is ternary, not binary. Same goes for addressing - jumping to address -123(a0) isn't the same in ternary as in
-   // binary unless each instruction is 2-tryte aligned and each instruction is 32 trits etc, which isn't the case.
-
    // RV32I BASE INSTRUCTION OVERRIDES (including pseudoinstructions in the cases where the base and pseudoinstruction has the same name)
 
-   // TODO: Pretty sure the commented expressions can be kept as they are in binary
+   // Instructions that are commented out are inherired from RV32I and are not overridden
+
+   // Support for binary unsigned instructions need to be kept as any read value is ambiguous in binary and its signedness depends on the reader.
+   // Balanced ternary (REBEL-6) does not suffer this problem.
+
    // add rd, rs1, rs2 --> add rd, rs1, rs2
    //m_instructionMap["add"] = [] (const StringList& op, Expressions::ExpressionList& el) { createInstruction(el, "add", op[0], op[1], op[2]); };
 
@@ -164,7 +163,7 @@ void RV32IToREBEL6::fillExpressionMap()
 
    // lui rd, imm --> li.t rd, imm
    // lui is defined as putting the 20 lsb of the immediate into the 20 msb of the target registry.
-   // However, since li.t can take the full 32 bits, we do the whole operation here and ignore any calls to corresponding %lo calls in addi.
+   // However, since li.t can take the full 32 bits, we do the whole operation here and ignore any calls to corresponding %lo calls in load, store, and addi instructions.
    m_instructionMap["lui"] = [this] (const StringList& op, Expressions::ExpressionList& el)
    {
       if(op[1][0] == '%') // %hi
@@ -192,8 +191,7 @@ void RV32IToREBEL6::fillExpressionMap()
 
    // auipc rd, imm --> aipc.t rd, imm
    // auipc works the same as lui in that it operates on the 20 lsb of an immediate and places them in the 20 msb in the target register. It normally operates on %pcrel_hi.
-   // Converting auipc is difficult since the logic between RV32I and REBEL-6 is not similar. As such, we do the whole conversion here,
-   // and ignore the %pcrel_lo calls in load, store, and addi instructions.
+   // Since aipc.t can take the full 32 bits, we do the whole operation here and ignore any calls to corresponding %lo calls in load, store, and addi instructions.
    m_instructionMap["auipc"] = [this] (const StringList& op, Expressions::ExpressionList& el)
    {
       if(op[1][0] == '%') // %pcrel_hi
@@ -227,6 +225,9 @@ void RV32IToREBEL6::fillExpressionMap()
                               else               at("jal.t")({op[0], op[1]}, el);
                            };
 
+   // Since jal can take a full 32 bit value there is an argument that jalr can be dropped completely and replaced with jal calls. This would however require the implementation
+   // of some optimization that can detect any writes to the register used as rs in jalr, and construct a full 32 bit value to put in jal. Since this currently does not exist, we
+   // keep jalr for now.
    // jalr rs --> jalr x1, 0(rs)
    // jalr rd, rs, offset --> jalr rd, offset(rs) // This is an older format, e.g. from version v2.2
    // jalr rd, offset(rs) --> jalr.t rd, offset(rs)
@@ -240,6 +241,7 @@ void RV32IToREBEL6::fillExpressionMap()
    // Need binary versions so we don't mix binary and ternary reads and writes. E.g. the value 260 stored in binary requires 2 memory slots, but only 1 in ternary.
    // If we store it as a ternary value we can't use "lb 1(rs)" to read the second byte from the second memory slot since it'll be 0.
    // If we store it as binary using 2 trytes, reading it using a ternary lh.t means the value read from the second memory location would be minimum (3^(6 + 1)), which is way more than 260.
+   // This may change in the future if REBEL-6 implements stricter memory alignemnts and rules for reading and writing from/to memory.
    // l{b|h|w} rd, offset(rs) --> l{t|h|w} rd, offset(rs)
    // l{b|h|w} rd, symbol -->
    //    aipc rd, %pcrel(symbol)
@@ -248,7 +250,6 @@ void RV32IToREBEL6::fillExpressionMap()
    m_instructionMap["lh"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lh", op, el); };
    m_instructionMap["lw"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lw", op, el); };
 
-   // Need to support unsigned binary memory type instructions since a value stored in the memory through e.g. li.t + sw can be either positive or negative, depending on who reads it.
    // lbu rd, offset(rs) --> lbu rd, offset(rs)
    m_instructionMap["lbu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lbu", op, el); };
 
@@ -276,25 +277,18 @@ void RV32IToREBEL6::fillExpressionMap()
    // bge rs1, rs2, offset --> bge.t rs1, rs2, offset
    m_instructionMap["bge"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("bge.t")({op[0], op[1], op[2]}, el); };
 
-   // Need to support unsigned binary register type instructions since the value stored in the register through e.g. a li.t
-   // operation using a hex value can be either positive or negative, depending on who reads it.
    // bltu rs1, rs2, offset --> bltu rs1, rs2, offset
    // m_instructionMap["bltu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("bltu")({op[0], op[1], op[2]}, el); };
 
-   // Need to support unsigned binary register type instructions since the value stored in the register through e.g. a li.t
-   // operation using a hex value can be either positive or negative, depending on who reads it.
    // bgeu rs1, rs2, offset --> bgeu rs1, rs2, offset
    //m_instructionMap["bgeu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("bgeu")({op[0], op[1], op[2]}, el); };
 
    // slti rd, rs1, imm --> slti.t rd, rs1, imm
    m_instructionMap["slti"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("slti.t")({op[0], op[1], op[2]}, el); };
 
-   // Need to support unsigned binary register type instructions since the value stored in the register through e.g. a li.t
-   // operation using a hex value can be either positive or negative, depending on who reads it.
    // sltiu rd, rs1, imm --> sltiu rd, rs1, imm
    // m_instructionMap["sltiu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("sltiu")({op[0], op[1], op[2]}, el); };
 
-   // TODO: Pretty sure the commented expressions must be kept as they are in binary
    // xori rd, rs1, imm --> xori rd, rs1, imm
    //m_instructionMap["xori"] = [] (const StringList& op, Expressions::ExpressionList& el) { createInstruction(el, "xori", op[0], op[1], op[2]); };
 
@@ -319,12 +313,9 @@ void RV32IToREBEL6::fillExpressionMap()
    // slt rd, rs1, rs2 --> slt.t rd, rs1, rs2
    m_instructionMap["slt"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("slt.t")({op[0], op[1], op[2]}, el); };
 
-   // Need to support unsigned binary register type instructions since the value stored in the register through e.g. a li.t
-   // operation using a hex value can be either positive or negative, depending on who reads it.
    // sltu rd, rs1, rs2 --> sltu rd, rs1, rs2
    // m_instructionMap["sltu"] = [this] (const StringList& op, Expressions::ExpressionList& el) { at("sltu")({op[0], op[1], op[2]}, el); };
 
-   // TODO: Pretty sure the commented expressions must be kept as they are in binary
    // xor rd, rs1, rs2 --> xor rd, rs1, rs2
    //m_instructionMap["xor"] = [] (const StringList& op, Expressions::ExpressionList& el) { createInstruction(el, "xor", op[0], op[1], op[2]); };
 
@@ -341,7 +332,7 @@ void RV32IToREBEL6::fillExpressionMap()
    //m_instructionMap["and"] = [] (const StringList& op, Expressions::ExpressionList& el) { createInstruction(el, "and", op[0], op[1], op[2]); };
 
 
-   // System calls can stay as they are
+   // System calls can stay as they are. We really don't currently care
    // fence --> nop
    //m_instructionMap["fence"] = [this] (const StringList&, Expressions::ExpressionList& el) { at("nop")({}, el); };
 
@@ -436,7 +427,8 @@ void RV32IToREBEL6::fillExpressionMap()
    // ret --> jalr x0, 0(x1)
    //m_instructionMap["ret"] = [this] (const StringList&, Expressions::ExpressionList& el) { at("jalr")({"x0", zeroOffset("x1")}, el); };
 
-   // TODO: Can this be replaced with something ala jal.t x1, offset?
+   // Since jal can fit a full 32 bit offset, we could probably replace this call with a jal. Ths would however require a redefinition of %pcrel so it calculates the full
+   // PC-relative offset instead of relying on aipc.t to help calculate the offset.
    // call offset -->
    //    aipc.t x1, %pcrel(offset)
    //    jalr x1, 0(x1)

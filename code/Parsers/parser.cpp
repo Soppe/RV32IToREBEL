@@ -123,15 +123,8 @@ Expressions::Directive* Parser::getDirective(bool includeDot)
    {
       std::string operand;
       getOperand(operand);
-      // Does the first operand have a Dot, Plus, or minus?
-      /*while(CheckToken(TokenType::Dot) || CheckToken(TokenType::Plus) || CheckToken(TokenType::Minus))
-      {
-         operand += m_token->literal;
-         NextToken();
-      }
-      operand += m_token->literal;
-      Match(TokenType::Symbol);*/
       operands.push_back(operand);
+
       // Zero or more operands.
       while(checkToken(TokenType::Comma))
       {
@@ -139,13 +132,6 @@ Expressions::Directive* Parser::getDirective(bool includeDot)
          operand = "";
          getOperand(operand);
          operands.push_back(operand);
-         /*NextToken();
-         // Is there a dot, plus, or minus?
-         while(CheckToken(TokenType::Dot) || CheckToken(TokenType::Plus) || CheckToken(TokenType::Minus))
-         {
-            NextToken();
-         }
-         Match(TokenType::Symbol);*/
       }
    }
 
@@ -208,7 +194,6 @@ void Parser::getOperand(std::string& operand) {
    while(checkToken(TokenType::Dot) || checkToken(TokenType::Plus) || checkToken(TokenType::Minus))
    {
       operand += m_token->literal;
-      // std::cout << "Found first operand = " << m_token->literal << std::endl;
       nextToken();
    }
 
@@ -216,13 +201,11 @@ void Parser::getOperand(std::string& operand) {
    if(checkToken(TokenType::Symbol) && !checkPeek(TokenType::Lparen))
    {
       operand += m_token->literal;
-      // std::cout << "Found second operand = " << m_token->literal << std::endl;
       nextToken();
    }
    // symbol '(' symbol ')'
    else
    {
-      // std::cout << "Found third operand = " << m_token->literal << std::endl;
       operand += m_token->literal;
       match(TokenType::Symbol);
       operand += m_token->literal;
@@ -248,20 +231,3 @@ void Parser::getOperand(std::string& operand) {
       }
    }
 }
-
-/*void Parser::resolvePseudoInstruction(Expressions::Instruction* i, std::list<const Expression*>& expressions)
-{
-   Expressions::Instruction* first = nullptr;
-   Expressions::Instruction* second = nullptr;
-   Expressions::Instruction::resolvePseudoInstruction(i, first, second);
-
-   if(first != nullptr)
-   {
-      expressions.push_back(first);
-
-      if(second != nullptr)
-      {
-         expressions.push_back(second);
-      }
-   }
-}*/

@@ -181,11 +181,6 @@ void Registry::printRegistry()
 
       std::cout << xName << "\t" << abiName << "\t0x" << std::hex << val << "\t\t" << std::dec << val << std::endl;
    }
-
-   /*for(const auto& [key, value]: m_registry)
-   {
-      std::cout << key << ": " << value << std::endl;
-   }*/
 }
 
 }

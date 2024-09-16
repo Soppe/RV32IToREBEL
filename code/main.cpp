@@ -2,10 +2,6 @@
 // Austin Henley
 // 10/5/2020
 
-
-#include "ternarymapper.h"
-#include "ternaryoperandconverter.h"
-
 #include "Converters/converter.h"
 
 #include "Parsers/lexer.h"
@@ -28,71 +24,6 @@
 #include <fstream>
 #include <filesystem>
 
-
-namespace
-{
-void printOperands(const std::vector<std::string>& operands)
-{
-   for(std::uint32_t i = 0; i < operands.size(); ++i)
-   {
-      if(i != 0)
-      {
-         std::cout << ",";
-      }
-
-      std::cout << " " << operands[i];
-   }
-}
-
-void printExpressions(const Expressions::ExpressionList& expressions)
-{
-   std::uint32_t pc = 0;
-   for(const Expressions::Expression* e: expressions)
-   {
-      std::cout << std::hex << pc << std::dec << "\t";
-      switch(e->getExpressionType())
-      {
-      case Expressions::Expression::ExpressionType::DIRECTIVE:
-      {
-         const Expressions::Directive* d = static_cast<const Expressions::Directive*>(e);
-         std::cout << "\t" << *d;
-         break;
-      }
-      case Expressions::Expression::ExpressionType::LABEL:
-      {
-         const Expressions::Label* l = static_cast<const Expressions::Label*>(e);
-         std::cout << *l;
-         break;
-      }
-      case Expressions::Expression::ExpressionType::INSTRUCTION:
-      {
-         const Expressions::Instruction* i = static_cast<const Expressions::Instruction*>(e);
-         std::cout << "\t" << *i;
-         pc += 4;
-         break;
-      }
-      case Expressions::Expression::ExpressionType::COMMENT:
-         //TODO: std::cout << e->getExpressionName();
-         break;
-      case Expressions::Expression::ExpressionType::UNDEFINED:
-         // TODO: std::cerr << "Found undefined expression with name = " << e->getExpressionName() << std::endl;
-         break;
-      default:
-         std::cerr << "Unsupported expression type with value = " << static_cast<std::int32_t>(e->getExpressionType()) << std::endl;
-      }
-
-      /*if(peekNextExpression == comment && e->lineNumber == next->lineNumber)
-      {
-         Print comment
-             m_helper->nextExpression(); // Skip comment
-      }
-      else
-      {*/
-      std::cout << std::endl;
-      //}
-   }
-}
-}
 
 int main(int argc, char* argv[])
 {
@@ -185,20 +116,8 @@ int main(int argc, char* argv[])
    // Generating MRSC ternary file
    //Simulators::REBEL6::AssemblerUtils::generateAssemblyFileForMRCS(rebel6Executable, fileName);
 
-   //TernaryMapper mapper(binaryExpressions);
-   //Expressions::ExpressionList ternaryExpressions;
-   //mapper.mapExpressions(ternaryExpressions);
-
-
-   //std::cout << "BINARY EXPRESSIONS: " << std::endl;
-   //printExpressions(binaryExpressions);
-
-   //std::cout << "TERNARY EXPRESSIONS: " << std::endl;
-   //printExpressions(ternaryExpressions);
-
    // Cleanup
    binaryExpressions.remove_if([](const Expressions::Expression* expr) { delete expr; return true;});
-   //ternaryExpressions.remove_if([](const Expressions::Expression* expr) { delete expr; return true;});
    delete l;
    return 0;
 }

@@ -24,8 +24,3 @@ void ExpressionParser::reset()
 {
    m_iter = m_expressions.begin();
 }
-
-void ExpressionParser::insertAtCurrent(Expressions::Expression* expression)
-{
-   //m_expressions.insert(m_iter, expression);
-}

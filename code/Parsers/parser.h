@@ -32,7 +32,6 @@ private:
    Expressions::Expression* getLabelOrDirective();
    void getOperand(std::string& operand);
 
-   //void resolvePseudoInstruction(Expressions::Instruction* i, std::list<const Expression*>& expressions);
    Lexer* m_l;
    Token* m_token;
    Token* m_peek;

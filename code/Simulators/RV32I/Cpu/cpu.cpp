@@ -16,7 +16,7 @@ namespace
 
 // Set ra to some irrational and easily detectable value. GCC, and possibly other compilers, adds a "jr ra" at the end of the main routine to return to some caller.
 // This value is used to detect when that happens.
-const std::int32_t ProgramEndRAValue = INT_MIN; // Set it to a value that triggers minimum amount of bit flips compared to if the value was 0
+const std::int32_t ProgramEndRAValue = INT_MIN; // Set it to a value that most likely triggers the least amount of bit flips when the calue is changed
 const std::int16_t RegisterCount = 32;
 
 }

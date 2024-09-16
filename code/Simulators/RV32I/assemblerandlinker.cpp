@@ -585,24 +585,19 @@ void AssemblerAndLinker::printExpressionsToFile(const std::string& fileName)
          break;
       }
       case Expressions::Expression::ExpressionType::COMMENT:
-         //TODO: std::cout << e->getExpressionName();
+         // std::cout << expr);
          break;
       case Expressions::Expression::ExpressionType::UNDEFINED:
-         // TODO: std::cerr << "Found undefined expression with name = " << e->getExpressionName() << std::endl;
+         std::cerr << "Found undefined expression: " << expr << std::endl;
+         abort();
          break;
       default:
          std::cerr << "Unsupported expression type with value = " << static_cast<std::int32_t>(expr->getExpressionType()) << std::endl;
+         abort();
+         break;
       }
 
-      /*if(peekNextExpression == comment && e->lineNumber == next->lineNumber)
-      {
-         Print comment
-             m_helper->nextExpression(); // Skip comment
-      }
-      else
-      {*/
       file << std::endl;
-      //}
 
       expr = m_parser.nextExpression();
    }

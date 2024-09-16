@@ -474,16 +474,6 @@ void AssemblerAndLinker::resolveOperands()
       {
          std::int32_t opInt = stoi(operands.back());
          opInt = opInt - pc;
-         /*if((opInt % 2) != 0)
-         {
-            std::cerr << __PRETTY_FUNC__ << ": offset not 2 byte aligned: ";
-            instr->print();
-            std::cout << std::endl;
-            abort();
-         }*/
-         // Last bit should always be 0 since every instruction should be at least 2-byte aligned - we discard it because the CPU adds it automatically.
-         // This correlates with the values of machine instructions from dissassembled code. This also means that the immediate should always be considered to be size 13, not 12.
-         //opInt >>= 1;
          operands.back() = std::to_string(opInt);
       }
 
@@ -507,51 +497,12 @@ std::int32_t AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSE
 
    switch(modifier)
    {
-   /*case ParseUtils::ASSEMBLER_MODIFIER::HI:
-      // Compensate for signedness from %lo, don't sign extend as it makes lui grumpy
-      immi = ((immi >> 12) + ((immi & 0x800) ? 1 : 0)) & 0xfffff;
-      break;
-   case ParseUtils::ASSEMBLER_MODIFIER::LO:
-      ParseUtils::parseImmediate(12, immi, immi);
-      break;
-   case ParseUtils::ASSEMBLER_MODIFIER::PCRELHI:
-   {
-      // Store what symbol %pcrel_hi points to, as %pcrel_lo points to the the address of the instruction related to %pcrel_hi rather than the symbol itself,
-      // but is still interested in the symbol value.
-      // Pc is the address of the %pcrel_hi-related instruction, whereas imm is the symbol name
-      m_relocationTable.insert({pc, imm});
-
-      std::int32_t delta = immi - pc;
-      // Compensate for signedness from %pcrel_lo by adding +1 if its sign bit is set, but don't sign extend as it makes lui grumpy
-      immi = ((delta >> 12) + ((delta & 0x800) ? 1 : 0)) & 0xfffff;
-      break;
-   }
-   case ParseUtils::ASSEMBLER_MODIFIER::PCRELLO:
-   {
-      if(imm.starts_with(ParseUtils::TEMP_LABEL_PREFIX))
-      {
-         pc = immi;
-         try
-         {
-            std::string symbol = m_relocationTable.at(pc);
-            immi = m_executable.loadSymbolAddress(symbol);
-         }
-         catch(std::exception& e)
-         {
-            std::cerr << __PRETTY_FUNC__ << ": Failed to retrieve %pcrel_lo data for PC = " << pc << " where relo label = " << imm << "; e.what() = " << e.what() << std::endl;
-         }
-      }
-      immi = (immi - pc);
-      ParseUtils::parseImmediate(12, immi, immi);
-      break;
-   }*/
    case ParseUtils::ASSEMBLER_MODIFIER::PCREL:
       immi = immi - pc;
       break;
    default:
       std::cout << __PRETTY_FUNC__ << "Received unexpected assembler modifier " << static_cast<int>(modifier) << std::endl;
       abort();
-      immi = 0;
       break;
    }
 
@@ -602,24 +553,19 @@ void AssemblerAndLinker::printExpressionsToFile(const std::string& fileName)
          break;
       }
       case Expressions::Expression::ExpressionType::COMMENT:
-         //TODO: std::cout << e->getExpressionName();
+         //std::cout << expr;
          break;
       case Expressions::Expression::ExpressionType::UNDEFINED:
-         // TODO: std::cerr << "Found undefined expression with name = " << e->getExpressionName() << std::endl;
+         std::cerr << "Found undefined expression: " << expr << std::endl;
+         abort();
          break;
       default:
          std::cerr << "Unsupported expression type with value = " << static_cast<std::int32_t>(expr->getExpressionType()) << std::endl;
+         abort();
+         break;
       }
 
-      /*if(peekNextExpression == comment && e->lineNumber == next->lineNumber)
-      {
-         Print comment
-             m_helper->nextExpression(); // Skip comment
-      }
-      else
-      {*/
       file << std::endl;
-      //}
 
       expr = m_parser.nextExpression();
    }

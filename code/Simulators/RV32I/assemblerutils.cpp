@@ -310,9 +310,6 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
 
 
       std::bitset<32> binaryRepresentation(binaryValue);
-      /*std::cout << "Binary representation of ";
-      instr->print();
-      std::cout << " is \t" << binaryRepresentation.to_string() << std::endl;*/
       binaryRepresentedInstructions.push_back(binaryRepresentation);
 
       pc += instructionSize;

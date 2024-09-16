@@ -21,13 +21,7 @@ void resolveInstruction(const Expressions::Instruction* instr, Expressions::Expr
 
    try
    {
-      /*std::cout << "Before conversion: ";
-      instr->print();
-      std::cout << std::endl;*/
       converter.at(name)(operands, out);
-      /*std::cout << "After conversion: ";
-      out.back()->print();
-      std::cout << std::endl;*/
    }
    catch(const std::exception&e)
    {
@@ -46,7 +40,6 @@ void Converter::Convert(const std::string& targetISAName, const Expressions::Exp
    isaName.resize(targetISAName.length());
    std::transform(targetISAName.begin(), targetISAName.end(), isaName.begin(), [](std::uint8_t c){ return std::tolower(c); });
 
-   std::cout << "Isa name = " << isaName << std::endl;
    if(isaName == "rv32i")
    {
       converter = &rv32i;
