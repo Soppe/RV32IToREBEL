@@ -15,8 +15,8 @@ std::string ParseUtils::TEMP_LABEL_PREFIX = ".temp_label_";
 
 bool ParseUtils::parseAssemblerModifier(const std::string& in, ASSEMBLER_MODIFIER& type, std::string& value)
 {
-   // E.g. %pcrel_hi(some_label_123)
-   static std::regex modifierRegex("([a-z_%]*)\\(([a-zA-Z_.0-9]*-?[0-9]*)\\)(\\([a-z]+-?[0-9]*\\))?");
+   // E.g. %pcrel_hi(some_label_123)(optional irrelevant registry)
+   static std::regex modifierRegex("([a-z_%]*)\\(([.a-zA-Z_0-9]*)\\)(\\([a-zA-Z_\\-0-9]*\\))?");
 
    std::smatch matches;
    bool retVal = false;
@@ -49,9 +49,9 @@ bool ParseUtils::parseAssemblerModifier(const std::string& in, ASSEMBLER_MODIFIE
 bool ParseUtils::parseRegisterOffset(const std::string& in, std::string& offset, std::string& rs1)
 {
    // E.g. -323(x23)
-   static std::regex integerOffsetRegex("(-?[0-9]+)\\(([a-z]+-?[0-9]*)\\)");
+   static std::regex integerOffsetRegex("(-?[0-9]+)\\(([a-zA-Z_\\-0-9]*)\\)");
    // E.g. %pcrel_hi(some_label_123)(x23)
-   static std::regex modifierOffsetRegex("([a-z_%]*\\([a-zA-Z_]*-?[0-9]*\\))\\(([a-z]+-?[0-9]*)\\)");
+   static std::regex modifierOffsetRegex("([a-z_%]*\\([.a-zA-Z_0-9]*\\))\\(([a-zA-Z_\\-0-9]*)\\)");
 
    std::smatch matches;
    bool retVal = false;
@@ -96,8 +96,7 @@ bool ParseUtils::parseImmediate(std::uint8_t immediateSizeBits, const std::strin
    }
    catch(std::exception& e)
    {
-      std::cerr << __PRETTY_FUNC__ << ": Failed to parse immediate " << in << " of indended size " << immediateSizeBits << " because of " << e.what() << std::endl;
-      abort();
+      retVal = false;
    }
 
    return retVal;

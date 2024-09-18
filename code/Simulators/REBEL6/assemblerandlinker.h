@@ -31,12 +31,12 @@ private:
   void handleBssSection(const Expressions::Expression* expr);
   void handleRoDataSection(const Expressions::Expression* expr);
 
-  void resolveInstruction(const Expressions::Instruction* instr, Expressions::ExpressionList& out);
   void resolveDataDirective(const Expressions::Directive* directive);
 
   bool resolveIfObject(const Expressions::Directive* directive, std::uint8_t& tryteSizePerElement, std::vector<Tint>& values);
 
   void resolveOperands();
+  void resolveUnresolvedHeapData();
   std::int32_t resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MODIFIER& modifier, const std::string& imm, std::int32_t pc);
 
   ExpressionParser m_parser;
@@ -48,8 +48,15 @@ private:
   std::int32_t m_pc; // Program counter
   std::int32_t m_hc; // Heap counter - used to generate the correct value for labels related to data/bss/rodata objects
 
-  using RelocationTableMap = std::map<std::int32_t, std::string>; // Address | Label
-  RelocationTableMap m_relocationTable;
+  struct RelocationItem
+  {
+     std::int32_t address;
+     std::uint8_t sizeInTrytes;
+     std::string label;
+     bool isBinary; // Binary values are stored differently in memory
+  };
+  using HeapRelocationVector = std::vector<RelocationItem>;
+  HeapRelocationVector m_heapRelocations;
 };
 
 }

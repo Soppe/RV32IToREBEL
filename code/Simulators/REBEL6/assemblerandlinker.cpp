@@ -31,7 +31,7 @@ void AssemblerAndLinker::init()
    m_pc = 0;
    m_hc = 0;
    m_tempHeapLabels.clear();
-   m_relocationTable.clear();
+   m_heapRelocations.clear();
 }
 
 void AssemblerAndLinker::run()
@@ -78,6 +78,7 @@ void AssemblerAndLinker::run()
 
    // Now that we finally know the position of everything we need to resolve the operands
    resolveOperands();
+   resolveUnresolvedHeapData();
 }
 
 void AssemblerAndLinker::handleTextSection(const Expressions::Expression* expr)
@@ -369,7 +370,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
          {
             ParseUtils::parseImmediate(8, param.c_str()[i], value);
             values.push_back(value);
-            std::cout << "Letter = " << param.c_str()[i] << "; value = " << value << std::endl;
+            // std::cout << "Letter = " << param.c_str()[i] << "; value = " << value << std::endl;
          }
       }
    }
@@ -381,13 +382,21 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // The size of the number emitted, and its byte order, depend on what target computer the assembly is for.
 
       tryteSizePerElement = 1;
+      std::int32_t addr = m_hc;
+
       for(const std::string& str: parameters)
       {
-         ParseUtils::parseImmediate(32, str, value);
+         if(!ParseUtils::parseImmediate(32, str, value))
+         {
+            value = 0;
+            m_heapRelocations.push_back(RelocationItem(addr, 4, str, true));
+         }
+
          values.push_back(value         & 0xFF);
          values.push_back((value >> 8)  & 0xFF);
          values.push_back((value >> 16) & 0xFF);
          values.push_back((value >> 24) & 0xFF);
+         addr += 4;
       }
    }
    else if(name == ".zero") // 8 bits
@@ -397,10 +406,41 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // This directive is actually an alias for the ‘.skip’ directive so it can take an optional second argument of the value to store in the bytes instead of zero.
       // Using ‘.zero’ in this way would be confusing however.
 
-      std::cout << __PRETTY_FUNC__ << ": Unsupported directive object type: " << name << std::endl;
-      abort();
+      std::uint32_t zeroSize = stoul(parameters[0]);
+
+      std::uint32_t numElements = 1;
+      if(zeroSize > 4) // It's an array
+      {
+         switch(zeroSize % 4)
+         {
+         case 0: // int array
+            numElements = zeroSize / 4;
+            tryteSizePerElement = 4;
+            break;
+         case 2: // short array
+            numElements = zeroSize / 2;
+            tryteSizePerElement = 2;
+            break;
+         default: // byte/char array
+            numElements = zeroSize;
+            tryteSizePerElement = 1;
+            break;
+         }
+      }
+      else
+      {
+         tryteSizePerElement = zeroSize;
+      }
+
+      value = 0;
+      if(parameters.size() == 2)
+      {
+         value = ParseUtils::parseImmediate(tryteSizePerElement * 8, parameters[1], value);
+      }
+
+      values.resize(numElements, value);
    }
-   else if((name == ".2byte") || (name == ".4byte") || (name == ".string8") || (name == ".string16") || (name == ".string32"))
+   else if((name == ".2byte") || (name == ".4byte") || (name == ".8byte") || (name == ".string8") || (name == ".string16") || (name == ".string32"))
    {
       std::cout << __PRETTY_FUNC__ << ": Unsupported directive object type: " << name << std::endl;
       abort();
@@ -479,6 +519,36 @@ void AssemblerAndLinker::resolveOperands()
 
       pc += instrSize;
       instr = m_executable.loadInstruction(pc, instrSize);
+   }
+}
+
+void AssemblerAndLinker::resolveUnresolvedHeapData()
+{
+   for(const RelocationItem& item: m_heapRelocations)
+   {
+      try
+      {
+         std::int32_t value = m_executable.loadSymbolAddress(item.label);
+         if(item.isBinary)
+         {
+            std::int32_t addr = item.address;
+            for(std::uint8_t i = 0; i < item.sizeInTrytes; ++i)
+            {
+               m_executable.storeToHeap(addr, (value & 0xff), 1);
+               value = value >> 8;
+               ++addr;
+            }
+         }
+         else
+         {
+            m_executable.storeToHeap(item.address + m_executable.getInstructionsSizeTrytes(), value, item.sizeInTrytes);
+         }
+      }
+      catch(std::exception&)
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Failed to resolve label " << item.label << std::endl;
+         abort();
+      }
    }
 }
 

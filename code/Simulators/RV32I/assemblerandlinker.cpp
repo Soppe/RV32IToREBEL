@@ -29,7 +29,8 @@ void AssemblerAndLinker::init()
    m_pc = 0;
    m_hc = 0;
    m_tempHeapLabels.clear();
-   m_relocationTable.clear();
+   m_tempLabelsTable.clear();
+   m_heapRelocations.clear();
 }
 
 void AssemblerAndLinker::run()
@@ -76,6 +77,7 @@ void AssemblerAndLinker::run()
 
    // Now that we finally know the position of everything we need to resolve the operands
    resolveOperands();
+   resolveUnresolvedHeapData();
 }
 
 void AssemblerAndLinker::handleTextSection(const Expressions::Expression* expr)
@@ -366,7 +368,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
          {
             ParseUtils::parseImmediate(8, param.c_str()[i], value);
             values.push_back(value);
-            std::cout << "Letter = " << param.c_str()[i] << "; value = " << value << std::endl;
+            // std::cout << "Letter = " << param.c_str()[i] << "; value = " << value << std::endl;
          }
       }
    }
@@ -378,10 +380,16 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // The size of the number emitted, and its byte order, depend on what target computer the assembly is for.
 
       byteSizePerElement = 4;
+      std::uint32_t addr = m_hc;
       for(const std::string& str: parameters)
       {
-         ParseUtils::parseImmediate(32, str, value);
+         if(!ParseUtils::parseImmediate(32, str, value))
+         {
+            value = 0;
+            m_heapRelocations.push_back(RelocationItem(addr, 4, str));
+         }
          values.push_back(value);
+         addr += 4;
       }
    }
    else if(name == ".zero") // 8 bits
@@ -391,8 +399,39 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
       // This directive is actually an alias for the ‘.skip’ directive so it can take an optional second argument of the value to store in the bytes instead of zero.
       // Using ‘.zero’ in this way would be confusing however.
 
-      std::cout << __PRETTY_FUNC__ << ": Unsupported directive object type: " << name << std::endl;
-      abort();
+      std::uint32_t zeroSize = stoul(parameters[0]);
+
+      std::uint32_t numElements = 1;
+      if(zeroSize > 4) // It's an array
+      {
+         switch(zeroSize % 4)
+         {
+         case 0: // int array
+            numElements = zeroSize / 4;
+            byteSizePerElement = 4;
+            break;
+         case 2: // short array
+            numElements = zeroSize / 2;
+            byteSizePerElement = 2;
+            break;
+         default: // byte/char array
+            numElements = zeroSize;
+            byteSizePerElement = 1;
+            break;
+         }
+      }
+      else
+      {
+         byteSizePerElement = zeroSize;
+      }
+
+      value = 0;
+      if(parameters.size() == 2)
+      {
+         value = ParseUtils::parseImmediate(byteSizePerElement * 8, parameters[1], value);
+      }
+
+      values.resize(numElements, value);
    }
    else if((name == ".2byte") || (name == ".4byte") || (name == ".8byte") || (name == ".string8") || (name == ".string16") || (name == ".string32"))
    {
@@ -480,6 +519,23 @@ void AssemblerAndLinker::resolveOperands()
    }
 }
 
+void AssemblerAndLinker::resolveUnresolvedHeapData()
+{
+   for(const RelocationItem& item: m_heapRelocations)
+   {
+      try
+      {
+         std::uint32_t value = m_executable.loadSymbolAddress(item.label);
+         m_executable.storeToHeap(item.address + m_executable.getInstructionsSizeBytes(), value, item.sizeInBytes);
+      }
+      catch(std::exception&)
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Failed to resolve label " << item.label << std::endl;
+         abort();
+      }
+   }
+}
+
 std::int32_t AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MODIFIER& modifier, const std::string& imm, std::uint32_t pc)
 {
    std::int32_t immi = 0;
@@ -507,7 +563,7 @@ std::int32_t AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSE
       // Store what symbol %pcrel_hi points to, as %pcrel_lo points to the the address of the instruction related to %pcrel_hi rather than the symbol itself,
       // but is still interested in the symbol value.
       // Pc is the address of the %pcrel_hi-related instruction, whereas imm is the symbol name
-      m_relocationTable.insert({pc, imm});
+      m_tempLabelsTable.insert({pc, imm});
 
       std::int32_t delta = immi - pc;
       // Compensate for signedness from %pcrel_lo by adding +1 if its sign bit is set, but don't sign extend as it makes lui grumpy
@@ -521,7 +577,7 @@ std::int32_t AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSE
          pc = immi;
          try
          {
-            std::string symbol = m_relocationTable.at(pc);
+            std::string symbol = m_tempLabelsTable.at(pc);
             immi = m_executable.loadSymbolAddress(symbol);
          }
          catch(std::exception& e)

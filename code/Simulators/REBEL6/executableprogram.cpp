@@ -44,7 +44,7 @@ void ExecutableProgram::addInstruction(Expressions::Instruction* instruction, st
    m_instructionsSize += instructionSize;
 }
 
-void ExecutableProgram::addToHeap(const Tint& value, uint8_t numTrytes)
+void ExecutableProgram::addToHeap(const Tint& value, std::uint8_t numTrytes)
 {
    if((numTrytes > 4) || (numTrytes < 0))
    {
