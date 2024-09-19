@@ -40,7 +40,16 @@ CPU::~CPU()
 
 void CPU::executeProgram(ExecutableProgram& program)
 {
-   m_PC = 0;
+   try
+   {
+      m_PC = program.loadSymbolAddress("main");
+   }
+   catch(const std::exception& e)
+   {
+      m_PC = 0;
+      std::cout << __PRETTY_FUNC__ << "Found no maing function. Program will start from address 0" << std::endl;
+   }
+
    m_numberOfRanInstructions = 0;
 
    initRegisters(program.getProgramSizeBytes());

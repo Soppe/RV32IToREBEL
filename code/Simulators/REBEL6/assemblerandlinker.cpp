@@ -83,8 +83,6 @@ void AssemblerAndLinker::run()
 
 void AssemblerAndLinker::handleTextSection(const Expressions::Expression* expr)
 {
-   std::cout << "In text section" << std::endl;
-
    while(expr != nullptr)
    {
       switch(expr->getExpressionType())
@@ -161,8 +159,6 @@ void AssemblerAndLinker::handleDataSection(const Expressions::Expression* expr)
 
 void AssemblerAndLinker::handleBssSection(const Expressions::Expression* expr)
 {
-   std::cout << "In .bss section" << std::endl;
-
    while(expr != nullptr)
    {
       switch(expr->getExpressionType())
@@ -200,8 +196,6 @@ void AssemblerAndLinker::handleBssSection(const Expressions::Expression* expr)
 
 void AssemblerAndLinker::handleRoDataSection(const Expressions::Expression* expr)
 {
-   std::cout << "In .rodata section" << std::endl;
-
    while(expr != nullptr)
    {
       switch(expr->getExpressionType())
@@ -469,13 +463,15 @@ void AssemblerAndLinker::resolveOperands()
          if(operand[0] == '%')
          {
             std::string value;
+            std::string rs;
             ParseUtils::ASSEMBLER_MODIFIER type;
-            if(ParseUtils::parseAssemblerModifier(operand, type, value))
+            if(ParseUtils::parseAssemblerModifierRs(operand, type, value, rs))
             {
                try
                {
                   std::int32_t imm = resolveAssemblerModifier(type, value, pc);
                   operand = std::to_string(imm);
+                  operand += rs;
                }
                catch(std::exception&)
                {
@@ -531,7 +527,7 @@ void AssemblerAndLinker::resolveUnresolvedHeapData()
          std::int32_t value = m_executable.loadSymbolAddress(item.label);
          if(item.isBinary)
          {
-            std::int32_t addr = item.address;
+            std::int32_t addr = item.address + m_executable.getInstructionsSizeTrytes();
             for(std::uint8_t i = 0; i < item.sizeInTrytes; ++i)
             {
                m_executable.storeToHeap(addr, (value & 0xff), 1);

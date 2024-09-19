@@ -15,7 +15,13 @@ std::string ParseUtils::TEMP_LABEL_PREFIX = ".temp_label_";
 
 bool ParseUtils::parseAssemblerModifier(const std::string& in, ASSEMBLER_MODIFIER& type, std::string& value)
 {
-   // E.g. %pcrel_hi(some_label_123)(optional irrelevant registry)
+   std::string rsDummy;
+   return parseAssemblerModifierRs(in, type, value, rsDummy);
+}
+
+bool ParseUtils::parseAssemblerModifierRs(const std::string& in, ASSEMBLER_MODIFIER& type, std::string& value, std::string& rs)
+{
+   // E.g. %pcrel_hi(some_label_123)(optional registry)
    static std::regex modifierRegex("([a-z_%]*)\\(([.a-zA-Z_0-9]*)\\)(\\([a-zA-Z_\\-0-9]*\\))?");
 
    std::smatch matches;
@@ -25,10 +31,15 @@ bool ParseUtils::parseAssemblerModifier(const std::string& in, ASSEMBLER_MODIFIE
 
    regSuccess = std::regex_match(in, matches, modifierRegex);
 
-   if(regSuccess && ((matches.size() == 3) || matches.size() == 4))
+   int numMatches = matches.size();
+   if(regSuccess && ((numMatches == 3) || (numMatches == 4)))
    {
       std::string modifier = matches[1];
       value = matches[2];
+      if(numMatches == 4)
+      {
+         rs = matches[3];
+      }
       retVal = true;
 
       if     (modifier == "%pcrel_hi") type = ASSEMBLER_MODIFIER::PCRELHI;
