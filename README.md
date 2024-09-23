@@ -20,7 +20,7 @@ export RISCV_TOOLCHAIN=${RISCV_TOOL_BASE}/toolchain             // Toolchain dir
 export RISCV_TOOLCHAIN_INSTALL=${RISCV_TOOLCHAIN}/installed     // Dir for all installed toolchain-related binaries and programs
 ```
 
-The PATH variable need to be updated before initiating installation.
+The PATH variable need to be updated before initiating installation. Add the following to the same file as you added the above lines.
 
 ```
 export PATH="${RISCV_TOOLCHAIN_INSTALL}/bin:$PATH"
