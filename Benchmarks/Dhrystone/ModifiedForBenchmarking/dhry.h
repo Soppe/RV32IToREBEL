@@ -403,8 +403,10 @@ typedef enum
 
 /* General definitions: */
 
+// ------------- BEGINNING CUSTOM CODE -------------
 // #include <stdio.h>
 /* for strcpy, strcmp */
+// ------------- END CUSTOM CODE -------------
 
 #define Null 0
 /* Value of a Null pointer */

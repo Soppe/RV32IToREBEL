@@ -18,7 +18,7 @@
 #include "dhry.h"
 
 #include "Dependencies/libgcc/gcccode.h"
-#include "Dependencies/OpenBSD/openbsd.h"
+#include "Dependencies/newlib/newlib_deps.h"
 
 // ------------- BEGINNING CUSTOM CODE -------------
 // #include <string.h>

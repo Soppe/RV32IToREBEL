@@ -3,7 +3,7 @@
 #include <math.h>
 #include <iostream>
 
-// Code taken from https://tfetimes.com/c-balanced-ternary/ and slightly modified
+// Code taken from https://rosettacode.org/wiki/Balanced_ternary#C.2B.2B and slightly modified
 void TernaryLogic::tintToTrits(Tint in, Trits& out)
 {
    if (in == 0)

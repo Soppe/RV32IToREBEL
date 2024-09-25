@@ -156,6 +156,88 @@ __mulsi3:
 	jr	ra
 	.size	__mulsi3, .-__mulsi3
 	.align	2
+	.globl	strcmp
+	.type	strcmp, @function
+strcmp:
+	addi	sp,sp,-48
+	sw	s0,44(sp)
+	addi	s0,sp,48
+	sw	a0,-36(s0)
+	sw	a1,-40(s0)
+	lw	a4,-36(s0)
+	lw	a5,-40(s0)
+	or	a5,a4,a5
+	andi	a5,a5,3
+	bne	a5,zero,.L26
+	lw	a5,-36(s0)
+	sw	a5,-20(s0)
+	lw	a5,-40(s0)
+	sw	a5,-24(s0)
+	j	.L22
+.L25:
+	lw	a5,-20(s0)
+	lw	a4,0(a5)
+	li	a5,-16842752
+	addi	a5,a5,-257
+	add	a4,a4,a5
+	lw	a5,-20(s0)
+	lw	a5,0(a5)
+	not	a5,a5
+	and	a4,a4,a5
+	li	a5,-2139062272
+	addi	a5,a5,128
+	and	a5,a4,a5
+	beq	a5,zero,.L23
+	li	a5,0
+	j	.L24
+.L23:
+	lw	a5,-20(s0)
+	addi	a5,a5,4
+	sw	a5,-20(s0)
+	lw	a5,-24(s0)
+	addi	a5,a5,4
+	sw	a5,-24(s0)
+.L22:
+	lw	a5,-20(s0)
+	lw	a4,0(a5)
+	lw	a5,-24(s0)
+	lw	a5,0(a5)
+	beq	a4,a5,.L25
+	lw	a5,-20(s0)
+	sw	a5,-36(s0)
+	lw	a5,-24(s0)
+	sw	a5,-40(s0)
+	j	.L26
+.L28:
+	lw	a5,-36(s0)
+	addi	a5,a5,1
+	sw	a5,-36(s0)
+	lw	a5,-40(s0)
+	addi	a5,a5,1
+	sw	a5,-40(s0)
+.L26:
+	lw	a5,-36(s0)
+	lbu	a5,0(a5)
+	beq	a5,zero,.L27
+	lw	a5,-36(s0)
+	lbu	a4,0(a5)
+	lw	a5,-40(s0)
+	lbu	a5,0(a5)
+	beq	a4,a5,.L28
+.L27:
+	lw	a5,-36(s0)
+	lbu	a5,0(a5)
+	mv	a4,a5
+	lw	a5,-40(s0)
+	lbu	a5,0(a5)
+	sub	a5,a4,a5
+.L24:
+	mv	a0,a5
+	lw	s0,44(sp)
+	addi	sp,sp,48
+	jr	ra
+	.size	strcmp, .-strcmp
+	.align	2
 	.globl	strcpy
 	.type	strcpy, @function
 strcpy:
@@ -168,8 +250,47 @@ strcpy:
 	sw	a5,-20(s0)
 	lw	a5,-40(s0)
 	sw	a5,-24(s0)
+	lw	a4,-24(s0)
+	lw	a5,-20(s0)
+	or	a5,a4,a5
+	andi	a5,a5,3
+	bne	a5,zero,.L35
+	lw	a5,-20(s0)
+	sw	a5,-28(s0)
+	lw	a5,-24(s0)
+	sw	a5,-32(s0)
+	j	.L31
+.L32:
+	lw	a4,-32(s0)
+	addi	a5,a4,4
+	sw	a5,-32(s0)
+	lw	a5,-28(s0)
+	addi	a3,a5,4
+	sw	a3,-28(s0)
+	lw	a4,0(a4)
+	sw	a4,0(a5)
+.L31:
+	lw	a5,-32(s0)
+	lw	a4,0(a5)
+	li	a5,-16842752
+	addi	a5,a5,-257
+	add	a4,a4,a5
+	lw	a5,-32(s0)
+	lw	a5,0(a5)
+	not	a5,a5
+	and	a5,a4,a5
+	mv	a4,a5
+	li	a5,-2139062272
+	addi	a5,a5,128
+	and	a5,a4,a5
+	beq	a5,zero,.L32
+	lw	a5,-28(s0)
+	sw	a5,-20(s0)
+	lw	a5,-32(s0)
+	sw	a5,-24(s0)
+.L35:
 	nop
-.L21:
+.L33:
 	lw	a4,-24(s0)
 	addi	a5,a4,1
 	sw	a5,-24(s0)
@@ -179,54 +300,13 @@ strcpy:
 	lbu	a4,0(a4)
 	sb	a4,0(a5)
 	lbu	a5,0(a5)
-	bne	a5,zero,.L21
+	bne	a5,zero,.L33
 	lw	a5,-36(s0)
 	mv	a0,a5
 	lw	s0,44(sp)
 	addi	sp,sp,48
 	jr	ra
 	.size	strcpy, .-strcpy
-	.align	2
-	.globl	strcmp
-	.type	strcmp, @function
-strcmp:
-	addi	sp,sp,-32
-	sw	s0,28(sp)
-	addi	s0,sp,32
-	sw	a0,-20(s0)
-	sw	a1,-24(s0)
-	j	.L24
-.L26:
-	lw	a5,-20(s0)
-	addi	a4,a5,1
-	sw	a4,-20(s0)
-	lbu	a5,0(a5)
-	bne	a5,zero,.L24
-	li	a5,0
-	j	.L25
-.L24:
-	lw	a5,-20(s0)
-	lbu	a4,0(a5)
-	lw	a5,-24(s0)
-	addi	a3,a5,1
-	sw	a3,-24(s0)
-	lbu	a5,0(a5)
-	beq	a4,a5,.L26
-	lw	a5,-20(s0)
-	lbu	a5,0(a5)
-	mv	a4,a5
-	lw	a5,-24(s0)
-	addi	a5,a5,-1
-	sw	a5,-24(s0)
-	lw	a5,-24(s0)
-	lbu	a5,0(a5)
-	sub	a5,a4,a5
-.L25:
-	mv	a0,a5
-	lw	s0,28(sp)
-	addi	sp,sp,32
-	jr	ra
-	.size	strcmp, .-strcmp
 	.align	2
 	.globl	printf
 	.type	printf, @function
@@ -516,7 +596,7 @@ main:
 	addi	a1,a5,%lo(.LC0)
 	mv	a0,a4
 	call	strcpy
-	addi	a4,s0,-76
+	addi	a4,s0,-80
 	lui	a5,%hi(.LC1)
 	addi	a1,a5,%lo(.LC1)
 	mv	a0,a4
@@ -536,22 +616,22 @@ main:
 	call	printf
 	lui	a5,%hi(Reg)
 	lw	a5,%lo(Reg)(a5)
-	beq	a5,zero,.L32
+	beq	a5,zero,.L41
 	lui	a5,%hi(.LC4)
 	addi	a0,a5,%lo(.LC4)
 	call	printf
 	lui	a5,%hi(.LC2)
 	addi	a0,a5,%lo(.LC2)
 	call	printf
-	j	.L33
-.L32:
+	j	.L42
+.L41:
 	lui	a5,%hi(.LC5)
 	addi	a0,a5,%lo(.LC5)
 	call	printf
 	lui	a5,%hi(.LC2)
 	addi	a0,a5,%lo(.LC2)
 	call	printf
-.L33:
+.L42:
 	li	a5,2000
 	sw	a5,-32(s0)
 	lw	a1,-32(s0)
@@ -565,23 +645,23 @@ main:
 	sw	a4,%lo(Begin_Time)(a5)
 	li	a5,1
 	sw	a5,-28(s0)
-	j	.L34
-.L40:
+	j	.L43
+.L49:
 	call	Proc_5
 	call	Proc_4
 	li	a5,2
-	sw	a5,-36(s0)
+	sw	a5,-40(s0)
 	li	a5,3
 	sw	a5,-20(s0)
-	addi	a4,s0,-108
+	addi	a4,s0,-112
 	lui	a5,%hi(.LC7)
 	addi	a1,a5,%lo(.LC7)
 	mv	a0,a4
 	call	strcpy
 	li	a5,1
-	sw	a5,-44(s0)
-	addi	a4,s0,-108
-	addi	a5,s0,-76
+	sw	a5,-48(s0)
+	addi	a4,s0,-112
+	addi	a5,s0,-80
 	mv	a1,a4
 	mv	a0,a5
 	call	Func_2
@@ -591,30 +671,30 @@ main:
 	mv	a4,a5
 	lui	a5,%hi(Bool_Glob)
 	sw	a4,%lo(Bool_Glob)(a5)
-	j	.L35
-.L36:
-	lw	a4,-36(s0)
+	j	.L44
+.L45:
+	lw	a4,-40(s0)
 	mv	a5,a4
 	slli	a5,a5,2
 	add	a4,a5,a4
 	lw	a5,-20(s0)
 	sub	a5,a4,a5
-	sw	a5,-40(s0)
-	lw	a5,-36(s0)
-	addi	a4,s0,-40
+	sw	a5,-44(s0)
+	lw	a5,-40(s0)
+	addi	a4,s0,-44
 	mv	a2,a4
 	lw	a1,-20(s0)
 	mv	a0,a5
 	call	Proc_7
-	lw	a5,-36(s0)
+	lw	a5,-40(s0)
 	addi	a5,a5,1
-	sw	a5,-36(s0)
-.L35:
-	lw	a5,-36(s0)
+	sw	a5,-40(s0)
+.L44:
+	lw	a5,-40(s0)
 	lw	a4,-20(s0)
-	bgt	a4,a5,.L36
-	lw	a5,-36(s0)
-	lw	a4,-40(s0)
+	bgt	a4,a5,.L45
+	lw	a5,-40(s0)
+	lw	a4,-44(s0)
 	mv	a3,a4
 	mv	a2,a5
 	lui	a5,%hi(Arr_2_Glob)
@@ -628,20 +708,20 @@ main:
 	call	Proc_1
 	li	a5,65
 	sb	a5,-21(s0)
-	j	.L37
-.L39:
+	j	.L46
+.L48:
 	lbu	a5,-21(s0)
 	li	a1,67
 	mv	a0,a5
 	call	Func_1
 	mv	a4,a0
-	lw	a5,-44(s0)
-	bne	a4,a5,.L38
-	addi	a5,s0,-44
+	lw	a5,-48(s0)
+	bne	a4,a5,.L47
+	addi	a5,s0,-48
 	mv	a1,a5
 	li	a0,0
 	call	Proc_6
-	addi	a4,s0,-108
+	addi	a4,s0,-112
 	lui	a5,%hi(.LC8)
 	addi	a1,a5,%lo(.LC8)
 	mv	a0,a4
@@ -651,46 +731,46 @@ main:
 	lui	a5,%hi(Int_Glob)
 	lw	a4,-28(s0)
 	sw	a4,%lo(Int_Glob)(a5)
-.L38:
+.L47:
 	lbu	a5,-21(s0)
 	addi	a5,a5,1
 	sb	a5,-21(s0)
-.L37:
+.L46:
 	lui	a5,%hi(Ch_2_Glob)
 	lbu	a5,%lo(Ch_2_Glob)(a5)
 	lbu	a4,-21(s0)
-	bleu	a4,a5,.L39
-	lw	a5,-36(s0)
+	bleu	a4,a5,.L48
+	lw	a5,-40(s0)
 	mv	a1,a5
 	lw	a0,-20(s0)
 	call	__mulsi3
 	mv	a5,a0
 	sw	a5,-20(s0)
-	lw	a5,-40(s0)
+	lw	a5,-44(s0)
 	mv	a1,a5
 	lw	a0,-20(s0)
 	call	__divsi3
 	mv	a5,a0
-	sw	a5,-36(s0)
-	lw	a5,-40(s0)
+	sw	a5,-40(s0)
+	lw	a5,-44(s0)
 	lw	a4,-20(s0)
 	sub	a4,a4,a5
 	mv	a5,a4
 	slli	a5,a5,3
 	sub	a4,a5,a4
-	lw	a5,-36(s0)
+	lw	a5,-40(s0)
 	sub	a5,a4,a5
 	sw	a5,-20(s0)
-	addi	a5,s0,-36
+	addi	a5,s0,-40
 	mv	a0,a5
 	call	Proc_2
 	lw	a5,-28(s0)
 	addi	a5,a5,1
 	sw	a5,-28(s0)
-.L34:
+.L43:
 	lw	a4,-28(s0)
 	lw	a5,-32(s0)
-	ble	a4,a5,.L40
+	ble	a4,a5,.L49
 	li	a0,0
 	call	time
 	mv	a4,a0
@@ -881,7 +961,7 @@ main:
 	lui	a5,%hi(.LC27)
 	addi	a0,a5,%lo(.LC27)
 	call	printf
-	lw	a5,-36(s0)
+	lw	a5,-40(s0)
 	mv	a1,a5
 	lui	a5,%hi(.LC30)
 	addi	a0,a5,%lo(.LC30)
@@ -898,7 +978,7 @@ main:
 	lui	a5,%hi(.LC12)
 	addi	a0,a5,%lo(.LC12)
 	call	printf
-	lw	a5,-40(s0)
+	lw	a5,-44(s0)
 	mv	a1,a5
 	lui	a5,%hi(.LC32)
 	addi	a0,a5,%lo(.LC32)
@@ -907,7 +987,7 @@ main:
 	lui	a5,%hi(.LC12)
 	addi	a0,a5,%lo(.LC12)
 	call	printf
-	lw	a5,-44(s0)
+	lw	a5,-48(s0)
 	mv	a1,a5
 	lui	a5,%hi(.LC33)
 	addi	a0,a5,%lo(.LC33)
@@ -916,7 +996,7 @@ main:
 	lui	a5,%hi(.LC12)
 	addi	a0,a5,%lo(.LC12)
 	call	printf
-	addi	a5,s0,-76
+	addi	a5,s0,-80
 	mv	a1,a5
 	lui	a5,%hi(.LC34)
 	addi	a0,a5,%lo(.LC34)
@@ -924,7 +1004,7 @@ main:
 	lui	a5,%hi(.LC35)
 	addi	a0,a5,%lo(.LC35)
 	call	printf
-	addi	a5,s0,-108
+	addi	a5,s0,-112
 	mv	a1,a5
 	lui	a5,%hi(.LC36)
 	addi	a0,a5,%lo(.LC36)
@@ -945,7 +1025,7 @@ main:
 	lui	a5,%hi(User_Time)
 	lw	a4,%lo(User_Time)(a5)
 	li	a5,1
-	bgt	a4,a5,.L41
+	bgt	a4,a5,.L50
 	lui	a5,%hi(.LC38)
 	addi	a0,a5,%lo(.LC38)
 	call	printf
@@ -955,8 +1035,8 @@ main:
 	lui	a5,%hi(.LC2)
 	addi	a0,a5,%lo(.LC2)
 	call	printf
-	j	.L42
-.L41:
+	j	.L51
+.L50:
 	lui	a5,%hi(.LC40)
 	addi	a0,a5,%lo(.LC40)
 	call	printf
@@ -966,8 +1046,10 @@ main:
 	lui	a5,%hi(.LC2)
 	addi	a0,a5,%lo(.LC2)
 	call	printf
-.L42:
-	li	a5,0
+.L51:
+	li	a5,8
+	sw	a5,-36(s0)
+	lw	a5,-36(s0)
 	mv	a0,a5
 	lw	ra,108(sp)
 	lw	s0,104(sp)
@@ -1030,7 +1112,7 @@ Proc_1:
 	call	Proc_3
 	lw	a5,-20(s0)
 	lw	a5,4(a5)
-	bne	a5,zero,.L45
+	bne	a5,zero,.L54
 	lw	a5,-20(s0)
 	li	a4,6
 	sw	a4,12(a5)
@@ -1054,8 +1136,8 @@ Proc_1:
 	li	a1,10
 	mv	a0,a4
 	call	Proc_7
-	j	.L47
-.L45:
+	j	.L56
+.L54:
 	lw	a5,-36(s0)
 	lw	a4,0(a5)
 	lw	a5,-36(s0)
@@ -1083,7 +1165,7 @@ Proc_1:
 	sw	a2,36(a5)
 	sw	a3,40(a5)
 	sw	a4,44(a5)
-.L47:
+.L56:
 	nop
 	lw	ra,44(sp)
 	lw	s0,40(sp)
@@ -1102,11 +1184,11 @@ Proc_2:
 	lw	a5,0(a5)
 	addi	a5,a5,10
 	sw	a5,-20(s0)
-.L50:
+.L59:
 	lui	a5,%hi(Ch_1_Glob)
 	lbu	a4,%lo(Ch_1_Glob)(a5)
 	li	a5,65
-	bne	a4,a5,.L49
+	bne	a4,a5,.L58
 	lw	a5,-20(s0)
 	addi	a5,a5,-1
 	sw	a5,-20(s0)
@@ -1117,9 +1199,9 @@ Proc_2:
 	lw	a5,-36(s0)
 	sw	a4,0(a5)
 	sw	zero,-24(s0)
-.L49:
+.L58:
 	lw	a5,-24(s0)
-	bne	a5,zero,.L50
+	bne	a5,zero,.L59
 	nop
 	nop
 	lw	s0,44(sp)
@@ -1137,13 +1219,13 @@ Proc_3:
 	sw	a0,-20(s0)
 	lui	a5,%hi(Ptr_Glob)
 	lw	a5,%lo(Ptr_Glob)(a5)
-	beq	a5,zero,.L52
+	beq	a5,zero,.L61
 	lui	a5,%hi(Ptr_Glob)
 	lw	a5,%lo(Ptr_Glob)(a5)
 	lw	a4,0(a5)
 	lw	a5,-20(s0)
 	sw	a4,0(a5)
-.L52:
+.L61:
 	lui	a5,%hi(Int_Glob)
 	lw	a4,%lo(Int_Glob)(a5)
 	lui	a5,%hi(Ptr_Glob)
@@ -1219,62 +1301,62 @@ Proc_6:
 	lw	a0,-20(s0)
 	call	Func_3
 	mv	a5,a0
-	bne	a5,zero,.L56
+	bne	a5,zero,.L65
 	lw	a5,-24(s0)
 	li	a4,3
 	sw	a4,0(a5)
-.L56:
+.L65:
 	lw	a4,-20(s0)
 	li	a5,4
-	bgtu	a4,a5,.L66
+	bgtu	a4,a5,.L75
 	lw	a5,-20(s0)
 	slli	a4,a5,2
-	lui	a5,%hi(.L59)
-	addi	a5,a5,%lo(.L59)
+	lui	a5,%hi(.L68)
+	addi	a5,a5,%lo(.L68)
 	add	a5,a4,a5
 	lw	a5,0(a5)
 	jr	a5
 	.section	.rodata
 	.align	2
 	.align	2
-.L59:
-	.word	.L63
-	.word	.L62
-	.word	.L61
+.L68:
+	.word	.L72
+	.word	.L71
+	.word	.L70
+	.word	.L76
 	.word	.L67
-	.word	.L58
 	.text
-.L63:
+.L72:
 	lw	a5,-24(s0)
 	sw	zero,0(a5)
-	j	.L57
-.L62:
+	j	.L66
+.L71:
 	lui	a5,%hi(Int_Glob)
 	lw	a4,%lo(Int_Glob)(a5)
 	li	a5,100
-	ble	a4,a5,.L64
+	ble	a4,a5,.L73
 	lw	a5,-24(s0)
 	sw	zero,0(a5)
-	j	.L57
-.L64:
+	j	.L66
+.L73:
 	lw	a5,-24(s0)
 	li	a4,3
 	sw	a4,0(a5)
-	j	.L57
-.L61:
+	j	.L66
+.L70:
 	lw	a5,-24(s0)
 	li	a4,1
 	sw	a4,0(a5)
-	j	.L57
-.L58:
+	j	.L66
+.L67:
 	lw	a5,-24(s0)
 	li	a4,2
 	sw	a4,0(a5)
-	j	.L57
-.L67:
+	j	.L66
+.L76:
 	nop
-.L57:
 .L66:
+.L75:
 	nop
 	lw	ra,28(sp)
 	lw	s0,24(sp)
@@ -1344,8 +1426,8 @@ Proc_8:
 	sw	a4,0(a5)
 	lw	a5,-24(s0)
 	sw	a5,-20(s0)
-	j	.L70
-.L71:
+	j	.L79
+.L80:
 	lw	a4,-24(s0)
 	mv	a5,a4
 	slli	a5,a5,1
@@ -1364,11 +1446,11 @@ Proc_8:
 	lw	a5,-20(s0)
 	addi	a5,a5,1
 	sw	a5,-20(s0)
-.L70:
+.L79:
 	lw	a5,-24(s0)
 	addi	a5,a5,1
 	lw	a4,-20(s0)
-	ble	a4,a5,.L71
+	ble	a4,a5,.L80
 	lw	a4,-24(s0)
 	mv	a5,a4
 	slli	a5,a5,1
@@ -1448,15 +1530,15 @@ Func_1:
 	sb	a5,-18(s0)
 	lbu	a4,-18(s0)
 	lbu	a5,-40(s0)
-	beq	a4,a5,.L73
+	beq	a4,a5,.L82
 	li	a5,0
-	j	.L74
-.L73:
+	j	.L83
+.L82:
 	lui	a5,%hi(Ch_1_Glob)
 	lbu	a4,-17(s0)
 	sb	a4,%lo(Ch_1_Glob)(a5)
 	li	a5,1
-.L74:
+.L83:
 	mv	a0,a5
 	lw	s0,44(sp)
 	addi	sp,sp,48
@@ -1474,8 +1556,8 @@ Func_2:
 	sw	a1,-40(s0)
 	li	a5,2
 	sw	a5,-20(s0)
-	j	.L76
-.L77:
+	j	.L85
+.L86:
 	lw	a5,-20(s0)
 	lw	a4,-36(s0)
 	add	a5,a4,a5
@@ -1490,36 +1572,36 @@ Func_2:
 	mv	a0,a3
 	call	Func_1
 	mv	a5,a0
-	bne	a5,zero,.L76
+	bne	a5,zero,.L85
 	li	a5,65
 	sb	a5,-21(s0)
 	lw	a5,-20(s0)
 	addi	a5,a5,1
 	sw	a5,-20(s0)
-.L76:
+.L85:
 	lw	a4,-20(s0)
 	li	a5,2
-	ble	a4,a5,.L77
+	ble	a4,a5,.L86
 	lbu	a4,-21(s0)
 	li	a5,86
-	bleu	a4,a5,.L78
+	bleu	a4,a5,.L87
 	lbu	a4,-21(s0)
 	li	a5,89
-	bgtu	a4,a5,.L78
+	bgtu	a4,a5,.L87
 	li	a5,7
 	sw	a5,-20(s0)
-.L78:
+.L87:
 	lbu	a4,-21(s0)
 	li	a5,82
-	bne	a4,a5,.L79
+	bne	a4,a5,.L88
 	li	a5,1
-	j	.L80
-.L79:
+	j	.L89
+.L88:
 	lw	a1,-40(s0)
 	lw	a0,-36(s0)
 	call	strcmp
 	mv	a5,a0
-	ble	a5,zero,.L81
+	ble	a5,zero,.L90
 	lw	a5,-20(s0)
 	addi	a5,a5,7
 	sw	a5,-20(s0)
@@ -1527,10 +1609,10 @@ Func_2:
 	lw	a4,-20(s0)
 	sw	a4,%lo(Int_Glob)(a5)
 	li	a5,1
-	j	.L80
-.L81:
+	j	.L89
+.L90:
 	li	a5,0
-.L80:
+.L89:
 	mv	a0,a5
 	lw	ra,44(sp)
 	lw	s0,40(sp)
@@ -1549,12 +1631,12 @@ Func_3:
 	sw	a5,-20(s0)
 	lw	a4,-20(s0)
 	li	a5,2
-	bne	a4,a5,.L83
+	bne	a4,a5,.L92
 	li	a5,1
-	j	.L84
-.L83:
+	j	.L93
+.L92:
 	li	a5,0
-.L84:
+.L93:
 	mv	a0,a5
 	lw	s0,44(sp)
 	addi	sp,sp,48
