@@ -1,3 +1,5 @@
+// Original made by Austin Henley and copied from https://github.com/AZHenley/riscv-parser, then modified
+
 #include <iostream>
 #include <cstdlib>
 #include "parser.h"

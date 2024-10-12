@@ -2,6 +2,10 @@
 
 A lightweight translator to translate and simulate binary RISCV RV32I assembly to ternary REBEL6 assembly. The RV32I assembly code is generated using the GCC Toolchain. Some GCC features and syntax is therefor supported, but far from everything. No optimization has been used when compiling C code to RV32I assembly when using the GCC Toolchain to generate assembly files.
 
+# References
+
+The Lexer and Parser parts of the code was copied from https://github.com/AZHenley/riscv-parser, a [RISC-V parser created by Austin Henley](https://austinhenley.com/blog/parsingriscv.html), and then adapted to our needs.
+
 ## GCC Toolchain setup
 
 The setup and installation of the [GCC Toolchain](https://pages.github.com/) has been tested using Windows Subsystem for Linux (WSL) as OS, targeting the Newlib (bare-metal) cross-compiler to avoid interference from an OS when generating RV32I assembly. Although the GIT page for the toolchain contains a walkthrough of how to set up and install the toolchain, we none the less describe the setup that worked for us.
@@ -15,9 +19,12 @@ $ sudo apt-get install autoconf automake autotools-dev curl python3 python3-pip 
 A handful of environments are created to make it easier to run the installation commands and to give a better overview. These can be added to the .bashrc file.
 
 ```
-export RISCV_TOOL_BASE=/riscv                                   // Base dir for RISCV tools.
-export RISCV_TOOLCHAIN=${RISCV_TOOL_BASE}/toolchain             // Toolchain dir
-export RISCV_TOOLCHAIN_INSTALL=${RISCV_TOOLCHAIN}/installed     // Dir for all installed toolchain-related binaries and programs
+// Base directory for RISCV tools.
+export RISCV_TOOL_BASE=/riscv
+// Toolchain directory
+export RISCV_TOOLCHAIN=${RISCV_TOOL_BASE}/toolchain
+// Directory for all installed toolchain-related binaries and programs
+export RISCV_TOOLCHAIN_INSTALL=${RISCV_TOOLCHAIN}/installed
 ```
 
 The PATH variable need to be updated before initiating installation. Add the following to the same file as you added the above lines.

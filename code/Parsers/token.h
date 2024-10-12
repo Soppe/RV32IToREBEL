@@ -1,3 +1,5 @@
+// Original made by Austin Henley and copied from https://github.com/AZHenley/riscv-parser
+
 #pragma once
 
 #include <string>

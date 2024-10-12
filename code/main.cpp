@@ -1,7 +1,3 @@
-// Example parser for RISC-V assembly.
-// Austin Henley
-// 10/5/2020
-
 #include "Converters/converter.h"
 
 #include "Parsers/lexer.h"
