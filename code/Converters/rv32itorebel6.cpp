@@ -233,7 +233,7 @@ void RV32IToREBEL6::fillExpressionMap()
    // jalr rd, offset(rs) --> jalr.t rd, offset(rs)
    m_instructionMap["jalr"] = [this] (const StringList& op, Expressions::ExpressionList& el)
                            {
-                              if(op.size() == 1) at("jalr")({"x1", zeroOffset(op[0])}, el);
+                              if(op.size() == 1) at("jalr")({"x1", zeroOffset(op[0])}, el); // Pseudoinstruction
                               else if(op.size() == 3) at("jalr")({op[0], createOffset(op[2], op[1])}, el); // Older format, e.g. from v2.2
                               else                    at("jalr.t")({op[0], op[1]}, el);
                            };
@@ -242,9 +242,9 @@ void RV32IToREBEL6::fillExpressionMap()
    // If we store it as a ternary value we can't use "lb 1(rs)" to read the second byte from the second memory slot since it'll be 0.
    // If we store it as binary using 2 trytes, reading it using a ternary lh.t means the value read from the second memory location would be minimum (3^(6 + 1)), which is way more than 260.
    // This may change in the future if REBEL-6 implements stricter memory alignemnts and rules for reading and writing from/to memory.
-   // l{b|h|w} rd, offset(rs) --> l{t|h|w} rd, offset(rs)
+   // l{b|h|w} rd, offset(rs) --> l{b|h|w} rd, offset(rs)
    // l{b|h|w} rd, symbol -->
-   //    aipc rd, %pcrel(symbol)
+   //    aipc.t rd, %pcrel(symbol)
    //    l{t|h|w} rd, 0(rd)
    m_instructionMap["lb"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lb", op, el); };
    m_instructionMap["lh"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleLoad(this, "lh", op, el); };
@@ -259,7 +259,7 @@ void RV32IToREBEL6::fillExpressionMap()
    // Need to keep their binary versions to overhold binary limits (e.g. the max value of binary byte is smaller than the max value of ternary trit) when storing to memory.
    // s{b|h|w} rd, offset(rs) --> s{b|h|w} rd, offset(rs)
    // s{b|h|w} rd, symbol, rt -->
-   //    aipc rt, %pcrel(symbol)
+   //    aipc.t rt, %pcrel(symbol)
    //    s{b|h|w} rd, 0(rt)
    m_instructionMap["sb"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleStore(this, "sb", op, el); };
    m_instructionMap["sh"] = [this] (const StringList& op, Expressions::ExpressionList& el) { handleStore(this, "sh", op, el); };
