@@ -50,7 +50,7 @@ void Parser::nextToken()
 }
 
 //TODO: Update this according to actual documentation found at https://sourceware.org/binutils/docs/as/ (chapter 5) and https://github.com/riscv-non-isa/riscv-asm-manual/blob/master/riscv-asm.md
-void Parser::parse(std::list<Expressions::Expression*>& expressions)
+void Parser::parse(Expressions::ExpressionList& expressions)
 {
    while(!checkToken(TokenType::EndOfFile))
    {
@@ -68,6 +68,7 @@ void Parser::parse(std::list<Expressions::Expression*>& expressions)
          expressions.push_back(e);
       }
 
+      // Is it an instruction?
       else if(checkToken(TokenType::Symbol))
       {
          Expressions::Instruction* instruction = getInstruction();
