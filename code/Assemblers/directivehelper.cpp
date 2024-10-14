@@ -4,18 +4,18 @@
 
 namespace
 {
-std::unordered_map<std::string, Simulators::DirectiveHelper::SectionType> directiveSectionMap =
+std::unordered_map<std::string, Assemblers::DirectiveHelper::SectionType> directiveSectionMap =
     {
-        {".text", Simulators::DirectiveHelper::SectionType::TEXT},
-        {".bss", Simulators::DirectiveHelper::SectionType::BSS},
-        {".sbss", Simulators::DirectiveHelper::SectionType::BSS},
-        {".data", Simulators::DirectiveHelper::SectionType::DATA},
-        {".sdata", Simulators::DirectiveHelper::SectionType::DATA},
-        {".rodata", Simulators::DirectiveHelper::SectionType::RODATA},
-        {".srodata", Simulators::DirectiveHelper::SectionType::RODATA}
+        {".text", Assemblers::DirectiveHelper::SectionType::TEXT},
+        {".bss", Assemblers::DirectiveHelper::SectionType::BSS},
+        {".sbss", Assemblers::DirectiveHelper::SectionType::BSS},
+        {".data", Assemblers::DirectiveHelper::SectionType::DATA},
+        {".sdata", Assemblers::DirectiveHelper::SectionType::DATA},
+        {".rodata", Assemblers::DirectiveHelper::SectionType::RODATA},
+        {".srodata", Assemblers::DirectiveHelper::SectionType::RODATA}
 };
 }
-namespace Simulators
+namespace Assemblers
 {
 
 bool DirectiveHelper::resolveSectionTypeAndIfChanged(const Expressions::Directive& directive, SectionType& sectionType)

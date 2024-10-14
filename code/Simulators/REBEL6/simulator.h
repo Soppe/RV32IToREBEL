@@ -9,14 +9,12 @@ namespace Simulators
 namespace REBEL6
 {
 
-class ExecutableProgram;
-
 class Simulator
 {
  public:
    Simulator();
 
-   void run(ExecutableProgram& executable);
+   void run(Assemblers::REBEL6::ExecutableProgram& executable);
 
    std::uint32_t getNumberOfRanInstructions();
    std::uint32_t getNumberOfTritFlips();

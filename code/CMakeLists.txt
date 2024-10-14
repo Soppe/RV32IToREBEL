@@ -13,6 +13,13 @@ include_directories(${PROJECT_SOURCE_DIR})
 # Header files
 set(HEADERS
    logger.h
+   Assemblers/directivehelper.h
+   Assemblers/REBEL6/assemblerandlinker.h
+   Assemblers/REBEL6/assemblerutils.h
+   Assemblers/REBEL6/executableprogram.h
+   Assemblers/RV32I/assemblerandlinker.h
+   Assemblers/RV32I/assemblerutils.h
+   Assemblers/RV32I/executableprogram.h
    Converters/converter.h
    Converters/instructionconverterbase.h
    Converters/rv32ipseudotorv32ibase.h
@@ -31,25 +38,24 @@ set(HEADERS
    Parsers/token.h
    Simulators/REBEL6/Cpu/cpu.h
    Simulators/REBEL6/Cpu/instructionexecutor.h
-   Simulators/REBEL6/Cpu/registry.h
-   Simulators/REBEL6/assemblerandlinker.h
-   Simulators/REBEL6/executableprogram.h
+   Simulators/REBEL6/Cpu/registry.h   
    Simulators/REBEL6/simulator.h
-   Simulators/REBEL6/simulatorutils.h
    Simulators/RV32I/Cpu/cpu.h
    Simulators/RV32I/Cpu/instructionexecutor.h
-   Simulators/RV32I/Cpu/registry.h
-   Simulators/RV32I/assemblerandlinker.h
-   Simulators/RV32I/assemblerutils.h
-   Simulators/RV32I/executableprogram.h
+   Simulators/RV32I/Cpu/registry.h   
    Simulators/RV32I/simulator.h
-   Simulators/RV32I/simulatorutils.h
-   Simulators/directivehelper.h
 )
 
 # Source files
 set(SOURCES
    main.cpp
+   Assemblers/directivehelper.cpp
+   Assemblers/REBEL6/assemblerandlinker.cpp
+   Assemblers/REBEL6/assemblerutils.cpp
+   Assemblers/REBEL6/executableprogram.cpp
+   Assemblers/RV32I/assemblerandlinker.cpp
+   Assemblers/RV32I/assemblerutils.cpp
+   Assemblers/RV32I/executableprogram.cpp
    Converters/converter.cpp
    Converters/instructionconverterbase.cpp
    Converters/rv32ipseudotorv32ibase.cpp
@@ -65,20 +71,13 @@ set(SOURCES
    Parsers/ternarylogic.cpp
    Simulators/REBEL6/Cpu/cpu.cpp
    Simulators/REBEL6/Cpu/instructionexecutor.cpp
-   Simulators/REBEL6/Cpu/registry.cpp
-   Simulators/REBEL6/assemblerandlinker.cpp
-   Simulators/REBEL6/executableprogram.cpp
+   Simulators/REBEL6/Cpu/registry.cpp   
    Simulators/REBEL6/simulator.cpp
-   Simulators/REBEL6/simulatorutils.cpp
    Simulators/RV32I/Cpu/cpu.cpp
    Simulators/RV32I/Cpu/instructionexecutor.cpp
-   Simulators/RV32I/Cpu/registry.cpp
-   Simulators/RV32I/assemblerandlinker.cpp
-   Simulators/RV32I/assemblerutils.cpp
-   Simulators/RV32I/executableprogram.cpp
+   Simulators/RV32I/Cpu/registry.cpp   
    Simulators/RV32I/simulator.cpp
-   Simulators/RV32I/simulatorutils.cpp
-   Simulators/directivehelper.cpp
+
 )
 
 # Add the executable

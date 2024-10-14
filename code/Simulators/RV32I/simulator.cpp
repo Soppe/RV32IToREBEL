@@ -10,7 +10,7 @@ Simulator::Simulator()
 
 }
 
-void Simulator::run(ExecutableProgram& executable)
+void Simulator::run(Assemblers::RV32I::ExecutableProgram& executable)
 {
    m_cpu.executeProgram(executable);
 }

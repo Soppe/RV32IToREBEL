@@ -10,7 +10,7 @@ namespace
 const std::uint32_t PROGRAM_SIZE_BYTES = 1024 * 1024; // 1 MB
 }
 
-namespace Simulators
+namespace Assemblers
 {
 namespace RV32I
 {

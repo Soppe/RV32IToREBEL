@@ -6,7 +6,7 @@ namespace Expressions
 class Directive;
 }
 
-namespace Simulators
+namespace Assemblers
 {
 class DirectiveHelper
 {

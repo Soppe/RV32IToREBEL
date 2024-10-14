@@ -4,20 +4,17 @@
 
 #include <Expressions/expression.h>
 
-
 namespace Simulators
 {
 namespace RV32I
 {
-
-class ExecutableProgram;
 
 class Simulator
 {
 public:
    Simulator();
 
-   void run(ExecutableProgram& executable);
+   void run(Assemblers::RV32I::ExecutableProgram& executable);
 
    std::uint32_t getNumberOfRanInstructions();
    std::uint32_t getNumberOfBitFlips();

@@ -2,14 +2,17 @@
 
 #include "instructionexecutor.h"
 
+#include <logger.h>
+
 #include <Expressions/instruction.h>
 #include <Parsers/parseutils.h>
-#include <Simulators/RV32I/simulatorutils.h>
-#include <Simulators/RV32I/executableprogram.h>
-#include <logger.h>
+#include <Assemblers/RV32I/executableprogram.h>
+#include <Assemblers/RV32I/assemblerutils.h>
 
 #include <iostream>
 #include <limits.h>
+
+using namespace Assemblers::RV32I;
 
 namespace
 {
@@ -57,42 +60,42 @@ void CPU::executeProgram(ExecutableProgram& program)
    std::uint8_t instructionSize = 0;
    const Expressions::Instruction* instr = program.loadInstruction(m_PC, instructionSize);
 
-   SimulatorUtils::InstructionType type = SimulatorUtils::InstructionType::UNDEFINED;
+   AssemblerUtils::InstructionType type = AssemblerUtils::InstructionType::UNDEFINED;
 
    while(instr != nullptr)
    {
       const std::string& name = instr->getInstructionName();
       const std::vector<std::string>& operands = instr->getInstructionOperands();
-      type = SimulatorUtils::getInstructionType(name);
+      type = AssemblerUtils::getInstructionType(name);
       // std::cout << "pc = " << m_PC << "\t" << *instr << std::endl;
 
       switch(type)
       {
-      case SimulatorUtils::InstructionType::REGISTER:
+      case AssemblerUtils::InstructionType::REGISTER:
          executeRegister(name, operands[0], operands[1], operands[2]);
          break;
-      case SimulatorUtils::InstructionType::IMMEDIATE:
+      case AssemblerUtils::InstructionType::IMMEDIATE:
          executeImmediate(name, operands[0], operands[1], operands[2]);
          break;
-      case SimulatorUtils::InstructionType::UPPER:
+      case AssemblerUtils::InstructionType::UPPER:
          executeUpper(name, operands[0], operands[1]);
          break;
-      case SimulatorUtils::InstructionType::BRANCH:
+      case AssemblerUtils::InstructionType::BRANCH:
          executeBranch(name, instructionSize, operands[0], operands[1], operands[2]);
          break;
-      case SimulatorUtils::InstructionType::JUMP:
+      case AssemblerUtils::InstructionType::JUMP:
          executeJump(name, instructionSize, operands[0], operands[1]);
          break;
-      case SimulatorUtils::InstructionType::JUMP_REGISTER:
+      case AssemblerUtils::InstructionType::JUMP_REGISTER:
          executeJumpRegister(name, instructionSize, operands[0], operands[1]);
          break;
-      case SimulatorUtils::InstructionType::LOAD:
+      case AssemblerUtils::InstructionType::LOAD:
          executeLoad(name, operands[0], operands[1], program);
          break;
-      case SimulatorUtils::InstructionType::STORE:
+      case AssemblerUtils::InstructionType::STORE:
          executeStore(name, operands[0], operands[1], program);
          break;
-      case SimulatorUtils::InstructionType::SYSTEM:
+      case AssemblerUtils::InstructionType::SYSTEM:
          executeSystem(name);
          break;
       default:

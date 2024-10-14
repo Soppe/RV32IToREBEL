@@ -1,16 +1,16 @@
 #include "assemblerandlinker.h"
 
 #include "executableprogram.h"
-#include "simulatorutils.h"
+#include "assemblerutils.h"
 
 #include <Expressions/all_expressions.h>
-#include <Simulators/directivehelper.h>
+#include <Assemblers/directivehelper.h>
 #include <logger.h>
 
 #include <iostream>
 #include <fstream>
 
-namespace Simulators
+namespace Assemblers
 {
 namespace RV32I
 {
@@ -496,8 +496,8 @@ void AssemblerAndLinker::resolveOperands()
       }
 
       // Offset branching and jumps based on PC
-      SimulatorUtils::InstructionType instrType = SimulatorUtils::getInstructionType(instr->getInstructionName());
-      if((instrType == SimulatorUtils::InstructionType::BRANCH) || (instrType == SimulatorUtils::InstructionType::JUMP))
+      AssemblerUtils::InstructionType instrType = AssemblerUtils::getInstructionType(instr->getInstructionName());
+      if((instrType == AssemblerUtils::InstructionType::BRANCH) || (instrType == AssemblerUtils::InstructionType::JUMP))
       {
          std::int32_t opInt = stoi(operands.back());
          opInt = opInt - pc;

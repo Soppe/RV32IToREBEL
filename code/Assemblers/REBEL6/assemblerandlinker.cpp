@@ -1,7 +1,7 @@
 #include "assemblerandlinker.h"
 
 #include "executableprogram.h"
-#include "simulatorutils.h"
+#include "assemblerutils.h"
 
 #include <Converters/rv32itorebel6.h>
 #include <Expressions/all_expressions.h>
@@ -11,7 +11,7 @@
 #include <fstream>
 #include <math.h>
 
-namespace Simulators
+namespace Assemblers
 {
 namespace REBEL6
 {
@@ -505,8 +505,8 @@ void AssemblerAndLinker::resolveOperands()
       }
 
       // Offset branching and jumps based on PC
-      SimulatorUtils::InstructionType instrType = SimulatorUtils::getInstructionType(instr->getInstructionName());
-      if((instrType == SimulatorUtils::InstructionType::BRANCH) || (instrType == SimulatorUtils::InstructionType::JUMP))
+      AssemblerUtils::InstructionType instrType = AssemblerUtils::getInstructionType(instr->getInstructionName());
+      if((instrType == AssemblerUtils::InstructionType::BRANCH) || (instrType == AssemblerUtils::InstructionType::JUMP))
       {
          std::int32_t opInt = stoi(operands.back());
          opInt = opInt - pc;

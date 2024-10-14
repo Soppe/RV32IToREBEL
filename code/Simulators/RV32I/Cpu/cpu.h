@@ -2,13 +2,18 @@
 
 #include "registry.h"
 
+namespace Assemblers
+{
+namespace RV32I
+{
+class ExecutableProgram;
+}
+}
 
 namespace Simulators
 {
 namespace RV32I
 {
-
-class ExecutableProgram;
 
 class CPU
 {
@@ -16,7 +21,7 @@ public:
    CPU();
    ~CPU();
 
-   void executeProgram(ExecutableProgram& program);
+   void executeProgram(Assemblers::RV32I::ExecutableProgram& program);
    std::uint32_t getNumberOfRanInstructions() const;
    std::uint32_t getBitFlipCost() const;
 
@@ -29,8 +34,8 @@ private:
    void executeBranch(const std::string& name, std::uint8_t instructionSize, const std::string& rs1, const std::string& rs2, const std::string& offset);
    void executeJump(const std::string& name, std::uint8_t instructionSize, const std::string& rd, const std::string& offset);
    void executeJumpRegister(const std::string& name, std::uint8_t instructionSize, const std::string& rd, const std::string& target);
-   void executeLoad(const std::string& name, const std::string& rd, const std::string& address, ExecutableProgram& program);
-   void executeStore(const std::string& name, const std::string& rs, const std::string& address, ExecutableProgram& program);
+   void executeLoad(const std::string& name, const std::string& rd, const std::string& address, Assemblers::RV32I::ExecutableProgram& program);
+   void executeStore(const std::string& name, const std::string& rs, const std::string& address, Assemblers::RV32I::ExecutableProgram& program);
    void executeSystem(const std::string& name);
 
    void resolveRsOffset(const std::string& offset, std::int32_t& offseti, std::int32_t& rs1);

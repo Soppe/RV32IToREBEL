@@ -1,6 +1,6 @@
 #include "instructionexecutor.h"
 
-#include "Simulators/RV32I/executableprogram.h"
+#include <Assemblers/RV32I/executableprogram.h>
 #include <logger.h>
 #include <Parsers/parseutils.h>
 
@@ -421,7 +421,7 @@ void executeJalr(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, std::u
 // Load instructions
 //======================================
 const std::int32_t maxLoadOffset = std::pow(2, 11);
-void executeLw(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
+void executeLw(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program)
 {
    if((offset >= maxLoadOffset) || (offset < -maxLoadOffset))
    {
@@ -433,7 +433,7 @@ void executeLw(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulato
    ParseUtils::parseImmediate(32, rd, rd);
 }
 
-void executeLh(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
+void executeLh(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program)
 {
    if((offset >= maxLoadOffset) || (offset < -maxLoadOffset))
    {
@@ -445,7 +445,7 @@ void executeLh(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulato
    ParseUtils::parseImmediate(16, rd, rd);
 }
 
-void executeLb(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
+void executeLb(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program)
 {
    if((offset >= maxLoadOffset) || (offset < -maxLoadOffset))
    {
@@ -457,7 +457,7 @@ void executeLb(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulato
    ParseUtils::parseImmediate(8, rd, rd);
 }
 
-void executeLhu(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
+void executeLhu(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program)
 {
    if((offset >= maxLoadOffset) || (offset < -maxLoadOffset))
    {
@@ -468,7 +468,7 @@ void executeLhu(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulat
    rd = program.loadFromHeap(offset + rs1, 2);
 }
 
-void executeLbu(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
+void executeLbu(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program)
 {
    if((offset >= maxLoadOffset) || (offset < -maxLoadOffset))
    {
@@ -483,7 +483,7 @@ void executeLbu(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulat
 // Store instructions
 //======================================
 const std::int32_t maxStoreOffset = std::pow(2, 11);
-void executeSw(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
+void executeSw(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program)
 {
    if((offset >= maxStoreOffset) || (offset < -maxStoreOffset))
    {
@@ -494,7 +494,7 @@ void executeSw(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Simulato
    program.storeToHeap(offset + rs1, rs2, 4);
 }
 
-void executeSh(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
+void executeSh(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program)
 {
    if((offset >= maxStoreOffset) || (offset < -maxStoreOffset))
    {
@@ -505,7 +505,7 @@ void executeSh(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Simulato
    program.storeToHeap(offset + rs1, rs2, 2);
 }
 
-void executeSb(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program)
+void executeSb(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program)
 {
    if((offset >= maxStoreOffset) || (offset < -maxStoreOffset))
    {

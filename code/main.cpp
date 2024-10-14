@@ -7,13 +7,13 @@
 #include "Expressions/expression.h"
 #include "Expressions/all_expressions.h"
 
-#include "Simulators/RV32I/assemblerandlinker.h"
-#include "Simulators/RV32I/assemblerutils.h"
-#include "Simulators/RV32I/executableprogram.h"
+#include "Assemblers/RV32I/assemblerandlinker.h"
+#include "Assemblers/RV32I/assemblerutils.h"
+#include "Assemblers/RV32I/executableprogram.h"
 #include "Simulators/RV32I/simulator.h"
 
-#include "Simulators/REBEL6/assemblerandlinker.h"
-#include "Simulators/REBEL6/executableprogram.h"
+#include "Assemblers/REBEL6/assemblerandlinker.h"
+#include "Assemblers/REBEL6/executableprogram.h"
 #include "Simulators/REBEL6/simulator.h"
 
 #include <iostream>
@@ -67,8 +67,8 @@ int main(int argc, char* argv[])
    Converters::Converter::Convert("rv32i", binaryExpressions, rv32iExpressions);
 
    // Assembling
-   Simulators::RV32I::ExecutableProgram rv32iExecutable;
-   Simulators::RV32I::AssemblerAndLinker rv32iAssembler(rv32iExpressions, rv32iExecutable);
+   Assemblers::RV32I::ExecutableProgram rv32iExecutable;
+   Assemblers::RV32I::AssemblerAndLinker rv32iAssembler(rv32iExpressions, rv32iExecutable);
 
    // Generate binary assembly file
    std::string fileName = std::filesystem::path(inputPath).stem();
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
    rv32iSim.run(rv32iExecutable);
 
    // Generate MRSC binary object file.
-   Simulators::RV32I::AssemblerUtils::generateAssemblyFileForMRCS(rv32iExecutable, fileName);
+   Assemblers::RV32I::AssemblerUtils::generateAssemblyFileForMRCS(rv32iExecutable, fileName);
 
    // ------------ REBEL-6 ------------
 
@@ -92,8 +92,8 @@ int main(int argc, char* argv[])
    Converters::Converter::Convert("rebel-6", binaryExpressions, rebel6Expressions);
 
    // Assembling
-   Simulators::REBEL6::ExecutableProgram rebel6Executable;
-   Simulators::REBEL6::AssemblerAndLinker rebel6Assembler(rebel6Expressions, rebel6Executable);
+   Assemblers::REBEL6::ExecutableProgram rebel6Executable;
+   Assemblers::REBEL6::AssemblerAndLinker rebel6Assembler(rebel6Expressions, rebel6Executable);
 
    // Generate ternary assembly file
    rebel6Assembler.printExpressionsToFile(fileName);

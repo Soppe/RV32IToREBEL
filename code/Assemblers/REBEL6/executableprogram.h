@@ -11,7 +11,7 @@ namespace Expressions
 class Instruction;
 }
 
-namespace Simulators
+namespace Assemblers
 {
 namespace REBEL6
 {

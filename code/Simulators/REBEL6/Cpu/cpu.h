@@ -2,12 +2,18 @@
 
 #include "registry.h"
 
+namespace Assemblers
+{
+namespace REBEL6
+{
+class ExecutableProgram;
+}
+}
+
 namespace Simulators
 {
 namespace REBEL6
 {
-
-class ExecutableProgram;
 
 class CPU
 {
@@ -15,7 +21,7 @@ class CPU
    CPU();
    ~CPU();
 
-   void executeProgram(ExecutableProgram& program);
+   void executeProgram(Assemblers::REBEL6::ExecutableProgram& program);
    std::uint32_t getNumberOfRanInstructions() const;
    std::uint32_t getTritFlipCost() const;
 
@@ -28,8 +34,8 @@ class CPU
    void executeBranch(const std::string& name, bool isBinary, std::uint8_t instructionSize, const std::string& rs1, const std::string& rs2, const std::string& offset);
    void executeJump(const std::string& name, std::uint8_t instructionSize, const std::string& rd, const std::string& offset);
    void executeJumpRegister(const std::string& name, std::uint8_t instructionSize, const std::string& rd, const std::string& target);
-   void executeLoad(const std::string& name, bool isBinary, const std::string& rd, const std::string& address, ExecutableProgram& program);
-   void executeStore(const std::string& name, bool isBinary, const std::string& rs, const std::string& address, ExecutableProgram& program);
+   void executeLoad(const std::string& name, bool isBinary, const std::string& rd, const std::string& address, Assemblers::REBEL6::ExecutableProgram& program);
+   void executeStore(const std::string& name, bool isBinary, const std::string& rs, const std::string& address, Assemblers::REBEL6::ExecutableProgram& program);
    void executeSystem(const std::string& name);
 
    void resolveRsOffset(const std::string& offset, Tint& offseti, Tint& rs1);

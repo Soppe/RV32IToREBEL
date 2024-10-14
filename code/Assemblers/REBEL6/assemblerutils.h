@@ -2,17 +2,17 @@
 
 #include <string>
 
-namespace Simulators
+namespace Assemblers
 {
 namespace REBEL6
 {
 
-class SimulatorUtils
+class AssemblerUtils
 {
  public:
    enum class InstructionType {BRANCH, IMMEDIATE, JUMP, JUMP_REGISTER, LOAD, LOAD_IMMEDIATE, REGISTER, STORE, SYSTEM, UNDEFINED};
 
-   SimulatorUtils() = delete;
+   AssemblerUtils() = delete;
 
    static InstructionType getInstructionType(const std::string& instructionName);
 

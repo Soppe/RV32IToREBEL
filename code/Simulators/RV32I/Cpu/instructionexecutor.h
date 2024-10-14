@@ -2,12 +2,18 @@
 
 #include <cstdint>
 
+namespace Assemblers
+{
+namespace RV32I
+{
+class ExecutableProgram;
+}
+}
+
 namespace Simulators
 {
 namespace RV32I
 {
-
-class ExecutableProgram;
 
 namespace InstructionExecutor
 {
@@ -67,18 +73,18 @@ void  executeJalr(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, std::
 //======================================
 // Load instructions
 //======================================
-void  executeLw(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
-void  executeLh(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
-void  executeLb(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
-void  executeLhu(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
-void  executeLbu(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
+void  executeLw(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program);
+void  executeLh(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program);
+void  executeLb(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program);
+void  executeLhu(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program);
+void  executeLbu(std::int32_t& rd, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program);
 
 //======================================
 // Store instructions
 //======================================
-void  executeSw(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
-void  executeSh(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
-void  executeSb(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Simulators::RV32I::ExecutableProgram& program);
+void  executeSw(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program);
+void  executeSh(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program);
+void  executeSb(std::int32_t rs2, std::int32_t offset, std::int32_t rs1, Assemblers::RV32I::ExecutableProgram& program);
 }
 }
 }

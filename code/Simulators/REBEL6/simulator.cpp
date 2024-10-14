@@ -9,7 +9,7 @@ Simulator::Simulator()
 
 }
 
-void Simulator::run(ExecutableProgram& executable)
+void Simulator::run(Assemblers::REBEL6::ExecutableProgram& executable)
 {
    m_cpu.executeProgram(executable);
 }

@@ -2,12 +2,18 @@
 
 #include <Parsers/ternarylogic.h>
 
+namespace Assemblers
+{
+namespace REBEL6
+{
+class ExecutableProgram;
+}
+}
+
 namespace Simulators
 {
 namespace REBEL6
 {
-
-class ExecutableProgram;
 
 namespace InstructionExecutor
 {
@@ -100,30 +106,30 @@ void executeJalr_t(Tint& rd, const Tint& offset, const Tint& rs1, std::int32_t& 
 //======================================
 
 // Binary
-void executeLw(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
-void executeLh(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
-void executeLb(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
-void executeLhu(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
-void executeLbu(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
+void executeLw(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program);
+void executeLh(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program);
+void executeLb(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program);
+void executeLhu(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program);
+void executeLbu(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program);
 
 // Ternary
-void executeLw_t(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
-void executeLh_t(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
-void executeLt_t(Tint& rd, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
+void executeLw_t(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program);
+void executeLh_t(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program);
+void executeLt_t(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program);
 
 //======================================
 // Store instructions
 //======================================
 
 // Binary
-void executeSw(const Tint& rs2, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
-void executeSh(const Tint& rs2, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
-void executeSb(const Tint& rs2, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
+void executeSw(const Tint& rs2, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program);
+void executeSh(const Tint& rs2, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program);
+void executeSb(const Tint& rs2, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program);
 
 // Ternary
-void executeSw_t(const Tint& rs2, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
-void executeSh_t(const Tint& rs2, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
-void executeSt_t(const Tint& rs2, const Tint& offset, const Tint& rs1, Simulators::REBEL6::ExecutableProgram& program);
+void executeSw_t(const Tint& rs2, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program);
+void executeSh_t(const Tint& rs2, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program);
+void executeSt_t(const Tint& rs2, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program);
 
 
 }

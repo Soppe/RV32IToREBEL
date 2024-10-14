@@ -2,12 +2,12 @@
 
 #include <Parsers/expressionparser.h>
 #include <Parsers/parseutils.h>
-#include <Simulators/directivehelper.h>
+#include <Assemblers/directivehelper.h>
 
 #include <vector>
 #include <map>
 
-namespace Simulators
+namespace Assemblers
 {
 namespace RV32I
 {

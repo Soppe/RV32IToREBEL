@@ -4,12 +4,12 @@
 #include <Parsers/expressionparser.h>
 #include <Parsers/parseutils.h>
 #include <Parsers/ternarylogic.h>
-#include <Simulators/directivehelper.h>
+#include <Assemblers/directivehelper.h>
 
 #include <vector>
 #include <map>
 
-namespace Simulators
+namespace Assemblers
 {
 namespace REBEL6
 {

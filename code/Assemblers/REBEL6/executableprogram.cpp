@@ -12,7 +12,7 @@ namespace
 const std::uint32_t PROGRAM_SIZE_TRYTES = std::pow(3, 13); // About 1.6m trytes
 }
 
-namespace Simulators
+namespace Assemblers
 {
 namespace REBEL6
 {

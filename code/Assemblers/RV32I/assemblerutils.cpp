@@ -1,8 +1,7 @@
 #include "assemblerutils.h"
 
 #include "executableprogram.h"
-#include "simulatorutils.h"
-#include "Cpu/registry.h"
+#include <Simulators/RV32I/Cpu/registry.h>
 
 #include <logger.h>
 #include <Expressions/instruction.h>
@@ -15,6 +14,66 @@
 
 namespace
 {
+const std::unordered_map<std::string, const Assemblers::RV32I::AssemblerUtils::InstructionType> InstructionMap =
+    {
+       // R - Register
+       {"add", Assemblers::RV32I::AssemblerUtils::InstructionType::REGISTER},
+       {"sub", Assemblers::RV32I::AssemblerUtils::InstructionType::REGISTER},
+       {"sll", Assemblers::RV32I::AssemblerUtils::InstructionType::REGISTER},
+       {"srl", Assemblers::RV32I::AssemblerUtils::InstructionType::REGISTER},
+       {"sra", Assemblers::RV32I::AssemblerUtils::InstructionType::REGISTER},
+       {"slt", Assemblers::RV32I::AssemblerUtils::InstructionType::REGISTER},
+       {"sltu", Assemblers::RV32I::AssemblerUtils::InstructionType::REGISTER},
+       {"or", Assemblers::RV32I::AssemblerUtils::InstructionType::REGISTER},
+       {"xor", Assemblers::RV32I::AssemblerUtils::InstructionType::REGISTER},
+       {"and", Assemblers::RV32I::AssemblerUtils::InstructionType::REGISTER},
+
+          // I - Immediate
+       {"addi", Assemblers::RV32I::AssemblerUtils::InstructionType::IMMEDIATE},
+       {"slli", Assemblers::RV32I::AssemblerUtils::InstructionType::IMMEDIATE},
+       {"srli", Assemblers::RV32I::AssemblerUtils::InstructionType::IMMEDIATE},
+       {"srai", Assemblers::RV32I::AssemblerUtils::InstructionType::IMMEDIATE},
+       {"slti", Assemblers::RV32I::AssemblerUtils::InstructionType::IMMEDIATE},
+       {"sltiu", Assemblers::RV32I::AssemblerUtils::InstructionType::IMMEDIATE},
+       {"ori", Assemblers::RV32I::AssemblerUtils::InstructionType::IMMEDIATE},
+       {"xori", Assemblers::RV32I::AssemblerUtils::InstructionType::IMMEDIATE},
+       {"andi", Assemblers::RV32I::AssemblerUtils::InstructionType::IMMEDIATE},
+
+          // U - Upper
+       {"lui", Assemblers::RV32I::AssemblerUtils::InstructionType::UPPER},
+       {"auipc", Assemblers::RV32I::AssemblerUtils::InstructionType::UPPER},
+
+          // B - Branch
+       {"beq", Assemblers::RV32I::AssemblerUtils::InstructionType::BRANCH},
+       {"bne", Assemblers::RV32I::AssemblerUtils::InstructionType::BRANCH},
+       {"blt", Assemblers::RV32I::AssemblerUtils::InstructionType::BRANCH},
+       {"bltu", Assemblers::RV32I::AssemblerUtils::InstructionType::BRANCH},
+       {"bge", Assemblers::RV32I::AssemblerUtils::InstructionType::BRANCH},
+       {"bgeu", Assemblers::RV32I::AssemblerUtils::InstructionType::BRANCH},
+
+          // J - Jump
+       {"jal", Assemblers::RV32I::AssemblerUtils::InstructionType::JUMP},
+
+          // I - Jump Register
+       {"jalr", Assemblers::RV32I::AssemblerUtils::InstructionType::JUMP_REGISTER},
+
+          // I - Load
+       {"lw", Assemblers::RV32I::AssemblerUtils::InstructionType::LOAD},
+       {"lh", Assemblers::RV32I::AssemblerUtils::InstructionType::LOAD},
+       {"lb", Assemblers::RV32I::AssemblerUtils::InstructionType::LOAD},
+       {"lhu", Assemblers::RV32I::AssemblerUtils::InstructionType::LOAD},
+       {"lbu", Assemblers::RV32I::AssemblerUtils::InstructionType::LOAD},
+
+          // S - Store
+       {"sw", Assemblers::RV32I::AssemblerUtils::InstructionType::STORE},
+       {"sh", Assemblers::RV32I::AssemblerUtils::InstructionType::STORE},
+       {"sb", Assemblers::RV32I::AssemblerUtils::InstructionType::STORE},
+
+          // SYSTEM
+       {"ecall", Assemblers::RV32I::AssemblerUtils::InstructionType::SYSTEM},
+       {"ebreak", Assemblers::RV32I::AssemblerUtils::InstructionType::SYSTEM}
+    };
+
 std::unordered_map<std::string, std::uint8_t> Funct3Map =
     {
     // R - Register
@@ -144,10 +203,26 @@ void machineFormatJump(std::int32_t& result, std::uint8_t opcode, std::uint8_t r
 }
 
 }
-namespace Simulators
+namespace Assemblers
 {
 namespace RV32I
 {
+
+AssemblerUtils::InstructionType AssemblerUtils::getInstructionType(const std::string& instructionName)
+{
+   InstructionType retVal;
+
+   try
+   {
+      retVal = InstructionMap.at(instructionName);
+   }
+   catch(std::exception&)
+   {
+      retVal = AssemblerUtils::InstructionType::UNDEFINED;
+   }
+
+   return retVal;
+}
 
 void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& program, const std::string& fileName)
 {
@@ -157,21 +232,21 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
    const Expressions::Instruction* instr = program.loadInstruction(pc, instructionSize);
    std::vector<std::bitset<32>> binaryRepresentedInstructions;
 
-   SimulatorUtils::InstructionType type = SimulatorUtils::InstructionType::UNDEFINED;
+   InstructionType type = InstructionType::UNDEFINED;
 
    while(instr != nullptr)
    {
       const std::string& name = instr->getInstructionName();
       const std::vector<std::string>& operands = instr->getInstructionOperands();
-      type = SimulatorUtils::getInstructionType(name);
+      type = getInstructionType(name);
 
       switch(type)
       {
-      case SimulatorUtils::InstructionType::REGISTER:
+      case InstructionType::REGISTER:
       {
-         std::uint8_t rd = Registry::getIntegerValue(operands[0]);
-         std::uint8_t rs1 = Registry::getIntegerValue(operands[1]);
-         std::uint8_t rs2 = Registry::getIntegerValue(operands[2]);
+         std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
+         std::uint8_t rs1 = Simulators::RV32I::Registry::getIntegerValue(operands[1]);
+         std::uint8_t rs2 = Simulators::RV32I::Registry::getIntegerValue(operands[2]);
          std::uint8_t opcode = 0b0110011;
          std::uint8_t funct3 = getFunc3(name);
          std::uint8_t funct7 = ((name == "sub") || (name == "sra")) ? 0b0100000 : 0b0;
@@ -179,10 +254,10 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
          machineFormatRegister(binaryValue, opcode, rd, rs1, rs2, funct3, funct7);
          break;
       }
-      case SimulatorUtils::InstructionType::IMMEDIATE:
+      case InstructionType::IMMEDIATE:
       {
-         std::uint8_t rd = Registry::getIntegerValue(operands[0]);
-         std::uint8_t rs = Registry::getIntegerValue(operands[1]);
+         std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
+         std::uint8_t rs = Simulators::RV32I::Registry::getIntegerValue(operands[1]);
          std::int32_t imm = stoi(operands[2]);
          std::uint8_t opcode = 0b0010011;
          std::uint8_t funct3 = getFunc3(name);
@@ -200,9 +275,9 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
          machineFormatImmediate(binaryValue, opcode, rd, rs, imm, funct3);
          break;
       }
-      case SimulatorUtils::InstructionType::UPPER:
+      case InstructionType::UPPER:
       {
-         std::uint8_t rd = Registry::getIntegerValue(operands[0]);
+         std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
          std::int32_t imm = stoi(operands[1]);
          std::uint8_t opcode = (name == "lui") ? 0b0110111 : 0b0010111;
 
@@ -211,10 +286,10 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
          machineFormatUpper(binaryValue, opcode, rd, imm);
          break;
       }
-      case SimulatorUtils::InstructionType::BRANCH:
+      case InstructionType::BRANCH:
       {
-         std::uint8_t rs1 = Registry::getIntegerValue(operands[0]);
-         std::uint8_t rs2 = Registry::getIntegerValue(operands[1]);
+         std::uint8_t rs1 = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
+         std::uint8_t rs2 = Simulators::RV32I::Registry::getIntegerValue(operands[1]);
          std::int32_t offset = stoi(operands[2]);
          std::uint8_t opcode = 0b1100011;
          std::uint8_t funct3 = getFunc3(name);
@@ -224,9 +299,9 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
          machineFormatBranch(binaryValue, opcode, rs1, rs2, offset, funct3);
          break;
       }
-      case SimulatorUtils::InstructionType::JUMP:
+      case InstructionType::JUMP:
       {
-         std::uint8_t rd = Registry::getIntegerValue(operands[0]);
+         std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
          std::int32_t offset = stoi(operands[1]);
          std::uint8_t opcode = 0b1101111;
 
@@ -235,9 +310,9 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
          machineFormatJump(binaryValue, opcode, rd, offset);
          break;
       }
-      case SimulatorUtils::InstructionType::JUMP_REGISTER:
+      case InstructionType::JUMP_REGISTER:
       {
-         std::uint8_t rd = Registry::getIntegerValue(operands[0]);
+         std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
          std::uint8_t rs1 = 0;
          std::int32_t offset = 0;
          std::uint8_t opcode = 0b1100111;
@@ -246,15 +321,15 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
          std::string off;
          std::string rs;
          ParseUtils::parseRegisterOffset(operands[1], off, rs);
-         rs1 = Registry::getIntegerValue(rs);
+         rs1 = Simulators::RV32I::Registry::getIntegerValue(rs);
          offset = stoi(off);
 
          machineFormatImmediate(binaryValue, opcode, rd, rs1, offset, funct3);
          break;
       }
-      case SimulatorUtils::InstructionType::LOAD:
+      case InstructionType::LOAD:
       {
-         std::uint8_t rd = Registry::getIntegerValue(operands[0]);
+         std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
          std::uint8_t rs1 = 0;
          std::int32_t offset = 0;
          std::uint8_t opcode = 0b0000011;
@@ -263,16 +338,16 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
          std::string off;
          std::string rs;
          ParseUtils::parseRegisterOffset(operands[1], off, rs);
-         rs1 = Registry::getIntegerValue(rs);
+         rs1 = Simulators::RV32I::Registry::getIntegerValue(rs);
          offset = stoi(off);
 
          machineFormatImmediate(binaryValue, opcode, rd, rs1, offset, funct3);
          break;
       }
-      case SimulatorUtils::InstructionType::STORE:
+      case InstructionType::STORE:
       {
          std::uint8_t rs1 = 0;
-         std::uint8_t rs2 = Registry::getIntegerValue(operands[0]);
+         std::uint8_t rs2 = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
          std::int32_t offset = 0;
          std::uint8_t opcode = 0b0100011;
          std::uint8_t funct3 = getFunc3(name);
@@ -280,13 +355,13 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
          std::string off;
          std::string rs;
          ParseUtils::parseRegisterOffset(operands[1], off, rs);
-         rs1 = Registry::getIntegerValue(rs);
+         rs1 = Simulators::RV32I::Registry::getIntegerValue(rs);
          offset = stoi(off);
 
          machineFormatStore(binaryValue, opcode, rs1, rs2, offset, funct3);
          break;
       }
-      case SimulatorUtils::InstructionType::SYSTEM:
+      case InstructionType::SYSTEM:
       {
          if(name == "ecall")
          {

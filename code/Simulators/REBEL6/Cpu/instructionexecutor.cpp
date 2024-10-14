@@ -1,6 +1,6 @@
 #include "instructionexecutor.h"
 
-#include <Simulators/REBEL6/executableprogram.h>
+#include <Assemblers/REBEL6/executableprogram.h>
 #include <Simulators/RV32I/Cpu/instructionexecutor.h>
 #include <logger.h>
 
@@ -438,7 +438,7 @@ void executeJalr_t(Tint& rd, const Tint& offset, const Tint& rs1, std::int32_t& 
 
 // Binary
 const Tint maxLoadOffset = std::pow(3, 11); // TODO: Find the correct offset
-void executeLw(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+void executeLw(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program)
 {
    if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
    {
@@ -452,7 +452,7 @@ void executeLw(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram&
    rd = rdi;
 }
 
-void executeLh(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+void executeLh(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program)
 {
    if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
    {
@@ -466,7 +466,7 @@ void executeLh(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram&
    rd = rdi;
 }
 
-void executeLb(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+void executeLb(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program)
 {
    if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
    {
@@ -480,7 +480,7 @@ void executeLb(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram&
    rd = rdi;
 }
 
-void executeLhu(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+void executeLhu(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program)
 {
    if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
    {
@@ -494,7 +494,7 @@ void executeLhu(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram
    rd = rdi;
 }
 
-void executeLbu(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+void executeLbu(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program)
 {
    if((offset > maxLoadOffset) || (offset < -maxLoadOffset))
    {
@@ -509,19 +509,19 @@ void executeLbu(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram
 }
 
 // Ternary
-void executeLw_t(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+void executeLw_t(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program)
 {
    std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
    abort();
 }
 
-void executeLh_t(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+void executeLh_t(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program)
 {
    std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
    abort();
 }
 
-void executeLt_t(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+void executeLt_t(Tint& rd, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program)
 {
    std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
    abort();
@@ -532,7 +532,7 @@ void executeLt_t(Tint& rd, const Tint& offset, const Tint& rs1, ExecutableProgra
 //======================================
 const Tint maxStoreOffset = std::pow(3, 12); // TODO: Find the correct offset
 // Binary
-void executeSw(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+void executeSw(const Tint& rs2, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program)
 {
    if((offset > maxStoreOffset) || (offset < -maxStoreOffset))
    {
@@ -551,7 +551,7 @@ void executeSw(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableP
    program.storeToHeap(offset + rs1 + 3, rs2t, 1);
 }
 
-void executeSh(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+void executeSh(const Tint& rs2, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program)
 {
    if((offset > maxStoreOffset) || (offset < -maxStoreOffset))
    {
@@ -565,7 +565,7 @@ void executeSh(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableP
    program.storeToHeap(offset + rs1 + 1, rs2t, 1);
 }
 
-void executeSb(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+void executeSb(const Tint& rs2, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program)
 {
    if((offset > maxStoreOffset) || (offset < -maxStoreOffset))
    {
@@ -578,19 +578,19 @@ void executeSb(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableP
 }
 
 // Ternary
-void executeSw_t(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+void executeSw_t(const Tint& rs2, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program)
 {
    std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
    abort();
 }
 
-void executeSh_t(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+void executeSh_t(const Tint& rs2, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program)
 {
    std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
    abort();
 }
 
-void executeSb_t(const Tint& rs2, const Tint& offset, const Tint& rs1, ExecutableProgram& program)
+void executeSb_t(const Tint& rs2, const Tint& offset, const Tint& rs1, Assemblers::REBEL6::ExecutableProgram& program)
 {
    std::cerr << __PRETTY_FUNC__ << ": Unimplemented execution." << std::endl;
    abort();
