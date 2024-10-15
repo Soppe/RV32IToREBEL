@@ -1,4 +1,4 @@
-#include "rv32ipseudotorv32ibase.h"
+#include "rv32itorv32ibase.h"
 
 #include <Expressions/instruction.h>
 #include <Expressions/label.h>
@@ -38,7 +38,7 @@ void createInstruction(Expressions::ExpressionList& el, const std::string& name,
 // temp_label:
 //    auipc rd, %pcrel_hi(symbol)
 //    l{b|h|w} rd, %pcrel_lo(temp_label)(rd)
-void handleLoad(const Converters::RV32IPseudoToRV32IBase* conv, const std::string& name, const Converters::StringList& op, Expressions::ExpressionList& el)
+void handleLoad(const Translators::RV32IToRV32IBase* conv, const std::string& name, const Translators::StringList& op, Expressions::ExpressionList& el)
 {
    std::string offsetDummy; // Placeholder, not used here
    std::string rs1Dummy; // Placeholder, not used here
@@ -60,7 +60,7 @@ void handleLoad(const Converters::RV32IPseudoToRV32IBase* conv, const std::strin
 // temp_label:
 //    auipc rt, %pcrel_hi(symbol)
 //    s{b|h|w} rd, %pcrel_lo(temp_label)(rt)
-void handleStore(const Converters::RV32IPseudoToRV32IBase* conv, const std::string& name, const Converters::StringList& op, Expressions::ExpressionList& el)
+void handleStore(const Translators::RV32IToRV32IBase* conv, const std::string& name, const Translators::StringList& op, Expressions::ExpressionList& el)
 {
    std::string offsetDummy; // Placeholder, not used here
    std::string rs1Dummy; // Placeholder, not used here
@@ -85,14 +85,14 @@ std::string intToHexString(std::int32_t in)
 }
 }
 
-namespace Converters
+namespace Translators
 {
-RV32IPseudoToRV32IBase::RV32IPseudoToRV32IBase()
+RV32IToRV32IBase::RV32IToRV32IBase()
 {
-   fillExpressionMap();
+   fillInstructionMap();
 }
 
-void RV32IPseudoToRV32IBase::fillExpressionMap()
+void RV32IToRV32IBase::fillInstructionMap()
 {
    // BASE INSTRUCTIONS (including pseudoinstructions in the cases where the base and pseudoinstruction has the same name)
 
@@ -235,31 +235,31 @@ void RV32IPseudoToRV32IBase::fillExpressionMap()
    // la rd, symbol -->
    // temp_label:
    //    auipc rd, %pcrel_hi(symbol)
-   //    addi rd, rd, %pcrel_lo(reloLabel)
+   //    addi rd, rd, %pcrel_lo(tempLabel)
    m_instructionMap["la"] = [this] (const StringList& op, Expressions::ExpressionList& el)
            {
               // Add label for the auipc according to the documentation for the %pcrel-modifiers
-              // Note that %pcrel_lo uses the reloLabel address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
-              std::string reloLabel;
-              ParseUtils::generateTempLabel(reloLabel);
-              el.push_back(new Expressions::Label(reloLabel));
+              // Note that %pcrel_lo uses the tempLabel address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
+              std::string tempLabel;
+              ParseUtils::generateTempLabel(tempLabel);
+              el.push_back(new Expressions::Label(tempLabel));
               at("auipc")({op[0], pcrel_hi(op[1])}, el);
-              at("addi")({op[0], op[0], pcrel_lo(reloLabel)}, el); // For nopic only. Modify when/if pic-support is added
+              at("addi")({op[0], op[0], pcrel_lo(tempLabel)}, el); // For nopic only. Modify when/if pic-support is added
            };
 
    // lla rd, symbol -->
    // temp_label:
    //    auipc rd, %pcrel_hi(symbol)
-   //    addi rd, rd, %pcrel_lo(reloLabel)
+   //    addi rd, rd, %pcrel_lo(tempLabel)
    m_instructionMap["lla"] = [this] (const StringList& op, Expressions::ExpressionList& el)
            {
               // Add label for the auipc according to the documentation for the %pcrel-modifiers
-              // Note that %pcrel_lo uses the reloLabel address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
-              std::string reloLabel;
-              ParseUtils::generateTempLabel(reloLabel);
-              el.push_back(new Expressions::Label(reloLabel));
+              // Note that %pcrel_lo uses the tempLabel address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
+              std::string tempLabel;
+              ParseUtils::generateTempLabel(tempLabel);
+              el.push_back(new Expressions::Label(tempLabel));
               at("auipc")({op[0], pcrel_hi(op[1])}, el);
-              at("addi")({op[0], op[0], pcrel_lo(reloLabel)}, el);
+              at("addi")({op[0], op[0], pcrel_lo(tempLabel)}, el);
            };
 
    // nop --> addi x0, x0, 0
@@ -393,10 +393,10 @@ void RV32IPseudoToRV32IBase::fillExpressionMap()
               // Add label for the auipc according to the documentation for the %pcrel-modifiers
               // Note that %pcrel_lo uses the temp_label address as pc, finds the symbol used in the related auipc instruction, and takes the 12 LST from that symbol.
               std::string tempLabel;
-              ParseUtils::generateReloLabel(reloLabel);
-              el.push_back(new Expressions::Label(reloLabel));
+              ParseUtils::generateTempLabel(tempLabel);
+              el.push_back(new Expressions::Label(tempLabel));
               at("auipc")({"x6", pcrel_hi(op[0])}, el);
-              at("jalr")({"x0", pcrel_lo(reloLabel) + "(x6)"}, el);
+              at("jalr")({"x0", pcrel_lo(tempLabel) + "(x6)"}, el);
            };*/
 }
 

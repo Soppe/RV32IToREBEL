@@ -33,7 +33,7 @@ void createTernaryInstruction(Expressions::ExpressionList& el, const std::string
 // l{b|h|w} rd, symbol -->
 //    auipc rd, %pcrel_hi(symbol)
 //    l{b|h|w} rd, %pcrel_lo(symbol)(rd) --> addi rd, %pcrel_lo(symbol), rd, 0
-void handleLoad(const Converters::RV32IToREBEL2* conv, const Converters::StringList& op, Expressions::ExpressionList& el)
+void handleLoad(const Translators::RV32IToREBEL2* conv, const Translators::StringList& op, Expressions::ExpressionList& el)
 {
    std::string offset;
    std::string rs1;
@@ -49,7 +49,7 @@ void handleLoad(const Converters::RV32IToREBEL2* conv, const Converters::StringL
 // s{b|h|w} rd, symbol, rt -->
 //    auipc rt, %pcrel_hi(symbol)
 //    s{b|h|w} rd, %pcrel_lo(symbol)(rt) --> addi rt, %pcrel_lo(symbol), rd, 0
-void handleStore(const Converters::RV32IToREBEL2* conv, const Converters::StringList& op, Expressions::ExpressionList& el)
+void handleStore(const Translators::RV32IToREBEL2* conv, const Translators::StringList& op, Expressions::ExpressionList& el)
 {
    std::string offset;
    std::string rs1;
@@ -62,17 +62,17 @@ void handleStore(const Converters::RV32IToREBEL2* conv, const Converters::String
 }
 
 }
-namespace Converters
+namespace Translators
 {
 RV32IToREBEL2::RV32IToREBEL2()
 {
-   RV32IToREBEL2::fillExpressionMap();
+   fillInstructionMap();
 }
 
 // Instructions that are commented out are untested.
 // Instructions in capital letters are placeholders for instructions that REBEL-2 currently has no support for.
 //
-void RV32IToREBEL2::fillExpressionMap()
+void RV32IToREBEL2::fillInstructionMap()
 {
    // BASE INSTRUCTIONS (including pseudoinstructions in the cases where the base and pseudoinstruction has the same name)
 

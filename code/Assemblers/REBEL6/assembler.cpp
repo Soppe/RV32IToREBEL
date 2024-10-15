@@ -3,7 +3,7 @@
 #include "executableprogram.h"
 #include "assemblerutils.h"
 
-#include <Converters/rv32itorebel6.h>
+#include <Translators/rv32itorebel6.h>
 #include <Expressions/all_expressions.h>
 #include <logger.h>
 

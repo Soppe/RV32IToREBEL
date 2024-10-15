@@ -1,10 +1,10 @@
 #pragma once
 
-#include "rv32ipseudotorv32ibase.h"
+#include "rv32itorv32ibase.h"
 
-namespace Converters
+namespace Translators
 {
-class RV32IToREBEL6 : public RV32IPseudoToRV32IBase
+class RV32IToREBEL6 : public RV32IToRV32IBase
 {
 
 #define REBEL6_TRITS_PER_TRYTE 6
@@ -16,6 +16,6 @@ public:
    virtual ~RV32IToREBEL6() = default;
 
 private:
-   void fillExpressionMap();
+   void fillInstructionMap();
 };
 }

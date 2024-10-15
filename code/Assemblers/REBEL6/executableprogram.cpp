@@ -1,6 +1,6 @@
 #include "executableprogram.h"
 
-#include <Converters/rv32itorebel6.h>
+#include <Translators/rv32itorebel6.h>
 #include <Expressions/instruction.h>
 #include <logger.h>
 

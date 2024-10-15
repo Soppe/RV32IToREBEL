@@ -1,4 +1,4 @@
-#include "Converters/converter.h"
+#include "Translators/translator.h"
 
 #include "Parsers/lexer.h"
 #include "Parsers/token.h"
@@ -46,8 +46,8 @@ int main(int argc, char* argv[])
 
    Lexer* l = new Lexer(source);
    Parser p(l);
-   Expressions::ExpressionList binaryExpressions;
-   p.parse(binaryExpressions);
+   Expressions::ExpressionList sourceExpressions;
+   p.parse(sourceExpressions);
    std::cout << "Parsed successfully." << std::endl;
 
    /*
@@ -62,9 +62,9 @@ int main(int argc, char* argv[])
 
    // ------------ RV32I------------
 
-   // Conversion
+   // Translation
    Expressions::ExpressionList rv32iExpressions;
-   Converters::Converter::Convert("rv32i", binaryExpressions, rv32iExpressions);
+   Translators::Translator::Translate("rv32i", sourceExpressions, rv32iExpressions);
 
    // Assembling
    Assemblers::RV32I::ExecutableProgram rv32iExecutable;
@@ -83,9 +83,9 @@ int main(int argc, char* argv[])
 
    // ------------ REBEL-6 ------------
 
-   // Conversion
+   // Translation
    Expressions::ExpressionList rebel6Expressions;
-   Converters::Converter::Convert("rebel-6", binaryExpressions, rebel6Expressions);
+   Translators::Translator::Translate("rebel-6", sourceExpressions, rebel6Expressions);
 
    // Assembling
    Assemblers::REBEL6::ExecutableProgram rebel6Executable;
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
    rebel6Assembler.init();
    rebel6Assembler.run();
 
-   // Generating MRSC ternary file
+   // Generate MRCS ternary file
    //Simulators::REBEL6::AssemblerUtils::generateAssemblyFileForMRCS(rebel6Executable, fileName);
 
    /*
@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
    std::cout << "Ternary: Instructions ran count = " << rebel6Sim.getNumberOfRanInstructions() << "; tritflip count = " << rebel6Sim.getNumberOfTritFlips() << std::endl;
 
    // Cleanup
-   binaryExpressions.remove_if([](const Expressions::Expression* expr) { delete expr; return true;});
+   sourceExpressions.remove_if([](const Expressions::Expression* expr) { delete expr; return true;});
    delete l;
    return 0;
 }

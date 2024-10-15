@@ -1,6 +1,6 @@
-#include "converter.h"
+#include "translator.h"
 
-#include "rv32ipseudotorv32ibase.h"
+#include "rv32itorv32ibase.h"
 #include "rv32itorebel6.h"
 
 #include <Expressions/all_expressions.h>
@@ -11,30 +11,30 @@
 
 namespace
 {
-const Converters::RV32IPseudoToRV32IBase rv32i;
-const Converters::RV32IToREBEL6 rebel6;
+const Translators::RV32IToRV32IBase rv32i;
+const Translators::RV32IToREBEL6 rebel6;
 
-void resolveInstruction(const Expressions::Instruction* instr, Expressions::ExpressionList& out, const Converters::InstructionConverterBase& converter)
+void resolveInstruction(const Expressions::Instruction* instr, Expressions::ExpressionList& out, const Translators::InstructionTranslatorBase& translator)
 {
    const std::string& name = instr->getInstructionName();
    const std::vector<std::string>& operands = instr->getInstructionOperands();
 
    try
    {
-      converter.at(name)(operands, out);
+      translator.at(name)(operands, out);
    }
    catch(const std::exception&e)
    {
-      std::cerr << __PRETTY_FUNC__ << ": Failed to convert \"" << *instr << "\": " << e.what() << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Failed to translate \"" << *instr << "\": " << e.what() << std::endl;
    }
 }
 }
 
-namespace Converters
+namespace Translators
 {
-void Converter::Convert(const std::string& targetISAName, const Expressions::ExpressionList& from, Expressions::ExpressionList& to)
+void Translator::Translate(const std::string& targetISAName, const Expressions::ExpressionList& from, Expressions::ExpressionList& to)
 {
-   const InstructionConverterBase* converter = nullptr;
+   const InstructionTranslatorBase* converter = nullptr;
    ExpressionParser parser(from);
    std::string isaName;
    isaName.resize(targetISAName.length());

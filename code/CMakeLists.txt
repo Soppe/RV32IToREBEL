@@ -20,11 +20,11 @@ set(HEADERS
    Assemblers/RV32I/assembler.h
    Assemblers/RV32I/assemblerutils.h
    Assemblers/RV32I/executableprogram.h
-   Converters/converter.h
-   Converters/instructionconverterbase.h
-   Converters/rv32ipseudotorv32ibase.h
-   Converters/rv32itorebel2.h
-   Converters/rv32itorebel6.h
+   Translators/translator.h
+   Translators/instructiontranslatorbase.h
+   Translators/rv32itorv32ibase.h
+   Translators/rv32itorebel2.h
+   Translators/rv32itorebel6.h
    Expressions/all_expressions.h
    Expressions/directive.h
    Expressions/expression.h
@@ -56,11 +56,11 @@ set(SOURCES
    Assemblers/RV32I/assembler.cpp
    Assemblers/RV32I/assemblerutils.cpp
    Assemblers/RV32I/executableprogram.cpp
-   Converters/converter.cpp
-   Converters/instructionconverterbase.cpp
-   Converters/rv32ipseudotorv32ibase.cpp
-   Converters/rv32itorebel2.cpp
-   Converters/rv32itorebel6.cpp
+   Translators/translator.cpp
+   Translators/instructiontranslatorbase.cpp
+   Translators/rv32itorv32ibase.cpp
+   Translators/rv32itorebel2.cpp
+   Translators/rv32itorebel6.cpp
    Expressions/directive.cpp
    Expressions/instruction.cpp
    Expressions/label.cpp

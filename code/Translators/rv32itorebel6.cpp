@@ -63,7 +63,7 @@ void createInstruction(Expressions::ExpressionList& el, const std::string& name,
 // l{b|h|w} rd, symbol -->
 //    aipc.t rd, %pcrel(symbol)
 //    l{b|h|w}{.t} rd, 0(rd)
-void handleLoad(const Converters::RV32IPseudoToRV32IBase* conv, const std::string& name, const Converters::StringList& op, Expressions::ExpressionList& el)
+void handleLoad(const Translators::RV32IToRV32IBase* conv, const std::string& name, const Translators::StringList& op, Expressions::ExpressionList& el)
 {
    std::string offset;
    std::string rs1;
@@ -71,7 +71,7 @@ void handleLoad(const Converters::RV32IPseudoToRV32IBase* conv, const std::strin
    if(ParseUtils::parseRegisterOffset(op[1], offset, rs1))
    {
       // This is a %pcrel_lo or %lo call that corresponds to some auipc or lui call that relates to %pcrel_hi or %hi.
-      // Auipc is converted to aipc.t and lui to li.t and they both handle the whole immediate.
+      // Auipc is translated to aipc.t and lui to li.t and they both handle the whole immediate.
       if(offset[0] == '%')
       {
          createInstruction(el, name, op[0], zeroOffset(rs1));
@@ -92,7 +92,7 @@ void handleLoad(const Converters::RV32IPseudoToRV32IBase* conv, const std::strin
 // s{b|h|w} rd, symbol, rt -->
 //    aipc.t rt, %pcrel(symbol)
 //    s{b|h|w} rd, 0(rt)
-void handleStore(const Converters::RV32IPseudoToRV32IBase* conv, const std::string& name, const Converters::StringList& op, Expressions::ExpressionList& el)
+void handleStore(const Translators::RV32IToRV32IBase* conv, const std::string& name, const Translators::StringList& op, Expressions::ExpressionList& el)
 {
    std::string offset;
    std::string rs1;
@@ -100,7 +100,7 @@ void handleStore(const Converters::RV32IPseudoToRV32IBase* conv, const std::stri
    if(ParseUtils::parseRegisterOffset(op[1], offset, rs1))
    {
       // This is a %pcrel_lo or %lo call that corresponds to some auipc or lui call that relates to %pcrel_hi or %hi.
-      // Auipc is converted to aipc.t and lui to li.t and they both handle the whole immediate.
+      // Auipc is translated to aipc.t and lui to li.t and they both handle the whole immediate.
       if(offset[0] == '%')
       {
          createInstruction(el, name, op[0], zeroOffset(rs1));
@@ -119,14 +119,14 @@ void handleStore(const Converters::RV32IPseudoToRV32IBase* conv, const std::stri
 
 }
 
-namespace Converters
+namespace Translators
 {
 RV32IToREBEL6::RV32IToREBEL6()
 {
-   fillExpressionMap();
+   fillInstructionMap();
 }
 
-void RV32IToREBEL6::fillExpressionMap()
+void RV32IToREBEL6::fillInstructionMap()
 {
    // RV32I BASE INSTRUCTION OVERRIDES (including pseudoinstructions in the cases where the base and pseudoinstruction has the same name)
 
@@ -146,7 +146,7 @@ void RV32IToREBEL6::fillExpressionMap()
    m_instructionMap["addi"] = [this] (const StringList& op, Expressions::ExpressionList& el)
    {
       // This is a %pcrel_lo or %lo call that corresponds to some auipc or lui call that relates to %pcrel_hi or %hi.
-      // Auipc is converted to aipc and lui to li and they both handle the whole immediate.
+      // Auipc is translated to aipc and lui to li and they both handle the whole immediate.
       // All that is left is to move the value stored in source registry op[1] to target registry op[0] if they're not the same
       if(op[2][0] == '%')
       {
