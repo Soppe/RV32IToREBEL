@@ -14,10 +14,10 @@ include_directories(${PROJECT_SOURCE_DIR})
 set(HEADERS
    logger.h
    Assemblers/directivehelper.h
-   Assemblers/REBEL6/assemblerandlinker.h
+   Assemblers/REBEL6/assembler.h
    Assemblers/REBEL6/assemblerutils.h
    Assemblers/REBEL6/executableprogram.h
-   Assemblers/RV32I/assemblerandlinker.h
+   Assemblers/RV32I/assembler.h
    Assemblers/RV32I/assemblerutils.h
    Assemblers/RV32I/executableprogram.h
    Converters/converter.h
@@ -50,10 +50,10 @@ set(HEADERS
 set(SOURCES
    main.cpp
    Assemblers/directivehelper.cpp
-   Assemblers/REBEL6/assemblerandlinker.cpp
+   Assemblers/REBEL6/assembler.cpp
    Assemblers/REBEL6/assemblerutils.cpp
    Assemblers/REBEL6/executableprogram.cpp
-   Assemblers/RV32I/assemblerandlinker.cpp
+   Assemblers/RV32I/assembler.cpp
    Assemblers/RV32I/assemblerutils.cpp
    Assemblers/RV32I/executableprogram.cpp
    Converters/converter.cpp

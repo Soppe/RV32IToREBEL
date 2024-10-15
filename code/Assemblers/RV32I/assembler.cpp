@@ -1,4 +1,4 @@
-#include "assemblerandlinker.h"
+#include "assembler.h"
 
 #include "executableprogram.h"
 #include "assemblerutils.h"
@@ -14,7 +14,7 @@ namespace Assemblers
 {
 namespace RV32I
 {
-AssemblerAndLinker::AssemblerAndLinker(Expressions::ExpressionList& expressions, ExecutableProgram& executable)
+Assembler::Assembler(Expressions::ExpressionList& expressions, ExecutableProgram& executable)
     : m_parser(expressions)
     , m_sectionType(DirectiveHelper::SectionType::TEXT) // Until otherwise specified, the asm manual states the default is .text
     , m_executable(executable)
@@ -23,7 +23,7 @@ AssemblerAndLinker::AssemblerAndLinker(Expressions::ExpressionList& expressions,
 {
 }
 
-void AssemblerAndLinker::init()
+void Assembler::init()
 {
    m_sectionType = DirectiveHelper::SectionType::TEXT;
    m_pc = 0;
@@ -33,7 +33,7 @@ void AssemblerAndLinker::init()
    m_heapRelocations.clear();
 }
 
-void AssemblerAndLinker::run()
+void Assembler::run()
 {
    m_parser.reset();
    const Expressions::Expression* expr = m_parser.nextExpression();
@@ -80,7 +80,7 @@ void AssemblerAndLinker::run()
    resolveUnresolvedHeapData();
 }
 
-void AssemblerAndLinker::handleTextSection(const Expressions::Expression* expr)
+void Assembler::handleTextSection(const Expressions::Expression* expr)
 {
    while(expr != nullptr)
    {
@@ -118,7 +118,7 @@ void AssemblerAndLinker::handleTextSection(const Expressions::Expression* expr)
    }
 }
 
-void AssemblerAndLinker::handleDataSection(const Expressions::Expression* expr)
+void Assembler::handleDataSection(const Expressions::Expression* expr)
 {
    while(expr != nullptr)
    {
@@ -156,7 +156,7 @@ void AssemblerAndLinker::handleDataSection(const Expressions::Expression* expr)
    }
 }
 
-void AssemblerAndLinker::handleBssSection(const Expressions::Expression* expr)
+void Assembler::handleBssSection(const Expressions::Expression* expr)
 {
    while(expr != nullptr)
    {
@@ -193,7 +193,7 @@ void AssemblerAndLinker::handleBssSection(const Expressions::Expression* expr)
    }
 }
 
-void AssemblerAndLinker::handleRoDataSection(const Expressions::Expression* expr)
+void Assembler::handleRoDataSection(const Expressions::Expression* expr)
 {
    while(expr != nullptr)
    {
@@ -230,7 +230,7 @@ void AssemblerAndLinker::handleRoDataSection(const Expressions::Expression* expr
    }
 }
 
-bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive, std::uint8_t& byteSizePerElement, std::vector<std::int32_t>& values)
+bool Assembler::resolveIfObject(const Expressions::Directive* directive, std::uint8_t& byteSizePerElement, std::vector<std::int32_t>& values)
 {
    bool retVal = true;
    const std::string& name = directive->getDirectiveName();
@@ -439,7 +439,7 @@ bool AssemblerAndLinker::resolveIfObject(const Expressions::Directive* directive
    return retVal;
 }
 
-void AssemblerAndLinker::resolveOperands()
+void Assembler::resolveOperands()
 {
    std::uint32_t pc = 0;
    std::uint8_t instrSize;
@@ -517,7 +517,7 @@ void AssemblerAndLinker::resolveOperands()
    }
 }
 
-void AssemblerAndLinker::resolveUnresolvedHeapData()
+void Assembler::resolveUnresolvedHeapData()
 {
    for(const RelocationItem& item: m_heapRelocations)
    {
@@ -534,7 +534,7 @@ void AssemblerAndLinker::resolveUnresolvedHeapData()
    }
 }
 
-std::int32_t AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MODIFIER& modifier, const std::string& imm, std::uint32_t pc)
+std::int32_t Assembler::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MODIFIER& modifier, const std::string& imm, std::uint32_t pc)
 {
    std::int32_t immi = 0;
    try
@@ -595,7 +595,7 @@ std::int32_t AssemblerAndLinker::resolveAssemblerModifier(const ParseUtils::ASSE
    return immi;
 }
 
-void AssemblerAndLinker::resolveDataDirective(const Expressions::Directive* directive)
+void Assembler::resolveDataDirective(const Expressions::Directive* directive)
 {
    std::uint8_t byteSizePerElement;
    std::vector<std::int32_t> values;
@@ -609,7 +609,7 @@ void AssemblerAndLinker::resolveDataDirective(const Expressions::Directive* dire
    }
 }
 
-void AssemblerAndLinker::printExpressionsToFile(const std::string& fileName)
+void Assembler::printExpressionsToFile(const std::string& fileName)
 {
    std::ofstream file(fileName + ".bs");
 

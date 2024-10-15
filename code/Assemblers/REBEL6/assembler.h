@@ -16,10 +16,10 @@ namespace REBEL6
 
 class ExecutableProgram;
 
-class AssemblerAndLinker
+class Assembler
 {
 public:
-  AssemblerAndLinker(Expressions::ExpressionList& expressions, ExecutableProgram& executable);
+  Assembler(Expressions::ExpressionList& expressions, ExecutableProgram& executable);
 
   void init();
   void run();

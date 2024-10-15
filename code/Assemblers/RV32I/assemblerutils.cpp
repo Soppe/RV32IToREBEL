@@ -294,7 +294,7 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
          std::uint8_t opcode = 0b1100011;
          std::uint8_t funct3 = getFunc3(name);
 
-         offset <<= 1; // Add back the lsb 0 that the assemblerandlinker shifts away
+         offset <<= 1; // Add back the lsb 0 that the assembler shifts away
 
          machineFormatBranch(binaryValue, opcode, rs1, rs2, offset, funct3);
          break;
@@ -305,7 +305,7 @@ void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& progra
          std::int32_t offset = stoi(operands[1]);
          std::uint8_t opcode = 0b1101111;
 
-         offset <<= 1; // Add back the lsb 0 that the assemblerandlinker shifts away
+         offset <<= 1; // Add back the lsb 0 that the assembler shifts away
 
          machineFormatJump(binaryValue, opcode, rd, offset);
          break;
