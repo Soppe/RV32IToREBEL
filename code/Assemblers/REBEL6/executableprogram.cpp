@@ -21,7 +21,7 @@ ExecutableProgram::ExecutableProgram()
     : m_instructionsSize(0)
     , m_heapSizeTrytes(0)
 {
-
+   m_memory.resize(PROGRAM_SIZE_TRYTES, 0);
 }
 
 ExecutableProgram::~ExecutableProgram()
@@ -52,10 +52,8 @@ void ExecutableProgram::addToHeap(const Tint& value, std::uint8_t numTrytes)
       abort();
    }
 
-   std::uint32_t heapSizeTrytes = m_heap.size();
-   m_heap.resize(heapSizeTrytes + numTrytes, 0);
-
-   doStoreToHeap(heapSizeTrytes, value, numTrytes);
+   doStoreToHeap(m_heapSizeTrytes, value, numTrytes);
+   m_heapSizeTrytes += numTrytes;
 }
 
 void ExecutableProgram::addSymbol(const std::string& symbolName, std::int32_t address)
@@ -94,7 +92,7 @@ void ExecutableProgram::loadFromHeap(std::int32_t address, std::uint8_t numTryte
    std::uint32_t heapAddress = address - getInstructionsSizeTrytes() /* +/- program start address if it's other than 0 */;
    for(std::uint8_t i = 0; i < numTrytes; ++i)
    {
-      out.push_back(m_heap[heapAddress]);
+      out.push_back(m_memory[heapAddress]);
       // std::cout << "Loading from memory = " << std::hex << m_heap[heapAddress] << std::dec << " at index " << heapAddress << std::endl;
        ++heapAddress;
 
@@ -129,18 +127,18 @@ void ExecutableProgram::storeToHeap(std::int32_t address, const Tint& value, std
    doStoreToHeap(heapAddress, value, numTrytes);
 }
 
-void ExecutableProgram::calculateHeapSize()
+void ExecutableProgram::calculateMemorySize()
 {
-   m_heapSizeTrytes = getProgramSizeTrytes() - getInstructionsSizeTrytes();
-   if((m_heapSizeTrytes < 0 ) || (m_heap.size() > m_heapSizeTrytes))
+   std::int32_t memorySize = getProgramSizeTrytes() - getInstructionsSizeTrytes();
+   if((memorySize < 0 ) || (m_heapSizeTrytes > memorySize))
    {
-      std::cerr << __PRETTY_FUNC__ << ": Tried recalcuating heap size, but heap already overflowing" << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Tried recalcuating memory size, but memory already overflowing" << std::endl;
       abort();
    }
 
-   m_heap.resize(m_heapSizeTrytes, 0);
+   m_memory.resize(memorySize, 0);
 
-   std::cout << "Program size: " << getProgramSizeTrytes() << " trytes; Instruction size: " << getInstructionsSizeTrytes() << " trytes; Heap size: " << m_heap.size() << " trytes" << std::endl;
+   std::cout << "Program size: " << getProgramSizeTrytes() << " trytes; Instruction size: " << getInstructionsSizeTrytes() << " trytes; Memory size: " << m_memory.size() << " trytes" << std::endl;
 }
 
 std::uint32_t ExecutableProgram::getProgramSizeTrytes() const
@@ -196,7 +194,7 @@ void ExecutableProgram::doStoreToHeap(std::uint32_t heapAddress, const Tint& val
          val += (trits[j + (i * REBEL6_TRITS_PER_TRYTE)] * std::pow(3, j));
       }
 
-      m_heap[heapAddress] = val;
+      m_memory[heapAddress] = val;
       // std::cout << "Storing ternary value to heap = " << std::hex << val << std::dec << " at index " << heapAddress << std::endl;
       ++heapAddress;
    }

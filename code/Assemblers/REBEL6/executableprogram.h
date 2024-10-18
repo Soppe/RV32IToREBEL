@@ -31,8 +31,8 @@ public:
 
    void storeToHeap(std::int32_t address, const Tint& value, std::uint8_t numTrytes);
 
-   // Must be called after all instructions and initial heap values have been added, to recalculate heap size.
-   void calculateHeapSize();
+   // Must be called after all instructions and initial heap values have been added, to recalculate memory size.
+   void calculateMemorySize();
 
    std::uint32_t getProgramSizeTrytes() const;
    std::uint32_t getInstructionsSizeTrytes() const;
@@ -51,7 +51,7 @@ private:
    std::uint32_t m_instructionsSize;
    std::uint32_t m_heapSizeTrytes;
 
-   HeapVector m_heap; // Starts at m_instructionsSize;
+   HeapVector m_memory; // Starts at m_instructionsSize;
    SymbolTableMap m_symbolTable;
 };
 }

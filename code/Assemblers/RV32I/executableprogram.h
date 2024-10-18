@@ -29,8 +29,8 @@ public:
 
    void storeToHeap(std::uint32_t address, std::int32_t value, std::uint8_t numBytes);
 
-   // Must be called after all instructions and initial heap values have been added, to recalculate heap size.
-   void calculateHeapSize();
+   // Must be called after all instructions and initial heap values have been added, to recalculate memory size.
+   void calculateMemorySize();
 
    std::uint32_t getProgramSizeBytes() const;
    std::uint32_t getInstructionsSizeBytes() const;
@@ -49,7 +49,7 @@ private:
    std::uint32_t m_instructionsSizeBytes;
    std::uint32_t m_heapSizeBytes;
 
-   HeapVector m_heap; // Starts at m_instructionsSize;
+   HeapVector m_memory; // Starts at m_instructionsSize;
    SymbolTableMap m_symbolTable;
 };
 

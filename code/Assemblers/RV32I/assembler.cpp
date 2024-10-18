@@ -63,9 +63,9 @@ void Assembler::run()
       expr = m_parser.nextExpression();
    }
 
-   m_executable.calculateHeapSize();
+   m_executable.calculateMemorySize();
 
-   // Finished setting up the instruction memory, now we need to set up heap labels
+   // Finished setting up the instruction memory, now we need to resolve the heap labels
    HeapLabelMap::const_iterator it = m_tempHeapLabels.begin();
    std::uint32_t instructionsSizeBytes = m_executable.getInstructionsSizeBytes();
 
@@ -376,6 +376,8 @@ bool Assembler::resolveIfObject(const Expressions::Directive* directive, std::ui
       std::uint32_t addr = m_hc;
       for(const std::string& str: parameters)
       {
+         // Can refer to labels. In such cases, remember this and resolve the .word value once we know the value of the label.
+         // Still allocate space on the heap.
          if(!ParseUtils::parseImmediate(32, str, value))
          {
             value = 0;

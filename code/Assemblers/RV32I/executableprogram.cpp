@@ -19,7 +19,7 @@ ExecutableProgram::ExecutableProgram()
     : m_instructionsSizeBytes(0)
     , m_heapSizeBytes(0)
 {
-
+   m_memory.resize(PROGRAM_SIZE_BYTES, 0);
 }
 
 ExecutableProgram::~ExecutableProgram()
@@ -50,10 +50,8 @@ void ExecutableProgram::addToHeap(std::int32_t value, std::uint8_t numBytes)
       abort();
    }
 
-   std::uint32_t heapSizeBytes = m_heap.size();
-   m_heap.resize(heapSizeBytes + numBytes, 0);
-
-   doStoreToHeap(heapSizeBytes, value, numBytes);
+   doStoreToHeap(m_heapSizeBytes, value, numBytes);
+   m_heapSizeBytes += numBytes;
 }
 
 void ExecutableProgram::addSymbol(const std::string& symbolName, std::uint32_t address)
@@ -94,7 +92,7 @@ std::int32_t ExecutableProgram::loadFromHeap(std::uint32_t address, std::uint8_t
    std::uint32_t index = address - m_instructionsSizeBytes;
    for(std::uint8_t i = 0; i < numBytes; ++i, ++index)
    {
-      retVal = retVal | (m_heap[index] << shiftCounter);
+      retVal = retVal | (m_memory[index] << shiftCounter);
       // std::cout << "Loading from memory = " << (int)m_heap[index] << " at index " << index << std::endl;
       shiftCounter += 8;
    }
@@ -131,18 +129,18 @@ void ExecutableProgram::storeToHeap(std::uint32_t address, std::int32_t value, s
 
 }
 
-void ExecutableProgram::calculateHeapSize()
+void ExecutableProgram::calculateMemorySize()
 {
-   m_heapSizeBytes = getProgramSizeBytes() - getInstructionsSizeBytes();
-   if((m_heapSizeBytes < 0 ) || (m_heap.size() > m_heapSizeBytes))
+   std::int32_t memorySize = getProgramSizeBytes() - getInstructionsSizeBytes();
+   if((memorySize < 0 ) || (m_heapSizeBytes > memorySize))
    {
-      std::cerr << __PRETTY_FUNC__ << ": Tried recalcuating heap size, but heap already overflowing" << std::endl;
+      std::cerr << __PRETTY_FUNC__ << ": Tried recalcuating memory size, but memory already overflowing" << std::endl;
       abort();
    }
 
-   m_heap.resize(m_heapSizeBytes, 0);
+   m_memory.resize(memorySize, 0);
 
-   std::cout << "Program size: " << getProgramSizeBytes() << " bytes; Instructions size: " << getInstructionsSizeBytes() << " bytes; Heap size: " << m_heap.size() << " bytes" << std::endl;
+   std::cout << "Program size: " << getProgramSizeBytes() << " bytes; Instructions size: " << getInstructionsSizeBytes() << " bytes; Memory size: " << m_memory.size() << " bytes" << std::endl;
 }
 
 std::uint32_t ExecutableProgram::getProgramSizeBytes() const
@@ -181,7 +179,7 @@ void ExecutableProgram::doStoreToHeap(std::uint32_t heapAddress, std::int32_t va
 {
    for(std::uint8_t i = 0; i < numBytes; ++i)
    {
-      m_heap[heapAddress] = (value & 0xff);
+      m_memory[heapAddress] = (value & 0xff);
       value = value >> 8;
       ++heapAddress;
    }
