@@ -508,8 +508,7 @@ void Assembler::resolveOperands()
             std::cerr << __PRETTY_FUNC__ << ": offset not 2 byte aligned: " << *instr << std::endl;
             abort();
          }
-         // Last bit should always be 0 since every instruction should be at least 2-byte aligned - we discard it because the CPU adds it automatically.
-         // This correlates with the values of machine instructions from dissassembled code. This also means that the immediate should always be considered to be size 13, not 12.
+         // Last bit should always be 0 since every instruction should be at least 2-byte aligned - we discard it because the CPU "adds" it back again automatically.
          opInt >>= 1;
          operands.back() = std::to_string(opInt);
       }
@@ -572,20 +571,18 @@ std::int32_t Assembler::resolveAssemblerModifier(const ParseUtils::ASSEMBLER_MOD
    }
    case ParseUtils::ASSEMBLER_MODIFIER::PCRELLO:
    {
-      if(imm.starts_with(ParseUtils::TEMP_LABEL_PREFIX))
+      pc = immi;
+      try
       {
-         pc = immi;
-         try
-         {
-            std::string symbol = m_tempLabelsTable.at(pc);
-            immi = m_executable.loadSymbolAddress(symbol);
-         }
-         catch(std::exception& e)
-         {
-            std::cerr << __PRETTY_FUNC__ << ": Failed to retrieve %pcrel_lo data for PC = " << pc << " where relo label = " << imm << "; e.what() = " << e.what() << std::endl;
-         }
+         std::string symbol = m_tempLabelsTable.at(pc);
+         immi = m_executable.loadSymbolAddress(symbol);
       }
-      immi = (immi - pc);
+      catch(std::exception& e)
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Failed to retrieve %pcrel_lo data for PC = " << pc << " where relo label = " << imm << "; e.what() = " << e.what() << std::endl;
+      }
+
+      immi = immi - pc;
       ParseUtils::parseImmediate(12, immi, immi);
       break;
    }
