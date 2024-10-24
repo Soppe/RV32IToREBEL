@@ -224,167 +224,171 @@ AssemblerUtils::InstructionType AssemblerUtils::getInstructionType(const std::st
    return retVal;
 }
 
+void AssemblerUtils::generateAssemblyForInstruction(const Expressions::Instruction* instr, std::bitset<32>& out)
+{
+   std::int32_t binaryValue = 0;
+   const std::string& name = instr->getInstructionName();
+   const std::vector<std::string>& operands = instr->getInstructionOperands();
+   InstructionType type = InstructionType::UNDEFINED;
+   type = getInstructionType(name);
+
+   switch(type)
+   {
+   case InstructionType::REGISTER:
+   {
+      std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
+      std::uint8_t rs1 = Simulators::RV32I::Registry::getIntegerValue(operands[1]);
+      std::uint8_t rs2 = Simulators::RV32I::Registry::getIntegerValue(operands[2]);
+      std::uint8_t opcode = 0b0110011;
+      std::uint8_t funct3 = getFunc3(name);
+      std::uint8_t funct7 = ((name == "sub") || (name == "sra")) ? 0b0100000 : 0b0;
+
+      machineFormatRegister(binaryValue, opcode, rd, rs1, rs2, funct3, funct7);
+      break;
+   }
+   case InstructionType::IMMEDIATE:
+   {
+      std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
+      std::uint8_t rs = Simulators::RV32I::Registry::getIntegerValue(operands[1]);
+      std::int32_t imm = stoi(operands[2]);
+      std::uint8_t opcode = 0b0010011;
+      std::uint8_t funct3 = getFunc3(name);
+
+      if((name == "slli") || (name == "srli")) // Use only the 5 LSB. The top 7 shall be 0 according to documentation
+      {
+         imm &= 0x1F;
+      }
+      else if(name == "srai") // Use only the 5 LSB. The top 7 shall be 0b0100000 according to documentation
+      {
+         imm &= 0x1f;
+         imm |= (0b0100000 << 5);
+      }
+
+      machineFormatImmediate(binaryValue, opcode, rd, rs, imm, funct3);
+      break;
+   }
+   case InstructionType::UPPER:
+   {
+      std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
+      std::int32_t imm = stoi(operands[1]);
+      std::uint8_t opcode = (name == "lui") ? 0b0110111 : 0b0010111;
+
+      imm <<= 12; // Documentation states the Upper format takes bits [31:12] of the immediate, so we have to pad the immediate to put the relevant bits in the right place.
+
+      machineFormatUpper(binaryValue, opcode, rd, imm);
+      break;
+   }
+   case InstructionType::BRANCH:
+   {
+      std::uint8_t rs1 = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
+      std::uint8_t rs2 = Simulators::RV32I::Registry::getIntegerValue(operands[1]);
+      std::int32_t offset = stoi(operands[2]);
+      std::uint8_t opcode = 0b1100011;
+      std::uint8_t funct3 = getFunc3(name);
+
+      offset <<= 1; // Add back the lsb 0 that the assembler shifts away
+
+      machineFormatBranch(binaryValue, opcode, rs1, rs2, offset, funct3);
+      break;
+   }
+   case InstructionType::JUMP:
+   {
+      std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
+      std::int32_t offset = stoi(operands[1]);
+      std::uint8_t opcode = 0b1101111;
+
+      offset <<= 1; // Add back the lsb 0 that the assembler shifts away
+
+      machineFormatJump(binaryValue, opcode, rd, offset);
+      break;
+   }
+   case InstructionType::JUMP_REGISTER:
+   {
+      std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
+      std::uint8_t rs1 = 0;
+      std::int32_t offset = 0;
+      std::uint8_t opcode = 0b1100111;
+      std::uint8_t funct3 = getFunc3(name);
+
+      std::string off;
+      std::string rs;
+      ParseUtils::parseRegisterOffset(operands[1], off, rs);
+      rs1 = Simulators::RV32I::Registry::getIntegerValue(rs);
+      offset = stoi(off);
+
+      machineFormatImmediate(binaryValue, opcode, rd, rs1, offset, funct3);
+      break;
+   }
+   case InstructionType::LOAD:
+   {
+      std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
+      std::uint8_t rs1 = 0;
+      std::int32_t offset = 0;
+      std::uint8_t opcode = 0b0000011;
+      std::uint8_t funct3 = getFunc3(name);
+
+      std::string off;
+      std::string rs;
+      ParseUtils::parseRegisterOffset(operands[1], off, rs);
+      rs1 = Simulators::RV32I::Registry::getIntegerValue(rs);
+      offset = stoi(off);
+
+      machineFormatImmediate(binaryValue, opcode, rd, rs1, offset, funct3);
+      break;
+   }
+   case InstructionType::STORE:
+   {
+      std::uint8_t rs1 = 0;
+      std::uint8_t rs2 = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
+      std::int32_t offset = 0;
+      std::uint8_t opcode = 0b0100011;
+      std::uint8_t funct3 = getFunc3(name);
+
+      std::string off;
+      std::string rs;
+      ParseUtils::parseRegisterOffset(operands[1], off, rs);
+      rs1 = Simulators::RV32I::Registry::getIntegerValue(rs);
+      offset = stoi(off);
+
+      machineFormatStore(binaryValue, opcode, rs1, rs2, offset, funct3);
+      break;
+   }
+   case InstructionType::SYSTEM:
+   {
+      if(name == "ecall")
+      {
+         binaryValue = 0b1110011;
+      }
+      else if(name == "ebreak")
+      {
+         binaryValue = 0b100000000000001110011;
+      }
+      else
+      {
+         std::cerr << __PRETTY_FUNC__ << ": Unsupported system instruction: " << name << std::endl;
+         abort();
+      }
+      break;
+   }
+   default:
+      std::cerr << __PRETTY_FUNC__ << ": Unsupported instruction " << name << std::endl;
+      break;
+   }
+
+   out = std::bitset<32>(binaryValue);
+}
+
 void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& program, const std::string& fileName)
 {
    std::uint32_t pc = 0;
    std::uint8_t instructionSize = 0;
-   std::int32_t binaryValue = 0;
    const Expressions::Instruction* instr = program.loadInstruction(pc, instructionSize);
    std::vector<std::bitset<32>> binaryRepresentedInstructions;
-
-   InstructionType type = InstructionType::UNDEFINED;
+   std::bitset<32> binaryRepresentation;
 
    while(instr != nullptr)
    {
-      const std::string& name = instr->getInstructionName();
-      const std::vector<std::string>& operands = instr->getInstructionOperands();
-      type = getInstructionType(name);
-
-      switch(type)
-      {
-      case InstructionType::REGISTER:
-      {
-         std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
-         std::uint8_t rs1 = Simulators::RV32I::Registry::getIntegerValue(operands[1]);
-         std::uint8_t rs2 = Simulators::RV32I::Registry::getIntegerValue(operands[2]);
-         std::uint8_t opcode = 0b0110011;
-         std::uint8_t funct3 = getFunc3(name);
-         std::uint8_t funct7 = ((name == "sub") || (name == "sra")) ? 0b0100000 : 0b0;
-
-         machineFormatRegister(binaryValue, opcode, rd, rs1, rs2, funct3, funct7);
-         break;
-      }
-      case InstructionType::IMMEDIATE:
-      {
-         std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
-         std::uint8_t rs = Simulators::RV32I::Registry::getIntegerValue(operands[1]);
-         std::int32_t imm = stoi(operands[2]);
-         std::uint8_t opcode = 0b0010011;
-         std::uint8_t funct3 = getFunc3(name);
-
-         if((name == "slli") || (name == "srli")) // Use only the 5 LSB. The top 7 shall be 0 according to documentation
-         {
-            imm &= 0x1F;
-         }
-         else if(name == "srai") // Use only the 5 LSB. The top 7 shall be 0b0100000 according to documentation
-         {
-            imm &= 0x1f;
-            imm |= (0b0100000 << 5);
-         }
-
-         machineFormatImmediate(binaryValue, opcode, rd, rs, imm, funct3);
-         break;
-      }
-      case InstructionType::UPPER:
-      {
-         std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
-         std::int32_t imm = stoi(operands[1]);
-         std::uint8_t opcode = (name == "lui") ? 0b0110111 : 0b0010111;
-
-         imm <<= 12; // Documentation states the Upper format takes bits [31:12] of the immediate, so we have to pad the immediate to put the relevant bits in the right place.
-
-         machineFormatUpper(binaryValue, opcode, rd, imm);
-         break;
-      }
-      case InstructionType::BRANCH:
-      {
-         std::uint8_t rs1 = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
-         std::uint8_t rs2 = Simulators::RV32I::Registry::getIntegerValue(operands[1]);
-         std::int32_t offset = stoi(operands[2]);
-         std::uint8_t opcode = 0b1100011;
-         std::uint8_t funct3 = getFunc3(name);
-
-         offset <<= 1; // Add back the lsb 0 that the assembler shifts away
-
-         machineFormatBranch(binaryValue, opcode, rs1, rs2, offset, funct3);
-         break;
-      }
-      case InstructionType::JUMP:
-      {
-         std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
-         std::int32_t offset = stoi(operands[1]);
-         std::uint8_t opcode = 0b1101111;
-
-         offset <<= 1; // Add back the lsb 0 that the assembler shifts away
-
-         machineFormatJump(binaryValue, opcode, rd, offset);
-         break;
-      }
-      case InstructionType::JUMP_REGISTER:
-      {
-         std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
-         std::uint8_t rs1 = 0;
-         std::int32_t offset = 0;
-         std::uint8_t opcode = 0b1100111;
-         std::uint8_t funct3 = getFunc3(name);
-
-         std::string off;
-         std::string rs;
-         ParseUtils::parseRegisterOffset(operands[1], off, rs);
-         rs1 = Simulators::RV32I::Registry::getIntegerValue(rs);
-         offset = stoi(off);
-
-         machineFormatImmediate(binaryValue, opcode, rd, rs1, offset, funct3);
-         break;
-      }
-      case InstructionType::LOAD:
-      {
-         std::uint8_t rd = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
-         std::uint8_t rs1 = 0;
-         std::int32_t offset = 0;
-         std::uint8_t opcode = 0b0000011;
-         std::uint8_t funct3 = getFunc3(name);
-
-         std::string off;
-         std::string rs;
-         ParseUtils::parseRegisterOffset(operands[1], off, rs);
-         rs1 = Simulators::RV32I::Registry::getIntegerValue(rs);
-         offset = stoi(off);
-
-         machineFormatImmediate(binaryValue, opcode, rd, rs1, offset, funct3);
-         break;
-      }
-      case InstructionType::STORE:
-      {
-         std::uint8_t rs1 = 0;
-         std::uint8_t rs2 = Simulators::RV32I::Registry::getIntegerValue(operands[0]);
-         std::int32_t offset = 0;
-         std::uint8_t opcode = 0b0100011;
-         std::uint8_t funct3 = getFunc3(name);
-
-         std::string off;
-         std::string rs;
-         ParseUtils::parseRegisterOffset(operands[1], off, rs);
-         rs1 = Simulators::RV32I::Registry::getIntegerValue(rs);
-         offset = stoi(off);
-
-         machineFormatStore(binaryValue, opcode, rs1, rs2, offset, funct3);
-         break;
-      }
-      case InstructionType::SYSTEM:
-      {
-         if(name == "ecall")
-         {
-            binaryValue = 0b1110011;
-         }
-         else if(name == "ebreak")
-         {
-            binaryValue = 0b100000000000001110011;
-         }
-         else
-         {
-            std::cerr << __PRETTY_FUNC__ << ": Unsupported system instruction: " << name << std::endl;
-            abort();
-         }
-         break;
-      }
-      default:
-         std::cerr << __PRETTY_FUNC__ << ": Unsupported instruction " << name << std::endl;
-         break;
-      }
-
-
-      std::bitset<32> binaryRepresentation(binaryValue);
+      generateAssemblyForInstruction(instr, binaryRepresentation);
       binaryRepresentedInstructions.push_back(binaryRepresentation);
 
       pc += instructionSize;

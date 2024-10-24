@@ -1,6 +1,13 @@
 #include "assemblerutils.h"
 
+#include "executableprogram.h"
+#include <Expressions/instruction.h>
+#include <Assemblers/RV32I/assemblerutils.h>
+
+#include <bitset>
 #include <unordered_map>
+#include <fstream>
+#include <iostream>
 
 namespace
 {
@@ -121,6 +128,49 @@ AssemblerUtils::InstructionType AssemblerUtils::getInstructionType(const std::st
    }
 
    return retVal;
+}
+
+void AssemblerUtils::generateAssemblyFileForMRCS(const ExecutableProgram& program, const std::string& fileName)
+{
+   std::uint32_t pc = 0;
+   std::uint8_t instructionSize = 0;
+   const Expressions::Instruction* instr = program.loadInstruction(pc, instructionSize);
+   std::vector<std::string> ternaryRepresentedInstructions; // TODO: Think this might work??
+   std::bitset<32> binaryRepresentation; // For binary instructions
+   std::string ternaryRepresentation; // For ternary instructions
+
+   while(instr != nullptr)
+   {
+      const std::string& name = instr->getInstructionName();
+      bool isBinary = !name.ends_with(".t");
+      if(isBinary)
+      {
+         RV32I::AssemblerUtils::generateAssemblyForInstruction(instr, binaryRepresentation);
+         // TODO: Convert the bits in binaryRepresentation to ternary trits.
+      }
+      else
+      {
+         // Convert to ternary machine code, ala "generateAssemblyForInstruction(instr, binaryRepresentation);"
+         // Use this to generate a ternary value from an operand: Tint offseti = stoll(offset);
+         // Then use TernaryLogic::tintToTrits(Tint in, Trits& out) to generate the tritwise representation
+         // Then convert each trit to "+", "0", "-"... or something. Store in variable "ternaryRepresentation"
+      }
+      ternaryRepresentedInstructions.push_back(ternaryRepresentation);
+
+      pc += instructionSize;
+      instr = program.loadInstruction(pc, instructionSize);
+   };
+
+   // .mto = MRCS Ternary Object file
+   std::ofstream file(fileName + ".mto");
+   file << "// isa: rebel-6" << std::endl;
+   // TODO: Need a ternary version of this
+   for(const std::string& ternaryRepresentation: ternaryRepresentedInstructions)
+   {
+      file << ternaryRepresentation << std::endl;
+   }
+   file.close();
+   std::cout << "Finished writing ternary represented instructions to " << fileName << ".mto" << std::endl;
 }
 
 }

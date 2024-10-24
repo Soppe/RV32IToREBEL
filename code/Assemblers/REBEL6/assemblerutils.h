@@ -7,6 +7,8 @@ namespace Assemblers
 namespace REBEL6
 {
 
+class ExecutableProgram;
+
 class AssemblerUtils
 {
  public:
@@ -15,6 +17,7 @@ class AssemblerUtils
    AssemblerUtils() = delete;
 
    static InstructionType getInstructionType(const std::string& instructionName);
+   static void generateAssemblyFileForMRCS(const ExecutableProgram& program, const std::string& fileName);
 
 };
 

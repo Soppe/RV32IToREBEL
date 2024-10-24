@@ -13,7 +13,7 @@ int TritFlipCostLookup [3][3] = {/*-1, 0, 1*/
                           /* 0 */  {1, 0, 1},
                           /* 1 */  {1, 1, 0}};
 
-std::uint32_t countTritFlips(Tint oldVal, Tint newVal)
+std::uint32_t countTritFlips(const Tint& oldVal, const Tint& newVal)
 {
    Trits oldTrits;
    Trits newTrits;

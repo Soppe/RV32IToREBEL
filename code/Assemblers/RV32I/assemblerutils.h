@@ -1,7 +1,12 @@
 #pragma once
 
 #include <string>
+#include <bitset>
 
+namespace Expressions
+{
+class Instruction;
+}
 namespace Assemblers
 {
 namespace RV32I
@@ -18,6 +23,7 @@ public:
    AssemblerUtils() = delete;
 
    static InstructionType getInstructionType(const std::string& instructionName);
+   static void generateAssemblyForInstruction(const Expressions::Instruction* instr, std::bitset<32>& out);
    static void generateAssemblyFileForMRCS(const ExecutableProgram& program, const std::string& fileName);
 };
 
