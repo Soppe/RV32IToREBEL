@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 # Project name and version
-project(RISCVToRebelTranslator VERSION 0.1)
+project(RV32IToREBEL VERSION 0.1)
 
 # Specify the C++ standard
 set(CMAKE_CXX_STANDARD 20)
@@ -81,4 +81,4 @@ set(SOURCES
 )
 
 # Add the executable
-add_executable(RISCVToRebelTranslator ${SOURCES} ${HEADERS})
+add_executable(RV32IToREBEL ${SOURCES} ${HEADERS})

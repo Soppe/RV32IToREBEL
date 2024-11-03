@@ -1,4 +1,4 @@
-# RISCVToRebelTranslator
+# RV32IToREBEL (R2R)
 
 A lightweight translator to translate and simulate binary RISCV RV32I assembly to ternary REBEL6 assembly. The RV32I assembly code is generated using the GCC Toolchain. Some GCC features and syntax is therefor supported, but far from everything. No optimization has been used when compiling C code to RV32I assembly when using the GCC Toolchain to generate assembly files.
 
@@ -66,4 +66,4 @@ To generate an assembly file from a C file, run `riscv32-unknown-elf-gcc -S <C-c
 
 ## Running the translator
 
-The command `./RISCVToRebelTranslator <RV32I Assembly file>.s` is used to run the translator, using the generated RV32I assembly file as input.
+The command `./RV32IToREBEL <RV32I Assembly file>.s` is used to run the translator, using the generated RV32I assembly file as input.
