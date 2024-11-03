@@ -610,7 +610,7 @@ void Assembler::resolveDataDirective(const Expressions::Directive* directive)
 
 void Assembler::printExpressionsToFile(const std::string& fileName)
 {
-   std::ofstream file(fileName + ".bs");
+   std::ofstream file(fileName + ".bas");
 
    m_parser.reset();
    const Expressions::Expression* expr = m_parser.nextExpression();
@@ -656,7 +656,7 @@ void Assembler::printExpressionsToFile(const std::string& fileName)
    }
 
    file.close();
-   std::cout << "Finished writing binary assembly to " << fileName << ".bs" << std::endl;
+   std::cout << "Finished writing binary assembly to " << fileName << ".bas" << std::endl;
 }
 
 }

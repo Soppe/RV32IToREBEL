@@ -121,8 +121,8 @@ int main(int argc, char* argv[])
    /*
     * ------------------ BENCHMARKS ------------------
     */
-   std::cout << "Binary: Instructions ran count = " << rv32iSim.getNumberOfRanInstructions() << "; bitflip count = " << rv32iSim.getNumberOfBitFlips() << std::endl;
-   std::cout << "Ternary: Instructions ran count = " << rebel6Sim.getNumberOfRanInstructions() << "; tritflip count = " << rebel6Sim.getNumberOfTritFlips() << std::endl;
+   std::cout << "RV32I: Instructions ran count = " << rv32iSim.getNumberOfRanInstructions() << "; bitflip count = " << rv32iSim.getNumberOfBitFlips() << std::endl;
+   std::cout << "REBEL-6: Instructions ran count = " << rebel6Sim.getNumberOfRanInstructions() << "; tritflip count = " << rebel6Sim.getNumberOfTritFlips() << std::endl;
 
    // Cleanup
    sourceExpressions.remove_if([](const Expressions::Expression* expr) { delete expr; return true;});

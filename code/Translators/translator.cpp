@@ -34,7 +34,7 @@ namespace Translators
 {
 void Translator::Translate(const std::string& targetISAName, const Expressions::ExpressionList& from, Expressions::ExpressionList& to)
 {
-   const InstructionTranslatorBase* converter = nullptr;
+   const InstructionTranslatorBase* translator = nullptr;
    ExpressionParser parser(from);
    std::string isaName;
    isaName.resize(targetISAName.length());
@@ -42,15 +42,15 @@ void Translator::Translate(const std::string& targetISAName, const Expressions::
 
    if(isaName == "rv32i")
    {
-      converter = &rv32i;
+      translator = &rv32i;
    }
    else if((isaName == "rebel6") || (isaName == "rebel-6"))
    {
-      converter = &rebel6;
+      translator = &rebel6;
    }
    else
    {
-      std::cerr << __PRETTY_FUNC__ << "Trying to convert unsupported ISA named " << targetISAName << std::endl;
+      std::cerr << __PRETTY_FUNC__ << "Trying to translate unsupported ISA named " << targetISAName << std::endl;
       abort();
    }
 
@@ -74,7 +74,7 @@ void Translator::Translate(const std::string& targetISAName, const Expressions::
       case Expressions::Expression::ExpressionType::INSTRUCTION:
       {
          const Expressions::Instruction* instr = static_cast<const Expressions::Instruction*>(expr);
-         resolveInstruction(instr, to, *converter);
+         resolveInstruction(instr, to, *translator);
          break;
       }
       case Expressions::Expression::ExpressionType::COMMENT:
