@@ -4,7 +4,7 @@ A lightweight translator to translate and simulate binary RISCV RV32I assembly t
 
 # References
 
-The Lexer and Parser parts of the code was copied from [GIT](https://github.com/AZHenley/riscv-parser), a [RISC-V parser created by Austin Henley](https://austinhenley.com/blog/parsingriscv.html), and then adapted to our needs.
+The Lexer, Parser, and Token classes under code/Parsers was copied from [GIT](https://github.com/AZHenley/riscv-parser), a [RISC-V parser created by Austin Henley](https://austinhenley.com/blog/parsingriscv.html), and then adapted to our needs.
 
 ## GCC Toolchain setup
 
