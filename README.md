@@ -1,3 +1,7 @@
+# MSc thesis
+
+The work in this repository is part of my MSc thesis that can be found [here](https://openarchive.usn.no/usn-xmlui/handle/11250/3169529).
+
 # RV32IToREBEL (R2R)
 
 A lightweight translator to translate and simulate binary RISCV RV32I assembly to ternary REBEL6 assembly. The RV32I assembly code is generated using the GCC Toolchain. Some GCC features and syntax is therefor supported, but far from everything. No optimization has been used when compiling C code to RV32I assembly when using the GCC Toolchain to generate assembly files.
